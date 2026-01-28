@@ -1,0 +1,19 @@
+argo-cd:
+  server:
+    insecure: true
+    service:
+      type: ClusterIP
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.tls: "true"
+        traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+      hosts:
+        - argo.lmtu.freemyip.com
+        - argo.epricesx.duckdns.org
+      tls:
+        - hosts:
+            - argo.lmtu.freemyip.com
+            - argo.epricesx.duckdns.org

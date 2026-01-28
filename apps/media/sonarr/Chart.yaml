@@ -1,0 +1,7 @@
+apiVersion: v2
+name: sonarr-wrapper
+version: 1.0.0
+dependencies:
+  - name: sonarr
+    version: 1.12.1
+    repository: https://pree.github.io/helm-charts

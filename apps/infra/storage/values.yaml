@@ -1,0 +1,11 @@
+nodeName: "dell"
+mounts:
+  - name: sonarr-config
+    path: /data/sonarr/config
+    size: 1Gi
+  - name: sonarr-tv
+    path: /data/media/tv
+    size: 1Ti
+  - name: sonarr-downloads
+    path: /data/media/downloads
+    size: 500Gi

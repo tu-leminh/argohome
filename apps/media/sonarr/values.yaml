@@ -1,0 +1,43 @@
+sonarr:
+  image:
+    repository: ghcr.io/onedr0p/sonarr
+    tag: 4.0.13 # Or 'latest'
+  
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+
+  service:
+    main:
+      ports:
+        http:
+          port: 8989
+
+  ingress:
+    main:
+      enabled: true
+      className: traefik
+      hosts:
+        - host: sonarr.epricesx.duckdns.org
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                name: main # References the service above
+                port: http
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: sonarr-config-pvc
+    tv:
+      enabled: true
+      existingClaim: sonarr-tv-pvc
+      globalMounts:
+        - path: /tv
+    downloads:
+      enabled: true
+      existingClaim: sonarr-downloads-pvc
+      globalMounts:
+        - path: /downloads

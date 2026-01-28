@@ -1,0 +1,31 @@
+traefik:
+  service:
+    enabled: true
+    single: true
+    type: LoadBalancer
+    spec:
+      loadBalancerIP: "192.168.1.111"
+  persistence:
+    enabled: true
+    size: 1Gi
+    path: /data
+  envFrom:
+    - secretRef:
+        name: dns-tokens 
+  additionalArguments:
+    - "--certificatesresolvers.letsencrypt.acme.storage=/data/acme.json"
+    - "--certificatesresolvers.letsencrypt.acme.email=mt.the.dev@gmail.com"
+    - "--certificatesresolvers.letsencrypt.acme.dnsChallenge.provider=duckdns"
+    - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+    - "--certificatesresolvers.letsencrypt.acme.dnschallenge.propagation.disableChecks=true"
+    - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+    - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+  ports:
+    web: { redirectTo: websecure }
+    websecure:
+      tls:
+        enabled: true
+        certResolver: "letsencrypt"
+        domains:
+          - main: epricesx.duckdns.org
+            sans: ["*.epricesx.duckdns.org"]
