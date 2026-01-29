@@ -12,6 +12,14 @@ traefik:
   envFrom:
     - secretRef:
         name: dns-tokens 
+  providers:
+    kubernetesCRD:
+      enabled: true
+      allowCrossNamespace: true
+    kubernetesIngress:
+      enabled: true
+      publishedService:
+        enabled: true
   additionalArguments:
     # --- LetsEncrypt (DuckDNS) Resolver ---
     - "--certificatesresolvers.letsencrypt.acme.storage=/data/duckdns.json"
@@ -39,7 +47,7 @@ traefik:
       http:
         tls:
           enabled: true
-          certResolver: letsencrypt # This maps to the config above
+          certResolver: letsencrypt
           domains:
             - main: epricesx.duckdns.org
               sans: ["*.epricesx.duckdns.org"]
