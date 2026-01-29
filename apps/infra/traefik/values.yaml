@@ -18,14 +18,19 @@ traefik:
     - "--certificatesresolvers.letsencrypt.acme.dnsChallenge.provider=duckdns"
     - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
     - "--certificatesresolvers.letsencrypt.acme.dnschallenge.propagation.disableChecks=true"
-    - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-    - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
   ports:
-    web: { redirectTo: websecure }
+    web:
+      http:
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
+            permanent: true
     websecure:
-      tls:
-        enabled: true
-        certResolver: "letsencrypt"
-        domains:
-          - main: epricesx.duckdns.org
-            sans: ["*.epricesx.duckdns.org"]
+      http:
+        tls:
+          enabled: true
+          certResolver: letsencrypt
+          domains:
+            - main: epricesx.duckdns.org
+              sans: ["*.epricesx.duckdns.org"]
