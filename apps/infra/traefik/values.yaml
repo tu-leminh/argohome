@@ -13,11 +13,20 @@ traefik:
     - secretRef:
         name: dns-tokens 
   additionalArguments:
-    - "--certificatesresolvers.letsencrypt.acme.storage=/data/acme.json"
+    # --- LetsEncrypt (DuckDNS) Resolver ---
+    - "--certificatesresolvers.letsencrypt.acme.storage=/data/duckdns.json"
     - "--certificatesresolvers.letsencrypt.acme.email=mt.the.dev@gmail.com"
     - "--certificatesresolvers.letsencrypt.acme.dnsChallenge.provider=duckdns"
     - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
     - "--certificatesresolvers.letsencrypt.acme.dnschallenge.propagation.disableChecks=true"
+    
+    # --- FreeMyIP Resolver ---
+    - "--certificatesresolvers.freemyip.acme.storage=/data/freemyip.json"
+    - "--certificatesresolvers.freemyip.acme.email=mt.the.dev@gmail.com"
+    - "--certificatesresolvers.freemyip.acme.dnsChallenge.provider=freemyip"
+    - "--certificatesresolvers.freemyip.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+    - "--certificatesresolvers.freemyip.acme.dnschallenge.propagation.disableChecks=true"
+
   ports:
     web:
       http:
@@ -30,7 +39,7 @@ traefik:
       http:
         tls:
           enabled: true
-          certResolver: letsencrypt
+          certResolver: letsencrypt # This maps to the config above
           domains:
             - main: epricesx.duckdns.org
               sans: ["*.epricesx.duckdns.org"]

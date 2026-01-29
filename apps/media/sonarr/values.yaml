@@ -24,7 +24,7 @@ sonarr:
             - path: /
               pathType: Prefix
               service:
-                name: main # References the service above
+                name: sonarr # FIXED: Point to the actual service name
                 port: 8989
 
   persistence:
