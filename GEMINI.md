@@ -18,6 +18,7 @@ This project is a Kubernetes-based Home Lab managed via **GitOps** (Argo CD). It
 * **Networking:**
         *   **MetalLB:** Provides Layer 2 LoadBalancing (Static IP: `192.168.1.111`).
     * **Traefik:** Ingress Controller handling SSL termination and routing.
+        * **Strategy:** Split `IngressRoute` resources per cert resolver to support multiple dynamic DNS providers simultaneously.
         * **Cert Resolvers:** 
             * `letsencrypt` (DuckDNS)
             * `freemyip`
@@ -29,10 +30,13 @@ This project is a Kubernetes-based Home Lab managed via **GitOps** (Argo CD). It
 * **Secret Management:**
     * **Strategy:** Plain Kubernetes Secrets committed to Git (Base64 encoded).
     * **Implementation:** `apps/infra/secrets` generic chart replicates secrets to target namespaces (`infra`).
+* **Dependency Management:**
+    *   **Helm Charts:** Dependencies in `Chart.yaml` are unpinned (`version: "*"`) to always pull the latest available version of upstream charts.
 * **Automation:**
     * **CronJobs:** `apps/infra/cronjobs` generic chart handles DDNS updates (`duckdns`, `freemyip`, `myaddr`).
 
 ## 4. Operational Workflows
 * **Bootstrap:** Run `./bootstrap.sh` to install MicroK8s, Argo CD, and configure private repo access.
 * **Deployment:** Commit a new folder with `Chart.yaml` to `apps/` -> Argo CD auto-deploys it to a namespace matching its category (e.g., `apps/media/sonarr` -> `media`).
-* **Update:** Edit `values.yaml` -> Commit -> Argo CD syncs.
+    *   *Note:* Auto-sync is currently disabled in the `ApplicationSet` to allow for manual inspection/triggering of initial deployments.
+* **Update:** Edit `values.yaml` -> Commit -> Sync in Argo CD.

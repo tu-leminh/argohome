@@ -38,6 +38,7 @@ This repository contains the GitOps configuration for a MicroK8s-based Home Lab,
 ## Management
 
 *   **Add App:** Create a new folder in `apps/<category>/<app-name>` with a Helm Chart.
-*   **Update App:** Edit `values.yaml` and commit. Argo CD handles the rest.
+*   **Update App:** Edit `values.yaml` and commit. Sync manually in Argo CD (auto-sync is currently disabled).
+*   **Dependencies:** Helm charts use `version: "*"` to track the latest upstream versions.
 *   **Secrets:** Managed in `apps/infra/secrets`.
 *   **CronJobs:** Managed in `apps/infra/cronjobs`.
