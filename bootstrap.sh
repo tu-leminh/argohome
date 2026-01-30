@@ -71,6 +71,10 @@ stringData:
   password: $GIT_TOKEN
 EOF
 
+# --- 4b. Wait for Argo CD ---
+echo "⏳ Waiting for Argo CD components to be ready..."
+sudo microk8s kubectl wait --for=condition=Available deployment --all -n argocd --timeout=300s
+
 # --- 5. Deploy Apps ---
 echo "🚀 Applying ApplicationSet..."
 sudo microk8s kubectl apply -f bootstrap/applicationset.yaml >/dev/null

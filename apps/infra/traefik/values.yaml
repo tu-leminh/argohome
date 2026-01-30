@@ -62,7 +62,8 @@ traefik:
     # Expose the dashboard port internally (optional, for IngressRoute)
     traefik:
       port: 8080
-      expose: true
+      expose:
+        default: true
       exposedPort: 8080
       protocol: TCP
 

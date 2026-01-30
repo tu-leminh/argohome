@@ -2,8 +2,12 @@ argo-cd:
   configs:
     cm:
       exec.enabled: "true"
+    params:
+      server.insecure: "true"
   server:
     insecure: true
+    extraArgs:
+      - --insecure
     service:
       type: ClusterIP
     ingress:
