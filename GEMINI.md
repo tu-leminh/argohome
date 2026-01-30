@@ -11,23 +11,28 @@ This project is a Kubernetes-based Home Lab managed via **GitOps** (Argo CD). It
     * `bootstrap/`: Contains the `ApplicationSet` (The Entry Point).
     * `apps/`: Contains isolated Helm Charts for each workload.
         * `core/`: System-level apps (e.g., Argo CD wrapper).
-        * `infra/`: Infrastructure layer (Storage, Networking).
+        * `infra/`: Infrastructure layer (Storage, Networking, Secrets, CronJobs).
         * `media/`: Workload layer (Sonarr, Radarr, etc.).
 
 ## 3. Technology Stack & Decisions
 * **Networking:**
-    * **MetalLB:** Provides Layer 2 LoadBalancing (Static IP: `192.168.1.111`).
-    * **Traefik:** Ingress Controller handling SSL termination (Let's Encrypt) and routing.
-    * **DNS:** DuckDNS / FreeMyIP (Wildcard Certificates).
+        *   **MetalLB:** Provides Layer 2 LoadBalancing (Static IP: `192.168.1.111`).
+    * **Traefik:** Ingress Controller handling SSL termination and routing.
+        * **Cert Resolvers:** 
+            * `letsencrypt` (DuckDNS)
+            * `freemyip`
+            * `myaddr`
+    * **DNS:** DuckDNS, FreeMyIP, MyAddr.
 * **Storage Strategy:**
     * **HostPath with Node Affinity:** Data resides on the host filesystem (`/data/...`).
-    * **Resilience:** PVs are pinned to the node hostname. If the cluster is reset, data persists on disk, and the GitOps sync restores the mapping.
+    * **Resilience:** PVs are pinned to the node hostname.
 * **Secret Management:**
-    * **Strategy:** Plain Kubernetes Secrets committed to Git.
-    * **Format:** Base64 encoded values inside `Secret` templates.
-    * **Rationale:** Simplicity for a private, single-user repository.
+    * **Strategy:** Plain Kubernetes Secrets committed to Git (Base64 encoded).
+    * **Implementation:** `apps/infra/secrets` generic chart replicates secrets to target namespaces (`infra`).
+* **Automation:**
+    * **CronJobs:** `apps/infra/cronjobs` generic chart handles DDNS updates (`duckdns`, `freemyip`, `myaddr`).
 
 ## 4. Operational Workflows
 * **Bootstrap:** Run `./bootstrap.sh` to install MicroK8s, Argo CD, and configure private repo access.
-* **Deployment:** Commit a new folder with `Chart.yaml` to `apps/` -> Argo CD auto-deploys it.
+* **Deployment:** Commit a new folder with `Chart.yaml` to `apps/` -> Argo CD auto-deploys it to a namespace matching its category (e.g., `apps/media/sonarr` -> `media`).
 * **Update:** Edit `values.yaml` -> Commit -> Argo CD syncs.

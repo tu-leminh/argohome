@@ -12,7 +12,7 @@ spec:
   - match: Host(`{{ $target.host }}`)
     kind: Rule
     services:
-    - name: argocd-server
+    - name: {{ $.Release.Name }}-server
       port: 80
   tls:
     {{- if $target.certResolver }}

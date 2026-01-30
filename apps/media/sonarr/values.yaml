@@ -15,7 +15,7 @@ sonarr:
       host: sonarr.lmtu.freemyip.com
       certResolver: freemyip
     myaddr:
-      host: platy-python.myaddr.io
+      host: lmtlmt.myaddr.io
       certResolver: myaddr
 
   persistence:

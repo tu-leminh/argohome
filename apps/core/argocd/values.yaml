@@ -14,7 +14,7 @@ ingressTargets:
     host: argo.lmtu.freemyip.com
     certResolver: freemyip
   myaddr:
-    host: argo-platy.platy-python.myaddr.io
+    host: argo.lmtlmt.myaddr.io
     certResolver: myaddr
   local-ip:
     host: "192.168.1.111"

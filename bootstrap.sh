@@ -35,7 +35,6 @@ sudo microk8s enable hostpath-storage
 mkdir -p ~/.kube
 sudo microk8s config >~/.kube/config
 chmod 600 ~/.kube/config
-sleep 180
 
 # Export kubeconfig (for sudo user, if exists)
 if [ -n "$SUDO_USER" ]; then

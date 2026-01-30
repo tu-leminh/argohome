@@ -25,27 +25,24 @@ traefik:
       publishedService:
         enabled: true
   additionalArguments:
-    # --- LetsEncrypt (DuckDNS) Resolver ---
     - "--certificatesresolvers.letsencrypt.acme.storage=/data/duckdns.json"
     - "--certificatesresolvers.letsencrypt.acme.email=mt.the.dev@gmail.com"
     - "--certificatesresolvers.letsencrypt.acme.dnsChallenge.provider=duckdns"
     - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
     - "--certificatesresolvers.letsencrypt.acme.dnschallenge.propagation.disableChecks=true"
-    
-    # --- FreeMyIP Resolver ---
     - "--certificatesresolvers.freemyip.acme.storage=/data/freemyip.json"
     - "--certificatesresolvers.freemyip.acme.email=mt.the.dev@gmail.com"
     - "--certificatesresolvers.freemyip.acme.dnsChallenge.provider=freemyip"
     - "--certificatesresolvers.freemyip.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
     - "--certificatesresolvers.freemyip.acme.dnschallenge.propagation.disableChecks=true"
-
-    # --- MyAddr Resolver ---
     - "--certificatesresolvers.myaddr.acme.storage=/data/myaddr.json"
     - "--certificatesresolvers.myaddr.acme.email=mt.the.dev@gmail.com"
     - "--certificatesresolvers.myaddr.acme.dnsChallenge.provider=myaddr"
     - "--certificatesresolvers.myaddr.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
     - "--certificatesresolvers.myaddr.acme.dnschallenge.propagation.disableChecks=true"
-
+    # Enable Dashboard (Insecure mode for internal access, or use IngressRoute to secure)
+    - "--api.dashboard=true"
+    - "--api.insecure=true"
   ports:
     web:
       http:
@@ -62,3 +59,16 @@ traefik:
           domains:
             - main: epricesx.duckdns.org
               sans: ["*.epricesx.duckdns.org"]
+    # Expose the dashboard port internally (optional, for IngressRoute)
+    traefik:
+      port: 8080
+      expose: true
+      exposedPort: 8080
+      protocol: TCP
+
+# IngressRoute for Dashboard
+ingressTargets:
+  local-ip:
+    host: "192.168.1.111"
+    path: "/dashboard" # Dashboard is typically at /dashboard/ or /api
+    stripPrefix: false # Dashboard needs prefix handling usually, but Traefik v2+ handles this via API middleware or direct /dashboard/ path
