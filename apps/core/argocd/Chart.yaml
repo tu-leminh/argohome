@@ -3,5 +3,5 @@ name: argocd-wrapper
 version: 1.0.0
 dependencies:
   - name: argo-cd
-    version: 9.3.6
+    version: "*"
     repository: https://argoproj.github.io/argo-helm
