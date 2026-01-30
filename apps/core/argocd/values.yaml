@@ -1,4 +1,7 @@
 argo-cd:
+  configs:
+    cm:
+      exec.enabled: "true"
   server:
     insecure: true
     service:
