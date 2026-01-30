@@ -1,0 +1,35 @@
+{{- range $name, $config := .Values.jobs }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  schedule: {{ $config.schedule | quote }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: runner
+            image: {{ $config.image }}
+            command: ["/bin/sh", "/scripts/{{ $name }}.sh"]
+            {{- with $config.env }}
+            env:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+            volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+          volumes:
+          - name: scripts
+            configMap:
+              name: cronjob-scripts
+              defaultMode: 0755
+{{- end }}

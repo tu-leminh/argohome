@@ -1,31 +1,22 @@
 sonarr:
   image:
-    repository: ghcr.io/onedr0p/sonarr
-    tag: 4.0.13 # Or 'latest'
-  
+    repository: lscr.io/linuxserver/sonarr
+    tag: latest
   env:
     TZ: Etc/UTC
     PUID: 1000
     PGID: 1000
-
-  service:
-    main:
-      ports:
-        http:
-          port: 8989
-
-  ingress:
-    main:
-      enabled: true
-      className: traefik
-      hosts:
-        - host: sonarr.epricesx.duckdns.org
-          paths:
-            - path: /
-              pathType: Prefix
-              service:
-                name: sonarr # FIXED: Point to the actual service name
-                port: 8989
+  
+  ingressTargets:
+    duckdns:
+      host: sonarr.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: sonarr.lmtu.freemyip.com
+      certResolver: freemyip
+    myaddr:
+      host: platy-python.myaddr.io
+      certResolver: myaddr
 
   persistence:
     config:
@@ -34,10 +25,11 @@ sonarr:
     tv:
       enabled: true
       existingClaim: sonarr-tv-pvc
-      globalMounts:
-        - path: /tv
+      mountPath: /tv
     downloads:
       enabled: true
       existingClaim: sonarr-downloads-pvc
-      globalMounts:
-        - path: /downloads
+      mountPath: /downloads
+  ingress:
+    main:
+      enabled: false

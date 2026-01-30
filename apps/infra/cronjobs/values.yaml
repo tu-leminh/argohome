@@ -1,0 +1,44 @@
+jobs:
+  duckdns-updater:
+    schedule: "*/20 * * * *"
+    image: curlimages/curl:latest
+    domain: epricesx
+    script: |
+      #!/bin/sh
+      set -ex
+      echo url="https://www.duckdns.org/update?domains={{ index .Values.jobs "duckdns-updater" "domain" }}&token=${DUCKDNS_TOKEN}&ip=" | curl -k -o /dev/null -K -
+    env:
+      - name: DUCKDNS_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: duckdns-secret
+            key: DUCKDNS_TOKEN
+
+  freemyip-updater:
+    schedule: "*/20 * * * *"
+    image: curlimages/curl:latest
+    domain: lmtu.freemyip.com
+    script: |
+      #!/bin/sh
+      set -ex
+      curl "https://freemyip.com/update?token=${FREEMYIP_TOKEN}&domain={{ index .Values.jobs "freemyip-updater" "domain" }}"
+    env:
+      - name: FREEMYIP_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: freemyip-secret
+            key: FREEMYIP_TOKEN
+
+  myaddr-updater:
+    schedule: "*/20 * * * *"
+    image: curlimages/curl:latest
+    script: |
+      #!/bin/sh
+      set -ex
+      curl -X POST "https://myaddr.tools/update?key=${MYADDR_KEY}&ip=self"
+    env:
+      - name: MYADDR_KEY
+        valueFrom:
+          secretKeyRef:
+            name: myaddr-secret
+            key: MYADDR_KEY

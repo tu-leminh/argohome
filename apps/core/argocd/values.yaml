@@ -5,3 +5,17 @@ argo-cd:
       type: ClusterIP
     ingress:
       enabled: false
+
+ingressTargets:
+  duckdns:
+    host: argo.epricesx.duckdns.org
+    certResolver: letsencrypt
+  freemyip:
+    host: argo.lmtu.freemyip.com
+    certResolver: freemyip
+  myaddr:
+    host: argo-platy.platy-python.myaddr.io
+    certResolver: myaddr
+  local-ip:
+    host: "192.168.1.111"
+    certResolver: ""

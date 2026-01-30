@@ -11,7 +11,11 @@ traefik:
     path: /data
   envFrom:
     - secretRef:
-        name: dns-tokens 
+        name: duckdns-secret
+    - secretRef:
+        name: freemyip-secret
+    - secretRef:
+        name: myaddr-secret
   providers:
     kubernetesCRD:
       enabled: true
@@ -34,6 +38,13 @@ traefik:
     - "--certificatesresolvers.freemyip.acme.dnsChallenge.provider=freemyip"
     - "--certificatesresolvers.freemyip.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
     - "--certificatesresolvers.freemyip.acme.dnschallenge.propagation.disableChecks=true"
+
+    # --- MyAddr Resolver ---
+    - "--certificatesresolvers.myaddr.acme.storage=/data/myaddr.json"
+    - "--certificatesresolvers.myaddr.acme.email=mt.the.dev@gmail.com"
+    - "--certificatesresolvers.myaddr.acme.dnsChallenge.provider=myaddr"
+    - "--certificatesresolvers.myaddr.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+    - "--certificatesresolvers.myaddr.acme.dnschallenge.propagation.disableChecks=true"
 
   ports:
     web:
