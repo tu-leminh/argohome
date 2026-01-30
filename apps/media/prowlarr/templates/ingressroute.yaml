@@ -1,9 +1,9 @@
-{{- range $name, $target := .Values.sonarr.ingressTargets }}
+{{- range $name, $target := .Values.prowlarr.ingressTargets }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: sonarr-{{ $name }}
+  name: prowlarr-{{ $name }}
   namespace: {{ $.Release.Namespace }}
 spec:
   entryPoints:
@@ -12,8 +12,8 @@ spec:
   - match: Host(`{{ $target.host }}`)
     kind: Rule
     services:
-    - name: {{ $.Release.Name }}
-      port: 8989
+    - name: {{ include "common.names.fullname" $ }}
+      port: {{ $.Values.prowlarr.service.port }}
   tls:
     certResolver: {{ $target.certResolver }}
     {{- if $target.tlsDomain }}

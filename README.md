@@ -15,8 +15,8 @@ This repository contains the GitOps configuration for a MicroK8s-based Home Lab,
 *   `bootstrap/`: Argo CD ApplicationSet.
 *   `apps/`: Helm charts organized by category.
     *   `core/`: System apps (Argo CD).
-    *   `infra/`: Infrastructure (Traefik, MetalLB, Secrets, CronJobs).
-    *   `media/`: Media apps (Sonarr).
+    *   `infra/`: Infrastructure (Traefik, MetalLB, Secrets, CronJobs, Storage).
+    *   `media/`: Media apps (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
 
 ## Quick Start
 
@@ -26,14 +26,14 @@ This repository contains the GitOps configuration for a MicroK8s-based Home Lab,
     ```
 
 2.  **Access:**
-    *   **Traefik Dashboard:**
-        *   `https://192.168.1.111/dashboard/`
-        *   `https://traefik.epricesx.duckdns.org/dashboard/`
-        *   `https://traefik.lmtu.freemyip.com/dashboard/`
-    *   **Argo CD:**
-        *   `https://192.168.1.111`
-        *   `https://argo.epricesx.duckdns.org`
-    *   **Sonarr:** `https://sonarr.epricesx.duckdns.org`
+    *   **Traefik Dashboard:** `https://192.168.1.111/dashboard/`
+    *   **Argo CD:** `https://argo.epricesx.duckdns.org`
+    *   **Media Apps:**
+        *   Sonarr: `https://sonarr.epricesx.duckdns.org`
+        *   Radarr: `https://radarr.epricesx.duckdns.org`
+        *   Prowlarr: `https://prowlarr.epricesx.duckdns.org`
+        *   qBittorrent: `https://qbittorrent.epricesx.duckdns.org`
+        *   Jellyfin: `https://jellyfin.epricesx.duckdns.org`
 
 ## Management
 

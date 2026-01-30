@@ -30,8 +30,6 @@ spec:
       kind: TraefikService
   tls:
     certResolver: letsencrypt
-    domains:
-    - main: traefik.epricesx.duckdns.org
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -49,5 +47,3 @@ spec:
       kind: TraefikService
   tls:
     certResolver: freemyip
-    domains:
-    - main: traefik.lmtu.freemyip.com

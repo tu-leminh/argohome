@@ -12,7 +12,7 @@ This project is a Kubernetes-based Home Lab managed via **GitOps** (Argo CD). It
     * `apps/`: Contains isolated Helm Charts for each workload.
         * `core/`: System-level apps (e.g., Argo CD wrapper).
         * `infra/`: Infrastructure layer (Storage, Networking, Secrets, CronJobs).
-        * `media/`: Workload layer (Sonarr, Radarr, etc.).
+        * `media/`: Workload layer (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
 
 ## 3. Technology Stack & Decisions
 * **Networking:**
@@ -25,18 +25,29 @@ This project is a Kubernetes-based Home Lab managed via **GitOps** (Argo CD). It
             * `myaddr`
     * **DNS:** DuckDNS, FreeMyIP, MyAddr.
 * **Storage Strategy:**
-    * **HostPath with Node Affinity:** Data resides on the host filesystem (`/data/...`).
-    * **Resilience:** PVs are pinned to the node hostname.
+    * **HostPath with Node Affinity:** Data resides on the host filesystem.
+    * **Generic Media Volumes:**
+        *   `downloads`: `/data/media/downloads`
+        *   `movies`: `/data/media/movies`
+        *   `shows`: `/data/media/tv`
+    *   **Config Volumes:** Dedicated PVs for each app (e.g., `sonarr-config`, `qbittorrent-config`).
 * **Secret Management:**
     * **Strategy:** Plain Kubernetes Secrets committed to Git (Base64 encoded).
     * **Implementation:** `apps/infra/secrets` generic chart replicates secrets to target namespaces (`infra`).
 * **Dependency Management:**
-    *   **Helm Charts:** Dependencies in `Chart.yaml` are unpinned (`version: "*"`) to always pull the latest available version of upstream charts.
+    *   **Hybrid Approach:**
+        *   **External Charts:** Some apps (e.g., `sonarr`) use external Helm dependencies (`pree` repo) with unpinned versions (`version: "*"`).
+        *   **Pure Helm Templates:** Other apps (`radarr`, `prowlarr`, `qbittorrent`, `jellyfin`) use **pure local Helm templates** wrapping `linuxserver.io` Docker images. This avoids external chart dependency stability issues.
+    *   **Chart Naming Convention:**
+        *   Media charts are named `media-<appname>` (e.g., `media-sonarr`) to align with the `ApplicationSet` naming strategy (`<category>-<appname>`). This ensures clean resource naming (e.g., `metadata.name: media-sonarr`).
 * **Automation:**
     * **CronJobs:** `apps/infra/cronjobs` generic chart handles DDNS updates (`duckdns`, `freemyip`, `myaddr`).
 
 ## 4. Operational Workflows
 * **Bootstrap:** Run `./bootstrap.sh` to install MicroK8s, Argo CD, and configure private repo access.
-* **Deployment:** Commit a new folder with `Chart.yaml` to `apps/` -> Argo CD auto-deploys it to a namespace matching its category (e.g., `apps/media/sonarr` -> `media`).
+* **Deployment:** Commit a new folder with `Chart.yaml` to `apps/` -> Argo CD auto-deploys it to a namespace matching its category.
     *   *Note:* Auto-sync is currently disabled in the `ApplicationSet` to allow for manual inspection/triggering of initial deployments.
-* **Update:** Edit `values.yaml` -> Commit -> Sync in Argo CD.
+* **Update:** Edit `values.yaml` or templates -> Commit -> Sync in Argo CD.
+
+## 5. Agent Operational Rules
+*   **Documentation:** Always update `README.md` and `GEMINI.md` after making changes to the codebase or architecture.

@@ -1,0 +1,39 @@
+radarr:
+  image:
+    repository: lscr.io/linuxserver/radarr
+    tag: latest
+    pullPolicy: IfNotPresent
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+  
+  service:
+    port: 7878
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: radarr-config-pvc
+    movies:
+      enabled: true
+      existingClaim: movies-pvc
+      mountPath: /movies
+    downloads:
+      enabled: true
+      existingClaim: downloads-pvc
+      mountPath: /downloads
+  
+  ingressTargets:
+    duckdns:
+      host: radarr.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: radarr.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: radarr.lmtlmt.myaddr.io
+      certResolver: myaddr

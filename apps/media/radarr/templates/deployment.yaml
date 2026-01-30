@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: radarr
+          image: "{{ .Values.radarr.image.repository }}:{{ .Values.radarr.image.tag }}"
+          imagePullPolicy: {{ .Values.radarr.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.radarr.service.port }}
+              protocol: TCP
+              
+          env:
+            {{- range $key, $value := .Values.radarr.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          
+          volumeMounts:
+            {{- if .Values.radarr.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.radarr.persistence.movies.enabled }}
+            - name: movies
+              mountPath: {{ .Values.radarr.persistence.movies.mountPath }}
+            {{- end }}
+            {{- if .Values.radarr.persistence.downloads.enabled }}
+            - name: downloads
+              mountPath: {{ .Values.radarr.persistence.downloads.mountPath }}
+            {{- end }}
+      
+      volumes:
+        {{- if .Values.radarr.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.radarr.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.radarr.persistence.movies.enabled }}
+        - name: movies
+          persistentVolumeClaim:
+            claimName: {{ .Values.radarr.persistence.movies.existingClaim }}
+        {{- end }}
+        {{- if .Values.radarr.persistence.downloads.enabled }}
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.radarr.persistence.downloads.existingClaim }}
+        {{- end }}

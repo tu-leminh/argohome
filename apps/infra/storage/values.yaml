@@ -1,11 +1,37 @@
 nodeName: "dell"
 mounts:
-  - name: sonarr-config
-    path: /data/sonarr/config
-    size: 1Gi
-  - name: sonarr-tv
-    path: /data/media/tv
-    size: 1Ti
-  - name: sonarr-downloads
+  # Media Volumes (Default namespace: media)
+  - name: downloads
     path: /data/media/downloads
     size: 500Gi
+    accessMode: ReadWriteMany
+  - name: movies
+    path: /data/media/movies
+    size: 500Gi
+    accessMode: ReadWriteMany
+  - name: shows
+    path: /data/media/tv
+    size: 500Gi
+    accessMode: ReadWriteMany
+  # App Configs (Media)
+  - name: sonarr-config
+    path: /data/config/sonarr
+    size: 1Gi
+  - name: radarr-config
+    path: /data/config/radarr
+    size: 1Gi
+  - name: qbittorrent-config
+    path: /data/config/qbittorrent
+    size: 1Gi
+  - name: jellyfin-config
+    path: /data/config/jellyfin
+    size: 100Gi
+  - name: prowlarr-config
+    path: /data/config/prowlarr
+    size: 1Gi
+  
+  # Infrastructure
+  - name: traefik-data
+    namespace: infra
+    path: /data/config/traefik
+    size: 1Gi

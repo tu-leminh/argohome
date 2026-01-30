@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: jellyfin
+          image: "{{ .Values.jellyfin.image.repository }}:{{ .Values.jellyfin.image.tag }}"
+          imagePullPolicy: {{ .Values.jellyfin.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.jellyfin.service.port }}
+              protocol: TCP
+              
+          env:
+            {{- range $key, $value := .Values.jellyfin.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          
+          volumeMounts:
+            {{- if .Values.jellyfin.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.jellyfin.persistence.movies.enabled }}
+            - name: movies
+              mountPath: {{ .Values.jellyfin.persistence.movies.mountPath }}
+            {{- end }}
+            {{- if .Values.jellyfin.persistence.tv.enabled }}
+            - name: tv
+              mountPath: {{ .Values.jellyfin.persistence.tv.mountPath }}
+            {{- end }}
+      
+      volumes:
+        {{- if .Values.jellyfin.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.jellyfin.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.jellyfin.persistence.movies.enabled }}
+        - name: movies
+          persistentVolumeClaim:
+            claimName: {{ .Values.jellyfin.persistence.movies.existingClaim }}
+        {{- end }}
+        {{- if .Values.jellyfin.persistence.tv.enabled }}
+        - name: tv
+          persistentVolumeClaim:
+            claimName: {{ .Values.jellyfin.persistence.tv.existingClaim }}
+        {{- end }}

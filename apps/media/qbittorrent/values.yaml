@@ -1,0 +1,36 @@
+qbittorrent:
+  image:
+    repository: lscr.io/linuxserver/qbittorrent
+    tag: latest
+    pullPolicy: IfNotPresent
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+    WEBUI_PORT: 8080
+  
+  service:
+    port: 8080
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: qbittorrent-config-pvc
+    downloads:
+      enabled: true
+      existingClaim: downloads-pvc
+      mountPath: /downloads
+  
+  ingressTargets:
+    duckdns:
+      host: qbittorrent.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: qbittorrent.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: qbittorrent.lmtlmt.myaddr.io
+      certResolver: myaddr

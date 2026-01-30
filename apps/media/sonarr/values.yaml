@@ -14,6 +14,9 @@ sonarr:
     freemyip:
       host: sonarr.lmtu.freemyip.com
       certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
     myaddr:
       host: lmtlmt.myaddr.io
       certResolver: myaddr
@@ -24,11 +27,11 @@ sonarr:
       existingClaim: sonarr-config-pvc
     tv:
       enabled: true
-      existingClaim: sonarr-tv-pvc
+      existingClaim: shows-pvc
       mountPath: /tv
     downloads:
       enabled: true
-      existingClaim: sonarr-downloads-pvc
+      existingClaim: downloads-pvc
       mountPath: /downloads
   ingress:
     main:

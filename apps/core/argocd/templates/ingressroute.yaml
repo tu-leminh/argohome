@@ -17,8 +17,6 @@ spec:
   tls:
     {{- if $target.certResolver }}
     certResolver: {{ $target.certResolver }}
-    domains:
-    - main: {{ $target.host }}
     {{- else }}
     {}
     {{- end }}

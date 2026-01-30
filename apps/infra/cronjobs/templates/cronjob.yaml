@@ -15,10 +15,18 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
+          {{- if $config.securityContext }}
+          securityContext:
+            {{- toYaml $config.securityContext | nindent 12 }}
+          {{- end }}
           containers:
           - name: runner
             image: {{ $config.image }}
             command: ["/bin/sh", "/scripts/{{ $name }}.sh"]
+            {{- if $config.containerSecurityContext }}
+            securityContext:
+              {{- toYaml $config.containerSecurityContext | nindent 14 }}
+            {{- end }}
             {{- with $config.env }}
             env:
               {{- toYaml . | nindent 14 }}
@@ -27,9 +35,15 @@ spec:
             - name: scripts
               mountPath: /scripts
               readOnly: true
+            {{- if $config.volumeMounts }}
+              {{- toYaml $config.volumeMounts | nindent 12 }}
+            {{- end }}
           volumes:
           - name: scripts
             configMap:
               name: cronjob-scripts
               defaultMode: 0755
+          {{- if $config.volumes }}
+            {{- toYaml $config.volumes | nindent 10 }}
+          {{- end }}
 {{- end }}

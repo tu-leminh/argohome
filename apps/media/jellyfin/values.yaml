@@ -1,0 +1,39 @@
+jellyfin:
+  image:
+    repository: lscr.io/linuxserver/jellyfin
+    tag: latest
+    pullPolicy: IfNotPresent
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+  
+  service:
+    port: 8096
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: jellyfin-config-pvc
+    movies:
+      enabled: true
+      existingClaim: movies-pvc
+      mountPath: /data/movies
+    tv:
+      enabled: true
+      existingClaim: shows-pvc
+      mountPath: /data/tv
+  
+  ingressTargets:
+    duckdns:
+      host: jellyfin.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: jellyfin.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: jellyfin.lmtlmt.myaddr.io
+      certResolver: myaddr

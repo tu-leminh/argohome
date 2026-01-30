@@ -1,0 +1,31 @@
+prowlarr:
+  image:
+    repository: lscr.io/linuxserver/prowlarr
+    tag: latest
+    pullPolicy: IfNotPresent
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+  
+  service:
+    port: 9696
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: prowlarr-config-pvc
+  
+  ingressTargets:
+    duckdns:
+      host: prowlarr.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: prowlarr.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: prowlarr.lmtlmt.myaddr.io
+      certResolver: myaddr
