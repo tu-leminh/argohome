@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x # Enable debug output
 
 # --- Configuration ---
 REPO_URL="https://github.com/tu-leminh/argohome"
@@ -12,11 +11,11 @@ echo "🚀 Starting GitOps Bootstrap..."
 # --- 1. MicroK8s Reset & Install ---
 if command -v microk8s &>/dev/null; then
   echo "♻️  Purging existing MicroK8s..."
-  sudo snap remove microk8s --purge
+  sudo snap remove microk8s --purge >/dev/null
 fi
 
 echo "📦 Installing MicroK8s..."
-sudo snap install microk8s --classic
+sudo snap install microk8s --classic >/dev/null
 
 # Setup Groups & Storage
 sudo usermod -a -G microk8s $USER
@@ -26,10 +25,11 @@ sudo chmod -R 777 /data
 
 # --- 2. Cluster Setup ---
 echo "⏳ Waiting for Cluster..."
-sudo microk8s status --wait-ready
-sudo microk8s enable helm3
-sudo microk8s enable dns
-sudo microk8s enable hostpath-storage
+sudo microk8s status --wait-ready >/dev/null
+echo "🛠️  Enabling addons (helm3, dns, hostpath-storage)..."
+sudo microk8s enable helm3 >/dev/null
+sudo microk8s enable dns >/dev/null
+sudo microk8s enable hostpath-storage >/dev/null
 
 # Export kubeconfig (for root)
 mkdir -p ~/.kube
@@ -47,16 +47,16 @@ fi
 
 # --- 3. Install Argo CD ---
 echo "🐙 Installing Argo CD..."
-sudo microk8s helm3 repo add argo https://argoproj.github.io/argo-helm
+sudo microk8s helm3 repo add argo https://argoproj.github.io/argo-helm >/dev/null
 sudo microk8s helm3 repo update >/dev/null
 sudo microk8s helm3 upgrade --install argocd argo/argo-cd \
   --namespace argocd --create-namespace \
   --set server.service.type=LoadBalancer \
-  --set server.insecure=true
+  --set server.insecure=true >/dev/null
 
 # --- 4. Configure Credentials ---
 echo "🔐 Registering Private Repository..."
-cat <<EOF | sudo microk8s kubectl apply -f -
+cat <<EOF | sudo microk8s kubectl apply -f - >/dev/null
 apiVersion: v1
 kind: Secret
 metadata:
@@ -73,11 +73,11 @@ EOF
 
 # --- 5. Deploy Apps ---
 echo "🚀 Applying ApplicationSet..."
-sudo microk8s kubectl apply -f bootstrap/applicationset.yaml
+sudo microk8s kubectl apply -f bootstrap/applicationset.yaml >/dev/null
 
 echo "==========================================================="
 echo "🎉 Bootstrap Complete!"
-echo -n "🔑 Admin Password: "
+echo "🔑 Admin Password:"
 sudo microk8s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
 echo ""
 echo "==========================================================="
