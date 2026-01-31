@@ -35,6 +35,11 @@ mounts:
     namespace: nextcloud
     path: /data/config/nextcloud
     size: 1Gi
+  - name: nextcloud-data
+    namespace: nextcloud
+    path: /data/nextcloud
+    size: 500Gi
+    accessMode: ReadWriteMany
 
   # PostgreSQL
   - name: postgresql-data
