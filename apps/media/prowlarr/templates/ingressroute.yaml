@@ -18,13 +18,12 @@ spec:
     certResolver: {{ $target.certResolver }}
     {{- if $target.tlsDomain }}
     domains:
-    - main: {{ $target.tlsDomain }}
+    - main: "{{ $target.tlsDomain }}"
       {{- if $target.tlsSans }}
       sans:
         {{- range $target.tlsSans }}
-        - {{ . }}
+        - "{{ . }}"
         {{- end }}
       {{- end }}
     {{- end }}
-{{- end }}
 {{- end }}
