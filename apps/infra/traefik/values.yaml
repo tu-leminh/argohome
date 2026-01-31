@@ -7,7 +7,7 @@ traefik:
       loadBalancerIP: "192.168.1.111"
   persistence:
     enabled: true
-    existingClaim: traefik-data-pvc
+    existingClaim: infra-traefik-config-pvc
     size: 1Gi
     path: /data
   envFrom:
@@ -43,14 +43,17 @@ traefik:
     - "--certificatesresolvers.letsencrypt.acme.email=mt.the.dev@gmail.com"
     - "--certificatesresolvers.letsencrypt.acme.dnsChallenge.provider=duckdns"
     - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+    - "--certificatesresolvers.letsencrypt.acme.dnschallenge.delayBeforeCheck=60"
     - "--certificatesresolvers.freemyip.acme.storage=/data/freemyip.json"
     - "--certificatesresolvers.freemyip.acme.email=mt.the.dev@gmail.com"
     - "--certificatesresolvers.freemyip.acme.dnsChallenge.provider=freemyip"
     - "--certificatesresolvers.freemyip.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+    - "--certificatesresolvers.freemyip.acme.dnschallenge.delayBeforeCheck=60"
     - "--certificatesresolvers.myaddr.acme.storage=/data/myaddr.json"
     - "--certificatesresolvers.myaddr.acme.email=mt.the.dev@gmail.com"
     - "--certificatesresolvers.myaddr.acme.dnsChallenge.provider=myaddr"
     - "--certificatesresolvers.myaddr.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+    - "--certificatesresolvers.myaddr.acme.dnschallenge.delayBeforeCheck=60"
     # Enable Dashboard (Insecure mode for internal access, or use IngressRoute to secure)
     - "--api.dashboard=true"
     - "--api.insecure=true"
@@ -82,3 +85,12 @@ ingressTargets:
     host: "192.168.1.111"
     path: "/dashboard"
     stripPrefix: false
+  duckdns:
+    host: "traefik.epricesx.duckdns.org"
+    certResolver: letsencrypt
+  freemyip:
+    host: "traefik.lmtu.freemyip.com"
+    certResolver: freemyip
+  myaddr:
+    host: "traefik.lmtlmt.myaddr.io"
+    certResolver: myaddr

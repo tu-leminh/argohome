@@ -1,49 +1,23 @@
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: traefik-dashboard-local
-  namespace: {{ .Release.Namespace }}
-spec:
-  entryPoints:
-    - websecure
-  routes:
-  - match: Host(`192.168.1.111`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
-    kind: Rule
-    services:
-    - name: api@internal
-      kind: TraefikService
-  tls: {}
+{{- range $name, $target := .Values.ingressTargets }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: traefik-dashboard-duckdns
-  namespace: {{ .Release.Namespace }}
+  name: traefik-dashboard-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
 spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`traefik.epricesx.duckdns.org`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+  - match: Host(`{{ $target.host }}`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
     kind: Rule
     services:
     - name: api@internal
       kind: TraefikService
   tls:
-    certResolver: letsencrypt
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: traefik-dashboard-freemyip
-  namespace: {{ .Release.Namespace }}
-spec:
-  entryPoints:
-    - websecure
-  routes:
-  - match: Host(`traefik.lmtu.freemyip.com`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
-    kind: Rule
-    services:
-    - name: api@internal
-      kind: TraefikService
-  tls:
-    certResolver: freemyip
+    {{- if $target.certResolver }}
+    certResolver: {{ $target.certResolver }}
+    {{- else }}
+    {}
+    {{- end }}
+{{- end }}

@@ -16,14 +16,14 @@ radarr:
   persistence:
     config:
       enabled: true
-      existingClaim: radarr-config-pvc
+      existingClaim: media-radarr-config-pvc
     movies:
       enabled: true
-      existingClaim: movies-pvc
+      existingClaim: media-shared-movies-pvc
       mountPath: /movies
     downloads:
       enabled: true
-      existingClaim: downloads-pvc
+      existingClaim: media-shared-downloads-pvc
       mountPath: /downloads
   
   ingressTargets:

@@ -16,7 +16,7 @@ prowlarr:
   persistence:
     config:
       enabled: true
-      existingClaim: prowlarr-config-pvc
+      existingClaim: media-prowlarr-config-pvc
   
   ingressTargets:
     duckdns:

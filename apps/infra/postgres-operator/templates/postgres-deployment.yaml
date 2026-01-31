@@ -17,12 +17,15 @@ spec:
     spec:
       containers:
       - name: postgresql
-        image: postgres:16
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        image: postgres:latest
         env:
         - name: POSTGRES_DB
           value: nextcloud
         - name: POSTGRES_USER
-          value: nextcloud
+          value: postgres
         - name: POSTGRES_PASSWORD
           value: nextcloudpassword
         - name: PGDATA
@@ -37,7 +40,7 @@ spec:
             command:
             - pg_isready
             - -U
-            - nextcloud
+            - postgres
             - -d
             - nextcloud
           initialDelaySeconds: 30
@@ -47,7 +50,7 @@ spec:
             command:
             - pg_isready
             - -U
-            - nextcloud
+            - postgres
             - -d
             - nextcloud
           initialDelaySeconds: 60
@@ -55,7 +58,7 @@ spec:
       volumes:
       - name: postgresql-storage
         persistentVolumeClaim:
-          claimName: postgresql-data-pvc
+          claimName: infra-postgres-data-pvc
 ---
 apiVersion: v1
 kind: Service

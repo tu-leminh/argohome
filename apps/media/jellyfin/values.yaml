@@ -16,14 +16,14 @@ jellyfin:
   persistence:
     config:
       enabled: true
-      existingClaim: jellyfin-config-pvc
+      existingClaim: media-jellyfin-config-pvc
     movies:
       enabled: true
-      existingClaim: movies-pvc
+      existingClaim: media-shared-movies-pvc
       mountPath: /data/movies
     tv:
       enabled: true
-      existingClaim: shows-pvc
+      existingClaim: media-shared-shows-pvc
       mountPath: /data/tv
   
   ingressTargets:

@@ -1,60 +1,55 @@
 nodeName: "dell"
 mounts:
-  # Media Volumes (Default namespace: media)
-  - name: downloads
-    path: /data/media/downloads
+  # Media Volumes (Shared)
+  - name: media-shared-downloads
+    path: /data/apps/media/shared/downloads
     size: 500Gi
     accessMode: ReadWriteMany
-  - name: movies
-    path: /data/media/movies
+  - name: media-shared-movies
+    path: /data/apps/media/shared/movies
     size: 500Gi
     accessMode: ReadWriteMany
-  - name: shows
-    path: /data/media/tv
+  - name: media-shared-shows
+    path: /data/apps/media/shared/shows
     size: 500Gi
     accessMode: ReadWriteMany
+
   # App Configs (Media)
-  - name: sonarr-config
-    path: /data/config/sonarr
+  - name: media-sonarr-config
+    path: /data/apps/media/sonarr/config
     size: 1Gi
-  - name: radarr-config
-    path: /data/config/radarr
+  - name: media-radarr-config
+    path: /data/apps/media/radarr/config
     size: 1Gi
-  - name: qbittorrent-config
-    path: /data/config/qbittorrent
+  - name: media-qbittorrent-config
+    path: /data/apps/media/qbittorrent/config
     size: 1Gi
-  - name: jellyfin-config
-    path: /data/config/jellyfin
+  - name: media-jellyfin-config
+    path: /data/apps/media/jellyfin/config
     size: 100Gi
-  - name: prowlarr-config
-    path: /data/config/prowlarr
+  - name: media-prowlarr-config
+    path: /data/apps/media/prowlarr/config
     size: 1Gi
 
   # Nextcloud
   - name: nextcloud-config
     namespace: nextcloud
-    path: /data/config/nextcloud
+    path: /data/apps/nextcloud/nextcloud/config
     size: 1Gi
   - name: nextcloud-data
     namespace: nextcloud
-    path: /data/nextcloud
+    path: /data/apps/nextcloud/nextcloud/data
     size: 500Gi
     accessMode: ReadWriteMany
 
   # PostgreSQL
-  - name: postgresql-data
+  - name: infra-postgres-data
     namespace: infra
-    path: /data/database/postgresql
+    path: /data/apps/infra/postgres-operator/data
     size: 8Gi
 
   # Infrastructure
-  - name: traefik-data
+  - name: infra-traefik-config
     namespace: infra
-    path: /data/config/traefik
+    path: /data/apps/infra/traefik/config
     size: 1Gi
-
-statefulSetMounts:
-  # PostgreSQL StatefulSet - removing since we're using the new deployment
-
-# Update the nextcloud PVC to be in the correct namespace
-# Remove the nextcloud-config entry from the mounts section above and handle it here if needed

@@ -17,10 +17,10 @@ qbittorrent:
   persistence:
     config:
       enabled: true
-      existingClaim: qbittorrent-config-pvc
+      existingClaim: media-qbittorrent-config-pvc
     downloads:
       enabled: true
-      existingClaim: downloads-pvc
+      existingClaim: media-shared-downloads-pvc
       mountPath: /downloads
   
   ingressTargets:

@@ -1,62 +1,71 @@
 # GitOps Home Lab Project Specification
 
 ## 1. Project Overview
-This project is a Kubernetes-based Home Lab managed via **GitOps** (Argo CD). It uses the **"App of Apps"** pattern with an `ApplicationSet` to automatically discover and deploy Helm charts located in the `apps/` directory.
+This project is a personal Home Lab orchestrating a diverse range of self-hosted applications using Kubernetes and **GitOps** principles. The system uses MicroK8s as the foundation and Argo CD to drive the cluster state from this Git repository.
 
 ## 2. Core Architecture
-* **Orchestrator:** MicroK8s (Single Node)
-* **GitOps Engine:** Argo CD (Self-Managed)
-* **Repository:** Private GitHub Repository (`gitops-home`)
-* **Directory Structure:**
-    * `bootstrap/`: Contains the `ApplicationSet` (The Entry Point).
-    * `apps/`: Contains isolated Helm Charts for each workload.
-        * `core/`: System-level apps (e.g., Argo CD wrapper).
-        * `infra/`: Infrastructure layer (Storage, Networking, Secrets, CronJobs).
-        * `media/`: Workload layer (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
-        * `cloud/`: Productivity layer (Nextcloud).
+*   **Orchestrator:** MicroK8s (Single Node)
+*   **GitOps Engine:** Argo CD (App of Apps pattern)
+*   **Repository:** Private GitHub Repository (`gitops-home`)
+*   **Directory Structure:**
+    *   `bootstrap/`: The Argo CD ApplicationSet (Entry Point).
+    *   `apps/`: Helm charts organized by functional layer.
+        *   `core/`: System-critical apps (Argo CD).
+        *   `infra/`: Infrastructure services (Networking, Storage, Databases, Secrets).
+        *   `media/`: Entertainment stack (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
+        *   `cloud/`: Productivity suite (Nextcloud).
 
-## 3. Technology Stack & Decisions
-* **Networking:**
-    * **MetalLB:** Provides Layer 2 LoadBalancing.
-        *   **VIP:** `192.168.1.111` (Traefik Ingress)
-        *   **Media Stack:** Direct LoadBalancer exposure with fixed IPs:
-            *   Sonarr: `192.168.1.150`
-            *   Radarr: `192.168.1.151`
-            *   Prowlarr: `192.168.1.152`
-            *   qBittorrent: `192.168.1.153`
-            *   Jellyfin: `192.168.1.154`
-    * **Traefik:** Ingress Controller handling SSL termination and routing.
-        * **Strategy:** Split `IngressRoute` resources per cert resolver to support multiple dynamic DNS providers simultaneously.
-        * **Cert Resolvers:** 
-            * `letsencrypt` (DuckDNS)
-            * `freemyip`
-            * `myaddr`
-    * **DNS:** DuckDNS, FreeMyIP, MyAddr.
-* **Storage Strategy:**
-    * **HostPath with Node Affinity:** Data resides on the host filesystem.
-    * **Generic Media Volumes:**
-        *   `downloads`: `/data/media/downloads`
-        *   `movies`: `/data/media/movies`
-        *   `shows`: `/data/media/tv`
-    *   **Config Volumes:** Dedicated PVs for each app (e.g., `sonarr-config`, `qbittorrent-config`).
-* **Secret Management:**
-    * **Strategy:** Plain Kubernetes Secrets committed to Git (Base64 encoded).
-    * **Implementation:** `apps/infra/secrets` generic chart replicates secrets to target namespaces (`infra`).
-* **Dependency Management:**
-    *   **Hybrid Approach:**
-        *   **External Charts:** Some apps (e.g., `sonarr`) use external Helm dependencies (`pree` repo) with unpinned versions (`version: "*"`).
-        *   **Pure Helm Templates:** Other apps (`radarr`, `prowlarr`, `qbittorrent`, `jellyfin`) use **pure local Helm templates** wrapping `linuxserver.io` Docker images. This avoids external chart dependency stability issues.
-    *   **Chart Naming Convention:**
-        *   Media charts are named `media-<appname>` (e.g., `media-sonarr`) to align with the `ApplicationSet` naming strategy (`<category>-<appname>`). This ensures clean resource naming (e.g., `metadata.name: media-sonarr`).
-* **Automation:**
-    * **CronJobs:** `apps/infra/cronjobs` generic chart handles DDNS updates (`duckdns`, `freemyip`, `myaddr`).
+## 3. Technology Stack & Implementation
+
+### Networking
+*   **Load Balancing (Layer 2):** MetalLB
+    *   **VIP:** `192.168.1.111` (Cluster Entry Point)
+    *   **Direct Media Access:** Dedicated IPs for each media application (e.g., Sonarr on `.150`, Radarr on `.151`).
+*   **Ingress Controller:** Traefik
+    *   Handles SSL termination and routing via `IngressRoute` CRDs.
+    *   Supports multiple dynamic DNS providers simultaneously (`DuckDNS`, `FreeMyIP`, `MyAddr`).
+*   **DNS Strategy:**
+    *   External: Dynamic DNS updates via CronJobs.
+    *   Internal: Split IngressRoutes per provider.
+
+### Storage & Persistence
+*   **Strategy:** **Stateless Compute, Stateful Host.**
+    *   All persistent data resides on the host filesystem (`/data/...`).
+    *   Kubernetes resources mount these paths via `HostPath` PVs/PVCs.
+    *   **Goal:** Complete cluster disposability. If the cluster is reset, simply re-apply manifests to reconnect to existing data.
+*   **Volume Mapping:**
+    *   **Media:** `/data/apps/media/shared/{downloads,movies,shows}`
+    *   **Configs:** `/data/apps/{category}/{app_name}/config`
+    *   **Database:** `/data/apps/infra/postgres-operator/data`
+    *   **Nextcloud Data:** `/data/apps/nextcloud/nextcloud/data`
+
+### Database Architecture
+*   **PostgreSQL:**
+    *   Deployed as a standard Deployment (Single Instance).
+    *   **User Strategy:** Uses the default `postgres` superuser for all connections.
+        *   *Why?* To ensure seamless reconnection to existing data after cluster resets without permission conflicts.
+    *   **Authentication:** `nextcloudpassword` (Shared secret).
+
+### Application Layer
+*   **Media Stack:**
+    *   Pure local Helm templates wrapping `linuxserver.io` images.
+    *   Direct IP exposure for local network usage + Ingress for remote.
+*   **Nextcloud:**
+    *   Dedicated Helm chart.
+    *   Connects to the shared Postgres instance in `infra` namespace.
+    *   Environment variables enforce `DB_USER: postgres` for reliable init.
 
 ## 4. Operational Workflows
-* **Bootstrap:** Run `./bootstrap.sh` to install MicroK8s, Argo CD, and configure private repo access.
-* **Deployment:** Commit a new folder with `Chart.yaml` to `apps/` -> Argo CD auto-deploys it to a namespace matching its category.
-    *   *Note:* Auto-sync is currently disabled in the `ApplicationSet` to allow for manual inspection/triggering of initial deployments.
-* **Update:** Edit `values.yaml` or templates -> Commit -> Sync in Argo CD.
+*   **Bootstrap:** Execute `./bootstrap.sh` to initialize MicroK8s and Argo CD.
+*   **Deploy New App:** Add a Helm chart to `apps/<category>/<name>`. The `ApplicationSet` automatically detects and deploys it.
+*   **Updates:** Modify `values.yaml` or templates in the repo. Argo CD syncs the changes (Manual trigger enabled).
+*   **Cluster Reset:**
+    1.  Tear down MicroK8s.
+    2.  Ensure host data paths (`/data/...`) are intact (or clean if a fresh start is desired).
+    3.  Run `./bootstrap.sh`.
+    4.  Argo CD restores all apps, which reconnect to the host data.
 
-## 5. Agent Operational Rules
-*   **Documentation:** Always update `README.md` and `GEMINI.md` after making changes to the codebase or architecture.
-*   **Verification:** You **MUST** run `helm template` (and `helm dependency update` if applicable) on any modified or created Helm charts to verify syntax and rendering before confirming changes.
+## 5. Agent Guidelines
+*   **Verification:** Always run `helm template` locally to validate chart syntax before changes.
+*   **Statelessness:** When modifying deployments, ensure no state is stored inside containers. Always check `apps/infra/storage` for PV definitions.
+*   **Documentation:** Update this file and `README.md` if architectural decisions change.

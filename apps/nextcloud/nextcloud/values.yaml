@@ -11,7 +11,7 @@ nextcloud:
     DB_HOST: postgresql.infra.svc.cluster.local
     DB_PORT: 5432
     DB_NAME: nextcloud
-    DB_USER: nextcloud
+    DB_USER: postgres
     DB_PASSWORD: nextcloudpassword
   
   service:
@@ -22,6 +22,9 @@ nextcloud:
     config:
       enabled: true
       existingClaim: nextcloud-config-pvc
+    data:
+      enabled: true
+      existingClaim: nextcloud-data-pvc
   
   ingressTargets:
     duckdns:

@@ -1,51 +1,43 @@
 # GitOps Home Lab
 
-This repository contains the GitOps configuration for a MicroK8s-based Home Lab, managed by Argo CD.
+A robust, self-healing Home Lab powered by **MicroK8s** and **Argo CD**.
 
-## Architecture
+## Overview
 
-*   **Cluster:** MicroK8s (Single Node)
-*   **GitOps:** Argo CD (App of Apps via ApplicationSet)
-*   **Ingress:** Traefik + MetalLB (VIP: `192.168.1.111`)
-*   **Storage:** Local HostPath with Node Affinity
-*   **DNS:** DuckDNS, FreeMyIP, MyAddr
-
-## Directory Structure
-
-*   `bootstrap/`: Argo CD ApplicationSet.
-*   `apps/`: Helm charts organized by category.
-    *   `core/`: System apps (Argo CD).
-    *   `infra/`: Infrastructure (Traefik, MetalLB, Secrets, CronJobs, Storage).
-    *   `media/`: Media apps (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
+This project defines my entire home server infrastructure as code (IoC). It is designed to be **stateless** at the compute layer, meaning the entire Kubernetes cluster can be destroyed and recreated without losing application data, which is safely persisted on the host filesystem.
 
 ## Quick Start
 
-1.  **Bootstrap Cluster:**
-    ```bash
-    ./bootstrap.sh
-    ```
+### 1. Bootstrap Cluster
+Initialize the cluster and Argo CD:
+```bash
+./bootstrap.sh
+```
 
-2.  **Access:**
-    *   **Traefik Dashboard:** `https://192.168.1.111/dashboard/`
-    *   **Argo CD:** `https://argo.epricesx.duckdns.org`
-    *   **Nextcloud:** `https://nextcloud.epricesx.duckdns.org`
-    *   **Media Apps (Ingress):**
-        *   Sonarr: `https://sonarr.epricesx.duckdns.org`
-        *   Radarr: `https://radarr.epricesx.duckdns.org`
-        *   Prowlarr: `https://prowlarr.epricesx.duckdns.org`
-        *   qBittorrent: `https://qbittorrent.epricesx.duckdns.org`
-        *   Jellyfin: `https://jellyfin.epricesx.duckdns.org`
-    *   **Media Apps (Direct IP):**
-        *   Sonarr: `http://192.168.1.150:8989`
-        *   Radarr: `http://192.168.1.151:7878`
-        *   Prowlarr: `http://192.168.1.152:9696`
-        *   qBittorrent: `http://192.168.1.153:8080`
-        *   Jellyfin: `http://192.168.1.154:8096`
+### 2. Access Applications
+*   **Argo CD:** `https://argo.epricesx.duckdns.org`
+*   **Traefik Dashboard:** `https://192.168.1.111/dashboard/`
+
+#### Cloud & Productivity
+*   **Nextcloud:** `https://nextcloud.epricesx.duckdns.org`
+    *   *Database Host:* `postgresql.infra.svc.cluster.local`
+    *   *Database User:* `postgres`
+    *   *Database Pass:* `nextcloudpassword`
+
+#### Media Stack
+*   **Sonarr:** `https://sonarr.epricesx.duckdns.org` (Local: `http://192.168.1.150:8989`)
+*   **Radarr:** `https://radarr.epricesx.duckdns.org` (Local: `http://192.168.1.151:7878`)
+*   **Prowlarr:** `https://prowlarr.epricesx.duckdns.org` (Local: `http://192.168.1.152:9696`)
+*   **qBittorrent:** `https://qbittorrent.epricesx.duckdns.org` (Local: `http://192.168.1.153:8080`)
+*   **Jellyfin:** `https://jellyfin.epricesx.duckdns.org` (Local: `http://192.168.1.154:8096`)
+
+## Architecture Highlights
+
+*   **GitOps:** Argo CD manages all applications via an "App of Apps" pattern (`bootstrap/applicationset.yaml`).
+*   **Networking:** MetalLB provides Layer 2 LoadBalancing; Traefik handles Ingress and SSL.
+*   **Storage:** All data resides in `/data/apps/` on the host, mounted via HostPath PVs.
+*   **Database:** A shared PostgreSQL instance handles backend storage for apps like Nextcloud, configured for robust reconnection after cluster resets.
 
 ## Management
 
-*   **Add App:** Create a new folder in `apps/<category>/<app-name>` with a Helm Chart.
-*   **Update App:** Edit `values.yaml` and commit. Sync manually in Argo CD (auto-sync is currently disabled).
-*   **Dependencies:** Helm charts use `version: "*"` to track the latest upstream versions.
-*   **Secrets:** Managed in `apps/infra/secrets`.
-*   **CronJobs:** Managed in `apps/infra/cronjobs`.
+To deploy a new application, simply commit a Helm chart to the `apps/` directory. Argo CD will automatically discover and deploy it to the cluster.

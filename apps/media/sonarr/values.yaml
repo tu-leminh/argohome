@@ -28,14 +28,14 @@ sonarr:
   persistence:
     config:
       enabled: true
-      existingClaim: sonarr-config-pvc
+      existingClaim: media-sonarr-config-pvc
     tv:
       enabled: true
-      existingClaim: shows-pvc
+      existingClaim: media-shared-shows-pvc
       mountPath: /tv
     downloads:
       enabled: true
-      existingClaim: downloads-pvc
+      existingClaim: media-shared-downloads-pvc
       mountPath: /downloads
   ingress:
     main:

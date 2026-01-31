@@ -5,8 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   addresses:
-  - 192.168.1.100-192.168.1.110  # Available range
-  - 192.168.1.113-192.168.1.200  # Available range excluding 111 and 112
+  - 192.168.1.100-192.168.1.200  # Full available range
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement

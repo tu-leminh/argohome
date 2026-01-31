@@ -36,10 +36,19 @@ spec:
             - name: config
               mountPath: /config
             {{- end }}
+            {{- if .Values.nextcloud.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
       
       volumes:
         {{- if .Values.nextcloud.persistence.config.enabled }}
         - name: config
           persistentVolumeClaim:
             claimName: {{ .Values.nextcloud.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.nextcloud.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.nextcloud.persistence.data.existingClaim }}
         {{- end }}
