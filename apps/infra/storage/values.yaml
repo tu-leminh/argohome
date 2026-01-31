@@ -36,6 +36,12 @@ mounts:
     path: /data/config/nextcloud
     size: 1Gi
 
+  # PostgreSQL
+  - name: postgresql-data
+    namespace: infra
+    path: /data/database/postgresql
+    size: 8Gi
+
   # Infrastructure
   - name: traefik-data
     namespace: infra
@@ -43,7 +49,7 @@ mounts:
     size: 1Gi
 
 statefulSetMounts:
-  # PostgreSQL StatefulSet
+  # PostgreSQL StatefulSet - keeping for backward compatibility
   - pvName: postgresql-infra-postgresql-0-pv
     path: /data/database/postgresql
     size: 8Gi
