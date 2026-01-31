@@ -3,6 +3,7 @@ argo-cd:
     domain: argo.epricesx.duckdns.org
   configs:
     cm:
+      url: https://argo.epricesx.duckdns.org
       exec.enabled: "true"
     params:
       server.insecure: "true"
