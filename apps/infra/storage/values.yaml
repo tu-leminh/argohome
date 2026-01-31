@@ -29,7 +29,7 @@ mounts:
   - name: prowlarr-config
     path: /data/config/prowlarr
     size: 1Gi
-  
+
   # Cloud
   - name: nextcloud-config
     namespace: cloud
@@ -41,3 +41,9 @@ mounts:
     namespace: infra
     path: /data/config/traefik
     size: 1Gi
+
+statefulSetMounts:
+  # PostgreSQL StatefulSet
+  - pvName: postgresql-infra-postgresql-0-pv
+    path: /data/database/postgresql
+    size: 8Gi
