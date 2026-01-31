@@ -54,10 +54,7 @@ mounts:
     size: 1Gi
 
 statefulSetMounts:
-  # PostgreSQL StatefulSet - keeping for backward compatibility
-  - pvName: postgresql-infra-postgresql-0-pv
-    path: /data/database/postgresql
-    size: 8Gi
+  # PostgreSQL StatefulSet - removing since we're using the new deployment
 
 # Update the nextcloud PVC to be in the correct namespace
 # Remove the nextcloud-config entry from the mounts section above and handle it here if needed
