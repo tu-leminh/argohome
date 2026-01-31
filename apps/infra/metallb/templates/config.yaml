@@ -5,9 +5,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   addresses:
-  - 192.168.1.111/32  # Reserved for Traefik
-  - 192.168.1.112/32  # Reserved for ArgoCD
-  - 192.168.1.113-192.168.1.200  # Available for other services
+  - 192.168.1.100-192.168.1.110  # Available range
+  - 192.168.1.113-192.168.1.200  # Available range excluding 111 and 112
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
