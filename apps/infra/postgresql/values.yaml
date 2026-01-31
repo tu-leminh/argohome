@@ -7,6 +7,11 @@ postgresql:
         password: "nextcloudpassword"
         database: "nextcloud"
 
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: "16.1.0-debian-11"
+
   primary:
     persistence:
       enabled: true
