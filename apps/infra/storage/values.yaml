@@ -30,9 +30,9 @@ mounts:
     path: /data/config/prowlarr
     size: 1Gi
 
-  # Cloud
+  # Nextcloud
   - name: nextcloud-config
-    namespace: cloud
+    namespace: nextcloud
     path: /data/config/nextcloud
     size: 1Gi
 
@@ -47,3 +47,6 @@ statefulSetMounts:
   - pvName: postgresql-infra-postgresql-0-pv
     path: /data/database/postgresql
     size: 8Gi
+
+# Update the nextcloud PVC to be in the correct namespace
+# Remove the nextcloud-config entry from the mounts section above and handle it here if needed
