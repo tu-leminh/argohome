@@ -8,7 +8,7 @@ nextcloud:
     PUID: 1000
     PGID: 1000
     DB_TYPE: pgsql
-    DB_HOST: infra-postgresql-postgresql.infra.svc.cluster.local
+    DB_HOST: postgresql.infra.svc.cluster.local
     DB_PORT: 5432
     DB_NAME: nextcloud
     DB_USER: nextcloud
