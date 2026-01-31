@@ -10,7 +10,7 @@ postgresql:
   image:
     registry: docker.io
     repository: bitnami/postgresql
-    tag: "16.1"
+    tag: "16"
 
   primary:
     persistence:
