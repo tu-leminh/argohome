@@ -1,16 +1,14 @@
 postgresql:
-  global:
-    postgresql:
-      auth:
-        postgresPassword: "adminpassword"
-        username: "nextcloud"
-        password: "nextcloudpassword"
-        database: "nextcloud"
-
   image:
     registry: docker.io
     repository: bitnami/postgresql
     tag: "16"
+
+  auth:
+    postgresPassword: "adminpassword"
+    username: "nextcloud"
+    password: "nextcloudpassword"
+    database: "nextcloud"
 
   primary:
     persistence:
