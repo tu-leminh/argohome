@@ -1,8 +1,8 @@
 postgresql:
   image:
-    registry: docker.io
     repository: bitnami/postgresql
-    tag: "16"
+    tag: "16.1.0-debian-11-r25"
+    digest: null
 
   auth:
     postgresPassword: "adminpassword"
