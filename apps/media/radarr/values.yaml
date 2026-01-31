@@ -9,6 +9,8 @@ radarr:
     PGID: 1000
   
   service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.1.151
     port: 7878
 
   persistence:

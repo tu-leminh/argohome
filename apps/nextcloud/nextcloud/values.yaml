@@ -1,0 +1,38 @@
+nextcloud:
+  image:
+    repository: lscr.io/linuxserver/nextcloud
+    tag: latest
+    pullPolicy: IfNotPresent
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+    DB_TYPE: pgsql
+    DB_HOST: infra-postgresql-postgresql.infra.svc.cluster.local
+    DB_PORT: 5432
+    DB_NAME: nextcloud
+    DB_USER: nextcloud
+    DB_PASSWORD: nextcloudpassword
+  
+  service:
+    port: 443
+    type: ClusterIP
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: nextcloud-config-pvc
+  
+  ingressTargets:
+    duckdns:
+      host: nextcloud.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: nextcloud.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: nextcloud.lmtlmt.myaddr.io
+      certResolver: myaddr

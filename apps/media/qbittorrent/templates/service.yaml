@@ -5,7 +5,10 @@ metadata:
   labels:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.qbittorrent.service.type | default "ClusterIP" }}
+  {{- if .Values.qbittorrent.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.qbittorrent.service.loadBalancerIP }}
+  {{- end }}
   ports:
     - port: {{ .Values.qbittorrent.service.port }}
       targetPort: http

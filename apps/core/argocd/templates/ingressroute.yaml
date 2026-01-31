@@ -1,3 +1,10 @@
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: argocd-transport
+  namespace: {{ .Release.Namespace }}
+spec:
+  insecureSkipVerify: true
 {{- range $name, $target := .Values.ingressTargets }}
 ---
 apiVersion: traefik.io/v1alpha1
@@ -13,7 +20,11 @@ spec:
     kind: Rule
     services:
     - name: {{ $.Release.Name }}-server
-      port: 80
+      port: 443
+      scheme: https
+      serversTransport: argocd-transport
+    middlewares:
+      - name: argocd-headers
   tls:
     {{- if $target.certResolver }}
     certResolver: {{ $target.certResolver }}

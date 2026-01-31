@@ -13,10 +13,18 @@ This project is a Kubernetes-based Home Lab managed via **GitOps** (Argo CD). It
         * `core/`: System-level apps (e.g., Argo CD wrapper).
         * `infra/`: Infrastructure layer (Storage, Networking, Secrets, CronJobs).
         * `media/`: Workload layer (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
+        * `cloud/`: Productivity layer (Nextcloud).
 
 ## 3. Technology Stack & Decisions
 * **Networking:**
-        *   **MetalLB:** Provides Layer 2 LoadBalancing (Static IP: `192.168.1.111`).
+    * **MetalLB:** Provides Layer 2 LoadBalancing.
+        *   **VIP:** `192.168.1.111` (Traefik Ingress)
+        *   **Media Stack:** Direct LoadBalancer exposure with fixed IPs:
+            *   Sonarr: `192.168.1.150`
+            *   Radarr: `192.168.1.151`
+            *   Prowlarr: `192.168.1.152`
+            *   qBittorrent: `192.168.1.153`
+            *   Jellyfin: `192.168.1.154`
     * **Traefik:** Ingress Controller handling SSL termination and routing.
         * **Strategy:** Split `IngressRoute` resources per cert resolver to support multiple dynamic DNS providers simultaneously.
         * **Cert Resolvers:** 
@@ -51,3 +59,4 @@ This project is a Kubernetes-based Home Lab managed via **GitOps** (Argo CD). It
 
 ## 5. Agent Operational Rules
 *   **Documentation:** Always update `README.md` and `GEMINI.md` after making changes to the codebase or architecture.
+*   **Verification:** You **MUST** run `helm template` (and `helm dependency update` if applicable) on any modified or created Helm charts to verify syntax and rendering before confirming changes.

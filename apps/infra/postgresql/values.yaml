@@ -1,0 +1,21 @@
+postgresql:
+  global:
+    postgresql:
+      auth:
+        postgresPassword: "adminpassword"
+        username: "nextcloud"
+        password: "nextcloudpassword"
+        database: "nextcloud"
+
+  primary:
+    persistence:
+      enabled: true
+      storageClass: "local-storage"
+      size: 8Gi
+    service:
+      type: ClusterIP
+      ports:
+        postgresql: 5432
+
+  volumePermissions:
+    enabled: true

@@ -1,16 +1,10 @@
 argo-cd:
-  global:
-    domain: argo.epricesx.duckdns.org
   configs:
     cm:
-      url: https://argo.epricesx.duckdns.org
+      url: "" # Explicitly empty to support multi-domain access
       exec.enabled: "true"
-    params:
-      server.insecure: "true"
   server:
-    insecure: true
-    extraArgs:
-      - --insecure
+    insecure: false
     service:
       type: ClusterIP
     ingress:

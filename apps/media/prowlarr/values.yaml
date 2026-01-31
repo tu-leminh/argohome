@@ -9,6 +9,8 @@ prowlarr:
     PGID: 1000
   
   service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.1.152
     port: 9696
 
   persistence:

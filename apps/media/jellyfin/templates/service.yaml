@@ -5,7 +5,10 @@ metadata:
   labels:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.jellyfin.service.type | default "ClusterIP" }}
+  {{- if .Values.jellyfin.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.jellyfin.service.loadBalancerIP }}
+  {{- end }}
   ports:
     - port: {{ .Values.jellyfin.service.port }}
       targetPort: http

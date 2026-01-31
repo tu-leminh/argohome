@@ -5,7 +5,10 @@ metadata:
   labels:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.radarr.service.type | default "ClusterIP" }}
+  {{- if .Values.radarr.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.radarr.service.loadBalancerIP }}
+  {{- end }}
   ports:
     - port: {{ .Values.radarr.service.port }}
       targetPort: http

@@ -30,6 +30,12 @@ mounts:
     path: /data/config/prowlarr
     size: 1Gi
   
+  # Cloud
+  - name: nextcloud-config
+    namespace: cloud
+    path: /data/config/nextcloud
+    size: 1Gi
+
   # Infrastructure
   - name: traefik-data
     namespace: infra

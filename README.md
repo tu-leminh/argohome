@@ -28,12 +28,19 @@ This repository contains the GitOps configuration for a MicroK8s-based Home Lab,
 2.  **Access:**
     *   **Traefik Dashboard:** `https://192.168.1.111/dashboard/`
     *   **Argo CD:** `https://argo.epricesx.duckdns.org`
-    *   **Media Apps:**
+    *   **Nextcloud:** `https://nextcloud.epricesx.duckdns.org`
+    *   **Media Apps (Ingress):**
         *   Sonarr: `https://sonarr.epricesx.duckdns.org`
         *   Radarr: `https://radarr.epricesx.duckdns.org`
         *   Prowlarr: `https://prowlarr.epricesx.duckdns.org`
         *   qBittorrent: `https://qbittorrent.epricesx.duckdns.org`
         *   Jellyfin: `https://jellyfin.epricesx.duckdns.org`
+    *   **Media Apps (Direct IP):**
+        *   Sonarr: `http://192.168.1.150:8989`
+        *   Radarr: `http://192.168.1.151:7878`
+        *   Prowlarr: `http://192.168.1.152:9696`
+        *   qBittorrent: `http://192.168.1.153:8080`
+        *   Jellyfin: `http://192.168.1.154:8096`
 
 ## Management
 

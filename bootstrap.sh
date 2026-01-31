@@ -50,7 +50,7 @@ echo "🐙 Installing Argo CD..."
 sudo microk8s helm3 repo add argo https://argoproj.github.io/argo-helm >/dev/null
 sudo microk8s helm3 repo update >/dev/null
 sudo microk8s helm3 upgrade --install argocd argo/argo-cd \
-  --namespace argocd --create-namespace \
+  --namespace core --create-namespace \
   --set server.service.type=LoadBalancer \
   --set server.insecure=true >/dev/null
 
@@ -61,7 +61,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: repo-creds
-  namespace: argocd
+  namespace: core
   labels:
     argocd.argoproj.io/secret-type: repository
 stringData:
@@ -73,7 +73,7 @@ EOF
 
 # --- 4b. Wait for Argo CD ---
 echo "⏳ Waiting for Argo CD components to be ready..."
-sudo microk8s kubectl wait --for=condition=Available deployment --all -n argocd --timeout=300s
+sudo microk8s kubectl wait --for=condition=Available deployment --all -n core --timeout=300s
 
 # --- 5. Deploy Apps ---
 echo "🚀 Applying ApplicationSet..."
@@ -82,6 +82,6 @@ sudo microk8s kubectl apply -f bootstrap/applicationset.yaml >/dev/null
 echo "==========================================================="
 echo "🎉 Bootstrap Complete!"
 echo "🔑 Admin Password:"
-sudo microk8s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
+sudo microk8s kubectl -n core get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
 echo ""
 echo "==========================================================="

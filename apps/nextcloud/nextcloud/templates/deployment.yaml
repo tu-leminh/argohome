@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: nextcloud
+          image: "{{ .Values.nextcloud.image.repository }}:{{ .Values.nextcloud.image.tag }}"
+          imagePullPolicy: {{ .Values.nextcloud.image.pullPolicy }}
+          ports:
+            - name: https
+              containerPort: {{ .Values.nextcloud.service.port }}
+              protocol: TCP
+              
+          env:
+            {{- range $key, $value := .Values.nextcloud.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          
+          volumeMounts:
+            {{- if .Values.nextcloud.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+      
+      volumes:
+        {{- if .Values.nextcloud.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.nextcloud.persistence.config.existingClaim }}
+        {{- end }}

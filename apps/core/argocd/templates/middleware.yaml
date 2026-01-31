@@ -1,0 +1,13 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: argocd-headers
+  namespace: {{ .Release.Namespace }}
+spec:
+  headers:
+    forceSTSHeader: true
+    stsSeconds: 315360000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    customRequestHeaders:
+      X-Forwarded-Proto: "https"
