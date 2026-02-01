@@ -18,41 +18,43 @@ ingressTargets:
     host: lmtu.freemyip.com
     certResolver: freemyip
 
+# Homepage Configuration
 config:
   services:
     - Infrastructure:
         - Argo CD:
-            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/argocd.png
+            # Verified: "argo-cd.png" is the correct filename in the main branch
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/argo-cd.png
             href: https://argo.lmtlmt.myaddr.io
             description: GitOps Deployment
         - Traefik:
-            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/traefik.png
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/traefik.png
             href: https://traefik.lmtlmt.myaddr.io/dashboard/
             description: Ingress Controller
         - Nextcloud:
-            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/nextcloud.png
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/nextcloud.png
             href: https://nextcloud.lmtlmt.myaddr.io
             description: Cloud Storage
 
     - Media:
         - Jellyfin:
-            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/jellyfin.png
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/jellyfin.png
             href: https://jellyfin.lmtlmt.myaddr.io
             description: Media Server
         - Sonarr:
-            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/sonarr.png
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/sonarr.png
             href: https://sonarr.lmtlmt.myaddr.io
             description: TV Shows
         - Radarr:
-            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/radarr.png
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/radarr.png
             href: https://radarr.lmtlmt.myaddr.io
             description: Movies
         - Prowlarr:
-            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/prowlarr.png
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/prowlarr.png
             href: https://prowlarr.lmtlmt.myaddr.io
             description: Indexer Manager
         - qBittorrent:
-            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/qbittorrent.png
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/qbittorrent.png
             href: https://qbittorrent.lmtlmt.myaddr.io
             description: Torrent Client
 
@@ -60,10 +62,9 @@ config:
 
   settings:
     title: Home Lab
-    background: "#24273a"
-    cardBlur: sm
     theme: dark
     color: slate
+    cardBlur: sm
     layout:
       Infrastructure:
         style: row
@@ -71,3 +72,38 @@ config:
       Media:
         style: row
         columns: 5
+
+    # BACKGROUND IMAGE CONFIGURATION
+    background:
+      # Option 1: Minimal Saturn (Active) - Matches Macchiato Palette
+      image: https://raw.githubusercontent.com/iruzo/wp/main/desktop-catppuccin-macchiato-saturn.jpg
+      
+      # Option 2: Paint Swirl (Uncomment to use)
+      # image: https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/main/abstract/paint-swirl-macchiato.png
+      
+      # Option 3: Minimal Mountains (Uncomment to use)
+      # image: https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/main/landscapes/mountains_macchiato.png
+      
+      opacity: 0.8 # Dim the background slightly so text pops
+
+    # CSS to force the correct Macchiato Colors on cards and text
+    customssh: |
+      :root {
+        --ctp-macchiato-base: #24273a;
+        --ctp-macchiato-mantle: #1e2030;
+        --ctp-macchiato-crust: #181926;
+        --ctp-macchiato-text: #cad3f5;
+        --ctp-macchiato-surface0: #363a4f;
+      }
+      /* Apply transparent dark background to cards so wallpaper shows through slightly */
+      .services .service {
+        background: rgba(54, 58, 79, 0.85) !important; /* Macchiato Surface0 with opacity */
+        border: 1px solid var(--ctp-macchiato-mantle);
+        backdrop-filter: blur(5px);
+      }
+      .service-name {
+        color: var(--ctp-macchiato-text) !important;
+      }
+      .service-desc {
+        color: #a5adcb !important;
+      }
