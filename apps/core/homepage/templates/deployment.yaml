@@ -26,6 +26,9 @@ spec:
             - name: http
               containerPort: 3000
               protocol: TCP
+          env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: "lmtlmt.myaddr.io,epricesx.duckdns.org,lmtu.freemyip.com"
           volumeMounts:
             - name: config
               mountPath: /app/config/services.yaml
@@ -39,7 +42,11 @@ spec:
               mountPath: /app/config/settings.yaml
               subPath: settings.yaml
               readOnly: true
+            - name: logs
+              mountPath: /app/config/logs
       volumes:
         - name: config
           configMap:
             name: homepage-config
+        - name: logs
+          emptyDir: {}
