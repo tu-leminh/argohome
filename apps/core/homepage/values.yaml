@@ -1,0 +1,74 @@
+image:
+  repository: ghcr.io/gethomepage/homepage
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingressTargets:
+  myaddr:
+    host: lmtlmt.myaddr.io
+    certResolver: myaddr
+  duckdns:
+    host: home.epricesx.duckdns.org
+    certResolver: letsencrypt
+  freemyip:
+    host: home.lmtu.freemyip.com
+    certResolver: freemyip
+
+# Homepage Configuration
+config:
+  services:
+    - Infrastructure:
+        - Argo CD:
+            href: https://argo.lmtlmt.myaddr.io
+            icon: argocd.png
+            description: GitOps Deployment
+        - Traefik:
+            href: https://traefik.lmtlmt.myaddr.io/dashboard/
+            icon: traefik.png
+            description: Ingress Controller
+        - Nextcloud:
+            href: https://nextcloud.lmtlmt.myaddr.io
+            icon: nextcloud.png
+            description: Cloud Storage
+    - Media:
+        - Jellyfin:
+            href: https://jellyfin.lmtlmt.myaddr.io
+            icon: jellyfin.png
+            description: Media Server
+        - Sonarr:
+            href: https://sonarr.lmtlmt.myaddr.io
+            icon: sonarr.png
+            description: TV Shows
+        - Radarr:
+            href: https://radarr.lmtlmt.myaddr.io
+            icon: radarr.png
+            description: Movies
+        - Prowlarr:
+            href: https://prowlarr.lmtlmt.myaddr.io
+            icon: prowlarr.png
+            description: Indexer Manager
+        - qBittorrent:
+            href: https://qbittorrent.lmtlmt.myaddr.io
+            icon: qbittorrent.png
+            description: Torrent Client
+
+  widgets:
+    - resources:
+        cpu: true
+        memory: true
+        disk: /
+    - search:
+        provider: google
+        target: _blank
+
+  settings:
+    title: Home Lab
+    background:
+      image: https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1950&q=80
+    cardBlur: sm
+    theme: dark
+    color: slate

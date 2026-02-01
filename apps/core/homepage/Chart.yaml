@@ -1,0 +1,6 @@
+apiVersion: v2
+name: homepage
+description: A modern, secure, highly customizable application dashboard.
+type: application
+version: 1.0.0
+appVersion: "latest"
