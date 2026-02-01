@@ -28,7 +28,16 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: /app/config
+              mountPath: /app/config/services.yaml
+              subPath: services.yaml
+              readOnly: true
+            - name: config
+              mountPath: /app/config/widgets.yaml
+              subPath: widgets.yaml
+              readOnly: true
+            - name: config
+              mountPath: /app/config/settings.yaml
+              subPath: settings.yaml
               readOnly: true
       volumes:
         - name: config
