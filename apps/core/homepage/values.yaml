@@ -26,9 +26,6 @@ config:
             href: https://argo.lmtlmt.myaddr.io
             icon: argocd.png
             description: GitOps Deployment
-            widget:
-              type: argocd
-              url: https://argo.lmtlmt.myaddr.io
         - Traefik:
             href: https://traefik.lmtlmt.myaddr.io/dashboard/
             icon: traefik.png
@@ -37,31 +34,20 @@ config:
             href: https://nextcloud.lmtlmt.myaddr.io
             icon: nextcloud.png
             description: Cloud Storage
+
     - Media:
         - Jellyfin:
             href: https://jellyfin.lmtlmt.myaddr.io
             icon: jellyfin.png
             description: Media Server
-            widget:
-              type: jellyfin
-              url: https://jellyfin.lmtlmt.myaddr.io
-              apiKey: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
         - Sonarr:
             href: https://sonarr.lmtlmt.myaddr.io
             icon: sonarr.png
             description: TV Shows
-            widget:
-              type: sonarr
-              url: https://sonarr.lmtlmt.myaddr.io
-              apiKey: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
         - Radarr:
             href: https://radarr.lmtlmt.myaddr.io
             icon: radarr.png
             description: Movies
-            widget:
-              type: radarr
-              url: https://radarr.lmtlmt.myaddr.io
-              apiKey: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
         - Prowlarr:
             href: https://prowlarr.lmtlmt.myaddr.io
             icon: prowlarr.png
@@ -70,27 +56,22 @@ config:
             href: https://qbittorrent.lmtlmt.myaddr.io
             icon: qbittorrent.png
             description: Torrent Client
-            widget:
-              type: qbittorrent
-              url: https://qbittorrent.lmtlmt.myaddr.io
 
-  widgets:
-    - resources:
-        cpu: true
-        memory: true
-        disk: /
-    - search:
-        provider: duckduckgo
-        target: _blank
+  # All widgets removed as requested
+  widgets: []
 
   settings:
     title: Home Lab
-    background:
-      image: https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/wallpapers/latte.png
-      # Alternative Catppuccin wallpapers:
-      # Mocha: https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/wallpapers/mocha.png
-      # Frappe: https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/wallpapers/frappe.png
-      # Macchiato: https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/wallpapers/macchiato.png
+    theme: dark
+    color: slate
     cardBlur: sm
-    theme: catppuccin-mocha
-    color: rosewater
+    # Catppuccin Macchiato Base Background
+    background: "#24273a"
+    # Optional: Custom CSS for deeper Catppuccin integration
+    customssh: |
+      :root {
+        --theme-bg: #24273a;
+        --card-bg: #363a4f;
+        --text-main: #cad3f5;
+        --accent: #8aadf4;
+      }
