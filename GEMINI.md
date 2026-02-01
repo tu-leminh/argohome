@@ -5,7 +5,7 @@ This project is a personal Home Lab orchestrating a diverse range of self-hosted
 
 ## 2. Core Architecture
 *   **Orchestrator:** MicroK8s (Single Node)
-*   **GitOps Engine:** Argo CD (App of Apps pattern)
+*   **GitOps Engine:** Argo CD (App of Apps pattern) using Sync Waves (`core`:-5 -> `infra`:-1 -> `apps`:5)
 *   **Repository:** Private GitHub Repository (`gitops-home`)
 *   **Directory Structure:**
     *   `bootstrap/`: The Argo CD ApplicationSet (Entry Point).
@@ -57,7 +57,7 @@ This project is a personal Home Lab orchestrating a diverse range of self-hosted
 
 ## 4. Operational Workflows
 *   **Bootstrap:** Execute `./bootstrap.sh` to initialize MicroK8s and Argo CD.
-*   **Deploy New App:** Add a Helm chart to `apps/<category>/<name>`. The `ApplicationSet` automatically detects and deploys it.
+*   **Deploy New App:** Add a Helm chart to `apps/<category>/<name>`. The `ApplicationSet` automatically detects and deploys it (supported categories: `core`, `infra`, `media`, `nextcloud`).
 *   **Updates:** Modify `values.yaml` or templates in the repo. Argo CD syncs the changes (Manual trigger enabled).
 *   **Cluster Reset:**
     1.  Tear down MicroK8s.

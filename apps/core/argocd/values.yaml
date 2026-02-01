@@ -4,7 +4,7 @@ argo-cd:
       url: "" # Explicitly empty to support multi-domain access
       exec.enabled: "true"
   server:
-    insecure: false
+    insecure: true
     service:
       type: LoadBalancer
       loadBalancerIP: "192.168.1.112"

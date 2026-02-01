@@ -28,7 +28,7 @@ spec:
               protocol: TCP
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
-              value: "lmtlmt.myaddr.io,epricesx.duckdns.org,lmtu.freemyip.com"
+              value: "lmtlmt.myaddr.io,epricesx.duckdns.org,lmtu.freemyip.com,homepage.platy-python.ts.net"
           volumeMounts:
             - name: config
               mountPath: /app/config/services.yaml

@@ -9,10 +9,42 @@ spec:
       repoURL: https://github.com/tu-leminh/argohome
       revision: HEAD
       directories:
-      - path: apps/*/*
+      - path: apps/tailscale/*
+      values:
+        syncWave: "-5"
+  - git:
+      repoURL: https://github.com/tu-leminh/argohome
+      revision: HEAD
+      directories:
+      - path: apps/core/*
+      values:
+        syncWave: "-5"
+  - git:
+      repoURL: https://github.com/tu-leminh/argohome
+      revision: HEAD
+      directories:
+      - path: apps/infra/*
+      values:
+        syncWave: "-1"
+  - git:
+      repoURL: https://github.com/tu-leminh/argohome
+      revision: HEAD
+      directories:
+      - path: apps/media/*
+      values:
+        syncWave: "5"
+  - git:
+      repoURL: https://github.com/tu-leminh/argohome
+      revision: HEAD
+      directories:
+      - path: apps/nextcloud/*
+      values:
+        syncWave: "5"
   template:
     metadata:
       name: '{{path[1]}}-{{path.basename}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: '{{values.syncWave}}'
     spec:
       project: default
       source:

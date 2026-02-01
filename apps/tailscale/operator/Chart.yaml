@@ -1,0 +1,7 @@
+apiVersion: v2
+name: tailscale-operator-wrapper
+version: 1.0.0
+dependencies:
+  - name: tailscale-operator
+    version: "*"
+    repository: https://pkgs.tailscale.com/helmcharts
