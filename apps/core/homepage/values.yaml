@@ -18,60 +18,56 @@ ingressTargets:
     host: lmtu.freemyip.com
     certResolver: freemyip
 
-# Homepage Configuration
 config:
   services:
     - Infrastructure:
         - Argo CD:
+            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/argocd.png
             href: https://argo.lmtlmt.myaddr.io
-            icon: argocd.png
             description: GitOps Deployment
         - Traefik:
+            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/traefik.png
             href: https://traefik.lmtlmt.myaddr.io/dashboard/
-            icon: traefik.png
             description: Ingress Controller
         - Nextcloud:
+            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/nextcloud.png
             href: https://nextcloud.lmtlmt.myaddr.io
-            icon: nextcloud.png
             description: Cloud Storage
 
     - Media:
         - Jellyfin:
+            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/jellyfin.png
             href: https://jellyfin.lmtlmt.myaddr.io
-            icon: jellyfin.png
             description: Media Server
         - Sonarr:
+            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/sonarr.png
             href: https://sonarr.lmtlmt.myaddr.io
-            icon: sonarr.png
             description: TV Shows
         - Radarr:
+            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/radarr.png
             href: https://radarr.lmtlmt.myaddr.io
-            icon: radarr.png
             description: Movies
         - Prowlarr:
+            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/prowlarr.png
             href: https://prowlarr.lmtlmt.myaddr.io
-            icon: prowlarr.png
             description: Indexer Manager
         - qBittorrent:
+            icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/qbittorrent.png
             href: https://qbittorrent.lmtlmt.myaddr.io
-            icon: qbittorrent.png
             description: Torrent Client
 
-  # All widgets removed as requested
   widgets: []
 
   settings:
     title: Home Lab
+    background: "#24273a"
+    cardBlur: sm
     theme: dark
     color: slate
-    cardBlur: sm
-    # Catppuccin Macchiato Base Background
-    background: "#24273a"
-    # Optional: Custom CSS for deeper Catppuccin integration
-    customssh: |
-      :root {
-        --theme-bg: #24273a;
-        --card-bg: #363a4f;
-        --text-main: #cad3f5;
-        --accent: #8aadf4;
-      }
+    layout:
+      Infrastructure:
+        style: row
+        columns: 3
+      Media:
+        style: row
+        columns: 5
