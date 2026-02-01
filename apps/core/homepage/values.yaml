@@ -12,10 +12,10 @@ ingressTargets:
     host: lmtlmt.myaddr.io
     certResolver: myaddr
   duckdns:
-    host: home.epricesx.duckdns.org
+    host: epricesx.duckdns.org
     certResolver: letsencrypt
   freemyip:
-    host: home.lmtu.freemyip.com
+    host: lmtu.freemyip.com
     certResolver: freemyip
 
 # Homepage Configuration

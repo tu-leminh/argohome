@@ -22,7 +22,7 @@ sonarr:
       tlsSans:
         - lmtu.freemyip.com
     myaddr:
-      host: lmtlmt.myaddr.io
+      host: sonarr.lmtlmt.myaddr.io
       certResolver: myaddr
 
   persistence:
