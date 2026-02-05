@@ -1,0 +1,5 @@
+apiVersion: v2
+name: infra-postgresql
+version: 0.1.0
+description: Standalone PostgreSQL Chart
+type: application

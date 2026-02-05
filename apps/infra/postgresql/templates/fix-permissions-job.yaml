@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fix-nextcloud-db-permissions
+  namespace: infra
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: fix-permissions
+        image: postgres:latest
+        env:
+        - name: PGPASSWORD
+          value: nextcloudpassword
+        command:
+        - sh
+        - -c
+        - |
+          echo "Granting permissions..."
+          psql -h postgresql.infra.svc.cluster.local -U postgres -d nextcloud -c "GRANT ALL PRIVILEGES ON DATABASE nextcloud TO postgres;"
+          psql -h postgresql.infra.svc.cluster.local -U postgres -d nextcloud -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;"
+          psql -h postgresql.infra.svc.cluster.local -U postgres -d nextcloud -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO postgres;"
+          psql -h postgresql.infra.svc.cluster.local -U postgres -d nextcloud -c "ALTER SCHEMA public OWNER TO postgres;"
+          echo "Done."
+      restartPolicy: Never
