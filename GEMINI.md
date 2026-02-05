@@ -15,7 +15,7 @@ This project is a personal Home Lab orchestrating a diverse range of self-hosted
 *   `bootstrap/`: The Argo CD ApplicationSet (Entry Point).
 *   `apps/`:
     *   `core/`: System-critical apps (Argo CD, Homepage).
-    *   `infra/`: Infrastructure services (MetalLB, Traefik, Postgres-Operator, Secrets, Storage, Cronjobs).
+    *   `infra/`: Infrastructure services (MetalLB, Traefik, PostgreSQL, Secrets, Storage, Cronjobs).
     *   `media/`: Entertainment stack (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
     *   `nextcloud/`: Productivity suite (Standalone Docker deployment).
     *   `tailscale/`: Mesh networking operator.
@@ -47,7 +47,7 @@ This project is a personal Home Lab orchestrating a diverse range of self-hosted
 
 ### Database Architecture
 *   **PostgreSQL:**
-    *   Deployed via `postgres-operator` in `apps/infra/postgres-operator`.
+    *   Deployed via standard chart in `apps/infra/postgresql`.
     *   **Shared Instance:** Used by Nextcloud and potentially others.
     *   **Connection:** Internal ClusterIP service `postgresql.infra.svc.cluster.local`.
 
