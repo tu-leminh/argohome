@@ -25,10 +25,8 @@ spec:
       serversTransport: argocd-transport
     middlewares:
       - name: argocd-headers
+  {{- if $target.certResolver }}
   tls:
-    {{- if $target.certResolver }}
     certResolver: {{ $target.certResolver }}
-    {{- else }}
-    {}
-    {{- end }}
+  {{- end }}
 {{- end }}

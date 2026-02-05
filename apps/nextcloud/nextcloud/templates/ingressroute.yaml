@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   insecureSkipVerify: true
-{{- range $name, $target := .Values.nextcloud.ingressTargets }}
+{{- range $name, $target := .Values.ingressTargets }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -20,8 +20,8 @@ spec:
     kind: Rule
     services:
     - name: {{ include "common.names.fullname" $ }}
-      port: {{ $.Values.nextcloud.service.port }}
-      scheme: https
+      port: 80
+      scheme: http
       serversTransport: nextcloud-transport
   tls:
     certResolver: {{ $target.certResolver }}

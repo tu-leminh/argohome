@@ -18,37 +18,21 @@ spec:
     spec:
       containers:
         - name: nextcloud
-          image: "{{ .Values.nextcloud.image.repository }}:{{ .Values.nextcloud.image.tag }}"
-          imagePullPolicy: {{ .Values.nextcloud.image.pullPolicy }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: https
-              containerPort: {{ .Values.nextcloud.service.port }}
+            - name: http
+              containerPort: 80
               protocol: TCP
-              
           env:
-            {{- range $key, $value := .Values.nextcloud.env }}
+            {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-          
           volumeMounts:
-            {{- if .Values.nextcloud.persistence.config.enabled }}
-            - name: config
-              mountPath: /config
-            {{- end }}
-            {{- if .Values.nextcloud.persistence.data.enabled }}
-            - name: data
-              mountPath: /data
-            {{- end }}
-      
+            - name: nextcloud-html
+              mountPath: /var/www/html
       volumes:
-        {{- if .Values.nextcloud.persistence.config.enabled }}
-        - name: config
+        - name: nextcloud-html
           persistentVolumeClaim:
-            claimName: {{ .Values.nextcloud.persistence.config.existingClaim }}
-        {{- end }}
-        {{- if .Values.nextcloud.persistence.data.enabled }}
-        - name: data
-          persistentVolumeClaim:
-            claimName: {{ .Values.nextcloud.persistence.data.existingClaim }}
-        {{- end }}
+            claimName: {{ .Values.persistence.html.existingClaim }}

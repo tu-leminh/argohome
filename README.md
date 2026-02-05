@@ -15,29 +15,50 @@ Initialize the cluster and Argo CD:
 ```
 
 ### 2. Access Applications
+*   **Homepage Dashboard:** `https://epricesx.duckdns.org` (or configured DDNS)
+    *   Central hub for all services.
 *   **Argo CD:** `https://argo.epricesx.duckdns.org`
-*   **Traefik Dashboard:** `https://192.168.1.111/dashboard/`
+    *   **Credentials:** Admin user, password stored in `argocd-initial-admin-secret` (or configured via SSO).
+
+### 3. Application Access
+Services are exposed via three methods:
+1.  **Local Network (MetalLB):** Direct IP access (e.g., `192.168.1.150` for Sonarr).
+2.  **External (Traefik + DDNS):** `https://<app>.epricesx.duckdns.org`.
+3.  **Private Mesh (Tailscale):** `https://<app>.platy-python.ts.net` (Secure remote access without open ports).
+
+#### Core Services
+*   **Argo CD:** GitOps Controller.
+*   **Homepage:** Beautiful start page.
 
 #### Cloud & Productivity
-*   **Nextcloud:** `https://nextcloud.epricesx.duckdns.org`
-    *   *Database Host:* `postgresql.infra.svc.cluster.local`
-    *   *Database User:* `postgres`
-    *   *Database Pass:* `nextcloudpassword`
+*   **Nextcloud:** File storage & collaboration.
+    *   *Backend:* PostgreSQL (HA-ready operator).
 
-#### Media Stack
-*   **Sonarr:** `https://sonarr.epricesx.duckdns.org` (Local: `http://192.168.1.150:8989`)
-*   **Radarr:** `https://radarr.epricesx.duckdns.org` (Local: `http://192.168.1.151:7878`)
-*   **Prowlarr:** `https://prowlarr.epricesx.duckdns.org` (Local: `http://192.168.1.152:9696`)
-*   **qBittorrent:** `https://qbittorrent.epricesx.duckdns.org` (Local: `http://192.168.1.153:8080`)
-*   **Jellyfin:** `https://jellyfin.epricesx.duckdns.org` (Local: `http://192.168.1.154:8096`)
+#### Media Stack (The *Arr* Suite)
+*   **Sonarr:** TV Series management.
+*   **Radarr:** Movie management.
+*   **Prowlarr:** Indexer manager (connects Sonarr/Radarr to trackers).
+*   **qBittorrent:** BitTorrent client.
+*   **Jellyfin:** Media server/player.
 
 ## Architecture Highlights
 
 *   **GitOps:** Argo CD manages all applications via an "App of Apps" pattern (`bootstrap/applicationset.yaml`).
-*   **Networking:** MetalLB provides Layer 2 LoadBalancing; Traefik handles Ingress and SSL.
-*   **Storage:** All data resides in `/data/apps/` on the host, mounted via HostPath PVs.
-*   **Database:** A shared PostgreSQL instance handles backend storage for apps like Nextcloud, configured for robust reconnection after cluster resets.
+*   **Networking:**
+    *   **MetalLB:** Layer 2 LoadBalancing (IP Pool: `192.168.1.100-200`).
+    *   **Traefik:** Ingress Controller handling SSL (Let's Encrypt) and routing.
+    *   **Tailscale:** Kubernetes Operator for secure, VPN-less remote access to internal services.
+*   **Storage:** All persistent data resides in `/data/apps/` on the host (`dell`), mounted via HostPath PVs.
+*   **Database:** A shared PostgreSQL instance handles backend storage for apps, managed by the Postgres Operator.
 
 ## Management
 
-To deploy a new application, simply commit a Helm chart to the `apps/` directory. Argo CD will automatically discover and deploy it to the cluster.
+To deploy a new application:
+1.  Create a Helm chart in `apps/<category>/<name>`.
+2.  Commit and push to the repo.
+3.  Argo CD's `ApplicationSet` will automatically discover and deploy it.
+
+## Troubleshooting
+
+*   **Argo CD Sync Stuck:** Check resource limits on `repo-server` or large CRD issues (Server-Side Apply is enabled).
+*   **Access Issues:** Verify IngressRoutes for Traefik or `Ingress` resources for Tailscale (ensure ports match service target ports).

@@ -11,6 +11,6 @@ spec:
     - nextcloud
   defaultBackend:
     service:
-      name: {{ .Release.Name }}
+      name: {{ include "common.names.fullname" . }}
       port:
-        number: 8080
+        number: 80

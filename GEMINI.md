@@ -1,71 +1,71 @@
 # GitOps Home Lab Project Specification
 
 ## 1. Project Overview
-This project is a personal Home Lab orchestrating a diverse range of self-hosted applications using Kubernetes and **GitOps** principles. The system uses MicroK8s as the foundation and Argo CD to drive the cluster state from this Git repository.
+This project is a personal Home Lab orchestrating a diverse range of self-hosted applications using Kubernetes (MicroK8s) and **GitOps** principles (Argo CD). The repository is the single source of truth.
 
 ## 2. Core Architecture
-*   **Orchestrator:** MicroK8s (Single Node)
-*   **GitOps Engine:** Argo CD (App of Apps pattern) using Sync Waves (`core`:-5 -> `infra`:-1 -> `apps`:5)
+*   **Orchestrator:** MicroK8s (Single Node: `dell`)
+*   **GitOps Engine:** Argo CD (App of Apps pattern)
+    *   **Bootstrap:** `bootstrap/applicationset.yaml` targets all subdirectories in `apps/`.
+    *   **Sync Waves:** `core` (-5) -> `infra` (-1) -> `media/nextcloud` (5).
+    *   **Sync Options:** `ServerSideApply=true` enabled to handle large CRDs (like ApplicationSet).
 *   **Repository:** Private GitHub Repository (`gitops-home`)
-*   **Directory Structure:**
-    *   `bootstrap/`: The Argo CD ApplicationSet (Entry Point).
-    *   `apps/`: Helm charts organized by functional layer.
-        *   `core/`: System-critical apps (Argo CD).
-        *   `infra/`: Infrastructure services (Networking, Storage, Databases, Secrets).
-        *   `media/`: Entertainment stack (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
-        *   `cloud/`: Productivity suite (Nextcloud).
 
-## 3. Technology Stack & Implementation
+## 3. Directory Structure
+*   `bootstrap/`: The Argo CD ApplicationSet (Entry Point).
+*   `apps/`:
+    *   `core/`: System-critical apps (Argo CD, Homepage).
+    *   `infra/`: Infrastructure services (MetalLB, Traefik, Postgres-Operator, Secrets, Storage, Cronjobs).
+    *   `media/`: Entertainment stack (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
+    *   `nextcloud/`: Productivity suite (Standalone Docker deployment).
+    *   `tailscale/`: Mesh networking operator.
+
+## 4. Technology Stack & Implementation
 
 ### Networking
 *   **Load Balancing (Layer 2):** MetalLB
-    *   **VIP:** `192.168.1.111` (Cluster Entry Point)
-    *   **Direct Media Access:** Dedicated IPs for each media application (e.g., Sonarr on `.150`, Radarr on `.151`).
+    *   **IP Pool:** `192.168.1.100 - 192.168.1.200`
+    *   **Advertisement:** L2
 *   **Ingress Controller:** Traefik
-    *   Handles SSL termination and routing via `IngressRoute` CRDs.
-    *   Supports multiple dynamic DNS providers simultaneously (`DuckDNS`, `FreeMyIP`, `MyAddr`).
-*   **DNS Strategy:**
-    *   External: Dynamic DNS updates via CronJobs.
-    *   Internal: Split IngressRoutes per provider.
+    *   Handles public/DDNS traffic.
+    *   **Providers:** `DuckDNS`, `FreeMyIP`, `MyAddr`.
+    *   **SSL:** Let's Encrypt / Custom Certs managed via Secrets.
+*   **Mesh Networking:** Tailscale Operator
+    *   **Mechanism:** Exposes services to the Tailnet via `Ingress` resources with `ingressClassName: tailscale`.
+    *   **Config:** Managed via `apps/tailscale/operator`. Setup uses OAuth client secrets.
 
 ### Storage & Persistence
 *   **Strategy:** **Stateless Compute, Stateful Host.**
-    *   All persistent data resides on the host filesystem (`/data/...`).
-    *   Kubernetes resources mount these paths via `HostPath` PVs/PVCs.
-    *   **Goal:** Complete cluster disposability. If the cluster is reset, simply re-apply manifests to reconnect to existing data.
-*   **Volume Mapping:**
-    *   **Media:** `/data/apps/media/shared/{downloads,movies,shows}`
-    *   **Configs:** `/data/apps/{category}/{app_name}/config`
-    *   **Database:** `/data/apps/infra/postgres-operator/data`
-    *   **Nextcloud Data:** `/data/apps/nextcloud/nextcloud/data`
+    *   All persistent data resides on the host filesystem at `/data/apps/...`.
+    *   Kubernetes resources mount these paths via `HostPath` PVs/PVCs defined in `apps/infra/storage`.
+    *   **Node Affinity:** PVs are pinned to node `dell`.
+*   **Key Paths:**
+    *   **Media Shared:** `/data/apps/media/shared/{downloads,movies,shows}` (ReadWriteMany)
+    *   **App Configs:** `/data/apps/{category}/{app_name}/config`
+    *   **Postgres Data:** `/data/apps/infra/postgres-operator/data`
+    *   **Nextcloud:** `/data/apps/nextcloud/nextcloud/data` mounted to `/var/www/html` (Single Volume Strategy).
 
 ### Database Architecture
 *   **PostgreSQL:**
-    *   Deployed as a standard Deployment (Single Instance).
-    *   **User Strategy:** Uses the default `postgres` superuser for all connections.
-        *   *Why?* To ensure seamless reconnection to existing data after cluster resets without permission conflicts.
-    *   **Authentication:** `nextcloudpassword` (Shared secret).
+    *   Deployed via `postgres-operator` in `apps/infra/postgres-operator`.
+    *   **Shared Instance:** Used by Nextcloud and potentially others.
+    *   **Connection:** Internal ClusterIP service `postgresql.infra.svc.cluster.local`.
 
-### Application Layer
-*   **Media Stack:**
-    *   Pure local Helm templates wrapping `linuxserver.io` images.
-    *   Direct IP exposure for local network usage + Ingress for remote.
+## 5. Operational Workflows
+*   **Deploy New App:** Add a Helm chart to `apps/<category>/<name>`. The `ApplicationSet` automatically detects and deploys it.
+*   **Updates:** Modify `values.yaml` or templates. Argo CD syncs automatically (or manually if configured).
+*   **Secrets:** Managed as Kubernetes Secrets (Helm templates). *Caution: Ensure actual secrets are not committed in plain text if repo is public (currently private).*
+
+## 6. Known Configurations & Fixes
+*   **Argo CD Repo Server:** Requires explicit resource limits (`memory: 512Mi`) to prevent OOM kills during heavy syncs.
 *   **Nextcloud:**
-    *   Dedicated Helm chart.
-    *   Connects to the shared Postgres instance in `infra` namespace.
-    *   Environment variables enforce `DB_USER: postgres` for reliable init.
+    *   **Architecture:** Standalone `deployment` using official `nextcloud:apache` image (no sub-chart).
+    *   **Persistence:** Single persistent volume (`nextcloud-data-pvc`) mounted to `/var/www/html` to persist configuration, apps, and data.
+    *   **Networking:** Requires `TRUSTED_PROXIES` (space-separated) and `NEXTCLOUD_TRUSTED_DOMAINS` (space-separated) in `values.yaml`.
+*   **Tailscale Ingress:** Must target the **HTTPS port (443)** for services enforcing HTTPS (Argo CD) and **HTTP port (80)** for services listening on HTTP (Nextcloud Apache).
+*   **Large CRDs:** `ServerSideApply` must be enabled in the ApplicationSet to support applying large CRDs like `applicationsets.argoproj.io`.
 
-## 4. Operational Workflows
-*   **Bootstrap:** Execute `./bootstrap.sh` to initialize MicroK8s and Argo CD.
-*   **Deploy New App:** Add a Helm chart to `apps/<category>/<name>`. The `ApplicationSet` automatically detects and deploys it (supported categories: `core`, `infra`, `media`, `nextcloud`).
-*   **Updates:** Modify `values.yaml` or templates in the repo. Argo CD syncs the changes (Manual trigger enabled).
-*   **Cluster Reset:**
-    1.  Tear down MicroK8s.
-    2.  Ensure host data paths (`/data/...`) are intact (or clean if a fresh start is desired).
-    3.  Run `./bootstrap.sh`.
-    4.  Argo CD restores all apps, which reconnect to the host data.
-
-## 5. Agent Guidelines
+## 7. Agent Guidelines
 *   **Verification:** Always run `helm template` locally to validate chart syntax before changes.
 *   **Statelessness:** When modifying deployments, ensure no state is stored inside containers. Always check `apps/infra/storage` for PV definitions.
 *   **Documentation:** Update this file and `README.md` if architectural decisions change.

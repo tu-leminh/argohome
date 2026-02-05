@@ -1,41 +1,37 @@
-nextcloud:
-  image:
-    repository: lscr.io/linuxserver/nextcloud
-    tag: latest
-    pullPolicy: IfNotPresent
-  env:
-    TZ: Etc/UTC
-    PUID: 1000
-    PGID: 1000
-    DB_TYPE: pgsql
-    DB_HOST: postgresql.infra.svc.cluster.local
-    DB_PORT: 5432
-    DB_NAME: nextcloud
-    DB_USER: postgres
-    DB_PASSWORD: nextcloudpassword
-  
-  service:
-    port: 443
-    type: ClusterIP
+image:
+  repository: nextcloud
+  tag: 32.0.5-apache
+  pullPolicy: IfNotPresent
 
-  persistence:
-    config:
-      enabled: true
-      existingClaim: nextcloud-config-pvc
-    data:
-      enabled: true
-      existingClaim: nextcloud-data-pvc
-  
-  ingressTargets:
-    duckdns:
-      host: nextcloud.epricesx.duckdns.org
-      certResolver: letsencrypt
-    freemyip:
-      host: nextcloud.lmtu.freemyip.com
-      certResolver: freemyip
-      tlsDomain: "*.lmtu.freemyip.com"
-      tlsSans:
-        - lmtu.freemyip.com
-    myaddr:
-      host: nextcloud.lmtlmt.myaddr.io
-      certResolver: myaddr
+service:
+  type: ClusterIP
+  port: 80
+
+env:
+  POSTGRES_HOST: postgresql.infra.svc.cluster.local
+  POSTGRES_DB: nextcloud
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: nextcloudpassword
+  NEXTCLOUD_TRUSTED_DOMAINS: "nextcloud.epricesx.duckdns.org nextcloud.lmtu.freemyip.com nextcloud.lmtlmt.myaddr.io nextcloud nextcloud.platy-python.ts.net"
+  TRUSTED_PROXIES: "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
+  OVERWRITEPROTOCOL: "https"
+
+persistence:
+  # Mount the entire web root to a single persistent volume
+  html:
+    enabled: true
+    existingClaim: nextcloud-data-pvc
+
+ingressTargets:
+  duckdns:
+    host: nextcloud.epricesx.duckdns.org
+    certResolver: letsencrypt
+  freemyip:
+    host: nextcloud.lmtu.freemyip.com
+    certResolver: freemyip
+    tlsDomain: "*.lmtu.freemyip.com"
+    tlsSans:
+      - lmtu.freemyip.com
+  myaddr:
+    host: nextcloud.lmtlmt.myaddr.io
+    certResolver: myaddr
