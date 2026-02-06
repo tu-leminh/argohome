@@ -30,6 +30,9 @@ mounts:
   - name: media-prowlarr-config
     path: /data/apps/media/prowlarr/config
     size: 1Gi
+  - name: media-bazarr-config
+    path: /data/apps/media/bazarr/config
+    size: 1Gi
 
   # Nextcloud
   - name: nextcloud-config

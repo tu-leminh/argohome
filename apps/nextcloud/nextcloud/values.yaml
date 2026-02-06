@@ -8,7 +8,7 @@ service:
   port: 80
 
 env:
-  POSTGRES_HOST: postgresql.infra.svc.cluster.local
+  POSTGRES_HOST: infra-postgresql.infra.svc.cluster.local
   POSTGRES_DB: nextcloud
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: nextcloudpassword

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: bazarr
+          image: "{{ .Values.bazarr.image.repository }}:{{ .Values.bazarr.image.tag }}"
+          imagePullPolicy: {{ .Values.bazarr.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.bazarr.service.port }}
+              protocol: TCP
+              
+          env:
+            {{- range $key, $value := .Values.bazarr.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          
+          volumeMounts:
+            {{- if .Values.bazarr.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.bazarr.persistence.movies.enabled }}
+            - name: movies
+              mountPath: {{ .Values.bazarr.persistence.movies.mountPath }}
+            {{- end }}
+            {{- if .Values.bazarr.persistence.shows.enabled }}
+            - name: shows
+              mountPath: {{ .Values.bazarr.persistence.shows.mountPath }}
+            {{- end }}
+      
+      volumes:
+        {{- if .Values.bazarr.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.bazarr.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.bazarr.persistence.movies.enabled }}
+        - name: movies
+          persistentVolumeClaim:
+            claimName: {{ .Values.bazarr.persistence.movies.existingClaim }}
+        {{- end }}
+        {{- if .Values.bazarr.persistence.shows.enabled }}
+        - name: shows
+          persistentVolumeClaim:
+            claimName: {{ .Values.bazarr.persistence.shows.existingClaim }}
+        {{- end }}
