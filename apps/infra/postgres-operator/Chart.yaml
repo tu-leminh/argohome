@@ -1,6 +1,0 @@
-apiVersion: v2
-name: infra-postgres
-description: PostgreSQL database for infrastructure and apps using official image
-type: application
-version: 1.0.0
-appVersion: "16.0.0"

@@ -1,6 +1,6 @@
 image:
   repository: postgres
-  tag: 18-alpine # Using a pinned alpine version for stability and size
+  tag: 15-alpine # Using a pinned alpine version for stability and size
   pullPolicy: IfNotPresent
 
 service:
