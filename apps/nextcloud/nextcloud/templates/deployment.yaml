@@ -16,6 +16,13 @@ spec:
       labels:
         {{- include "common.labels.selector" . | nindent 8 }}
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        sysctls:
+          - name: net.ipv4.ip_unprivileged_port_start
+            value: "0"
       containers:
         - name: nextcloud
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
