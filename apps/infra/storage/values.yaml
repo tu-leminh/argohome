@@ -53,11 +53,11 @@ mounts:
 
   # oCIS
   - name: owncloud-ocis-config
-    namespace: owncloud
+    namespace: ocis
     path: /data/apps/owncloud/ocis/config
     size: 1Gi
   - name: owncloud-ocis-data
-    namespace: owncloud
+    namespace: ocis
     path: /data/apps/owncloud/ocis/data
     size: 500Gi
     accessMode: ReadWriteMany

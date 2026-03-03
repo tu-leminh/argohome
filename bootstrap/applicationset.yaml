@@ -44,7 +44,7 @@ spec:
       repoURL: https://github.com/tu-leminh/argohome
       revision: HEAD
       directories:
-      - path: apps/owncloud/*
+      - path: apps/owncloud-ocis/*
       values:
         syncWave: "5"
   template:
