@@ -11,6 +11,7 @@ env:
   OCIS_INSECURE: "true"
   PROXY_HTTP_ADDR: "0.0.0.0:9200"
   OCIS_URL: "https://ocis.epricesx.duckdns.org"
+  OCIS_CORS_ALLOW_ORIGINS: "https://ocis.epricesx.duckdns.org,https://ocis.lmtu.freemyip.com,https://ocis.lmtlmt.myaddr.io,https://ocis,https://ocis.platy-python.ts.net"
 
 persistence:
   config:
@@ -24,3 +25,12 @@ ingressTargets:
   duckdns:
     host: ocis.epricesx.duckdns.org
     certResolver: letsencrypt
+  freemyip:
+    host: ocis.lmtu.freemyip.com
+    certResolver: freemyip
+    tlsDomain: "*.lmtu.freemyip.com"
+    tlsSans:
+      - lmtu.freemyip.com
+  myaddr:
+    host: ocis.lmtlmt.myaddr.io
+    certResolver: myaddr

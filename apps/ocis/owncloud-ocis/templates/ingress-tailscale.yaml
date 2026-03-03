@@ -4,6 +4,7 @@ metadata:
   name: ocis-tailscale
   annotations:
     tailscale.com/funnel: "true"
+    tailscale.com/backend-protocol: "https"
 spec:
   ingressClassName: tailscale
   tls:
