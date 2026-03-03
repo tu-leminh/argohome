@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ocis-tailscale
+  annotations:
+    tailscale.com/funnel: "true"
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - ocis
+  defaultBackend:
+    service:
+      name: {{ include "common.names.fullname" . }}
+      port:
+        number: {{ .Values.service.port }}
