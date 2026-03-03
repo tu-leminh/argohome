@@ -17,41 +17,47 @@ spec:
         {{- include "common.labels.selector" . | nindent 8 }}
     spec:
       containers:
-        - name: qbittorrent
-          image: "{{ .Values.qbittorrent.image.repository }}:{{ .Values.qbittorrent.image.tag }}"
-          imagePullPolicy: {{ .Values.qbittorrent.image.pullPolicy }}
+        - name: deluge
+          image: "{{ .Values.deluge.image.repository }}:{{ .Values.deluge.image.tag }}"
+          imagePullPolicy: {{ .Values.deluge.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.qbittorrent.service.port }}
+              containerPort: {{ .Values.deluge.service.port }}
               protocol: TCP
-            - name: bittorrent
+            - name: daemon
+              containerPort: 58846
+              protocol: TCP
+            - name: incoming-tcp
               containerPort: 6881
               protocol: TCP
-              
+            - name: incoming-udp
+              containerPort: 6881
+              protocol: UDP
+          
           env:
-            {{- range $key, $value := .Values.qbittorrent.env }}
+            {{- range $key, $value := .Values.deluge.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
           
           volumeMounts:
-            {{- if .Values.qbittorrent.persistence.config.enabled }}
+            {{- if .Values.deluge.persistence.config.enabled }}
             - name: config
               mountPath: /config
             {{- end }}
-            {{- if .Values.qbittorrent.persistence.downloads.enabled }}
+            {{- if .Values.deluge.persistence.downloads.enabled }}
             - name: downloads
-              mountPath: {{ .Values.qbittorrent.persistence.downloads.mountPath }}
+              mountPath: {{ .Values.deluge.persistence.downloads.mountPath }}
             {{- end }}
       
       volumes:
-        {{- if .Values.qbittorrent.persistence.config.enabled }}
+        {{- if .Values.deluge.persistence.config.enabled }}
         - name: config
           persistentVolumeClaim:
-            claimName: {{ .Values.qbittorrent.persistence.config.existingClaim }}
+            claimName: {{ .Values.deluge.persistence.config.existingClaim }}
         {{- end }}
-        {{- if .Values.qbittorrent.persistence.downloads.enabled }}
+        {{- if .Values.deluge.persistence.downloads.enabled }}
         - name: downloads
           persistentVolumeClaim:
-            claimName: {{ .Values.qbittorrent.persistence.downloads.existingClaim }}
+            claimName: {{ .Values.deluge.persistence.downloads.existingClaim }}
         {{- end }}

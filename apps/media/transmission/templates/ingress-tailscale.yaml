@@ -1,17 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ocis-tailscale
+  name: transmission-tailscale
   annotations:
     tailscale.com/funnel: "true"
-    tailscale.com/backend-protocol: "https"
 spec:
   ingressClassName: tailscale
   tls:
   - hosts:
-    - ocis
+    - transmission
   defaultBackend:
     service:
       name: {{ include "common.names.fullname" . }}
       port:
-        number: {{ .Values.service.port }}
+        number: {{ .Values.transmission.service.port }}

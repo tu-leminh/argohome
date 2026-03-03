@@ -16,7 +16,7 @@ This project is a personal Home Lab orchestrating a diverse range of self-hosted
 *   `apps/`:
     *   `core/`: System-critical apps (Argo CD, Homepage).
     *   `infra/`: Infrastructure services (MetalLB, Traefik, PostgreSQL, Secrets, Storage, Cronjobs).
-    *   `media/`: Entertainment stack (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin).
+    *   `media/`: Entertainment stack (Sonarr, Radarr, Prowlarr, Transmission, Deluge, Jellyfin).
     *   `nextcloud/`: Productivity suite (Standalone Docker deployment).
     *   `tailscale/`: Mesh networking operator.
 

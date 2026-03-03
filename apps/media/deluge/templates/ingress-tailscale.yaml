@@ -1,16 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: qbittorrent-tailscale
+  name: deluge-tailscale
   annotations:
     tailscale.com/funnel: "true"
 spec:
   ingressClassName: tailscale
   tls:
   - hosts:
-    - qbittorrent
+    - deluge
   defaultBackend:
     service:
       name: {{ include "common.names.fullname" . }}
       port:
-        number: 8080
+        number: {{ .Values.deluge.service.port }}

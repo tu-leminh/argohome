@@ -53,9 +53,13 @@ config:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/prowlarr.png
             href: https://prowlarr.lmtlmt.myaddr.io
             description: Indexer Manager
-        - qBittorrent:
-            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/qbittorrent.png
-            href: https://qbittorrent.lmtlmt.myaddr.io
+        - Transmission:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/transmission.png
+            href: https://transmission.lmtlmt.myaddr.io
+            description: Torrent Client
+        - Deluge:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/deluge.png
+            href: https://deluge.lmtlmt.myaddr.io
             description: Torrent Client
         - Bazarr:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/bazarr.png

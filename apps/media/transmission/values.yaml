@@ -1,23 +1,24 @@
-qbittorrent:
+transmission:
   image:
-    repository: lscr.io/linuxserver/qbittorrent
+    repository: lscr.io/linuxserver/transmission
     tag: latest
     pullPolicy: IfNotPresent
   env:
     TZ: Etc/UTC
     PUID: 1000
     PGID: 1000
-    WEBUI_PORT: 8080
+    USER: ""
+    PASS: ""
   
   service:
     type: LoadBalancer
     loadBalancerIP: 192.168.1.153
-    port: 8080
+    port: 9091
 
   persistence:
     config:
       enabled: true
-      existingClaim: media-qbittorrent-config-pvc
+      existingClaim: media-transmission-config-pvc
     downloads:
       enabled: true
       existingClaim: media-shared-downloads-pvc
@@ -25,14 +26,14 @@ qbittorrent:
   
   ingressTargets:
     duckdns:
-      host: qbittorrent.epricesx.duckdns.org
+      host: transmission.epricesx.duckdns.org
       certResolver: letsencrypt
     freemyip:
-      host: qbittorrent.lmtu.freemyip.com
+      host: transmission.lmtu.freemyip.com
       certResolver: freemyip
       tlsDomain: "*.lmtu.freemyip.com"
       tlsSans:
         - lmtu.freemyip.com
     myaddr:
-      host: qbittorrent.lmtlmt.myaddr.io
+      host: transmission.lmtlmt.myaddr.io
       certResolver: myaddr
