@@ -40,6 +40,13 @@ spec:
       - path: apps/nextcloud/*
       values:
         syncWave: "5"
+  - git:
+      repoURL: https://github.com/tu-leminh/argohome
+      revision: HEAD
+      directories:
+      - path: apps/owncloud/*
+      values:
+        syncWave: "5"
   template:
     metadata:
       name: '{{path[1]}}-{{path.basename}}'
