@@ -15,10 +15,10 @@ env:
 persistence:
   config:
     enabled: true
-    existingClaim: ocis-config-v2-pvc
+    existingClaim: ocis-config-pvc
   data:
     enabled: true
-    existingClaim: ocis-data-v2-pvc
+    existingClaim: ocis-data-pvc
 
 ingressTargets:
   duckdns:

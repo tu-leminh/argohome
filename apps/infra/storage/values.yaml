@@ -52,13 +52,13 @@ mounts:
     size: 8Gi
 
   # oCIS
-  - name: ocis-config-v2
-    namespace: nextcloud
-    path: /data/apps/nextcloud/ocis/config
+  - name: ocis-config
+    namespace: owncloud
+    path: /data/apps/owncloud/ocis/config
     size: 1Gi
-  - name: ocis-data-v2
-    namespace: nextcloud
-    path: /data/apps/nextcloud/ocis/data
+  - name: ocis-data
+    namespace: owncloud
+    path: /data/apps/owncloud/ocis/data
     size: 500Gi
     accessMode: ReadWriteMany
 
