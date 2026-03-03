@@ -1,5 +1,5 @@
 apiVersion: v2
-name: ocis
+name: owncloud-ocis
 description: A Helm chart for ownCloud Infinite Scale (oCIS)
 type: application
 version: 0.1.0
