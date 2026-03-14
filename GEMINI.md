@@ -7,7 +7,7 @@ This project is a personal Home Lab orchestrating a diverse range of self-hosted
 *   **Orchestrator:** MicroK8s (Single Node: `dell`)
 *   **GitOps Engine:** Argo CD (App of Apps pattern)
     *   **Bootstrap:** `bootstrap/applicationset.yaml` targets all subdirectories in `apps/`.
-    *   **Sync Waves:** `core` (-5) -> `infra` (-1) -> `media/nextcloud` (5).
+    *   **Sync Waves:** `core` (-5) -> `infra` (-1) -> `media` (5).
     *   **Sync Options:** `ServerSideApply=true` enabled to handle large CRDs (like ApplicationSet).
 *   **Repository:** Private GitHub Repository (`gitops-home`)
 
@@ -15,9 +15,8 @@ This project is a personal Home Lab orchestrating a diverse range of self-hosted
 *   `bootstrap/`: The Argo CD ApplicationSet (Entry Point).
 *   `apps/`:
     *   `core/`: System-critical apps (Argo CD, Homepage).
-    *   `infra/`: Infrastructure services (MetalLB, Traefik, PostgreSQL, Secrets, Storage, Cronjobs).
+    *   `infra/`: Infrastructure services (MetalLB, Traefik, Secrets, Storage, Cronjobs).
     *   `media/`: Entertainment stack (Sonarr, Radarr, Prowlarr, Transmission, Deluge, Jellyfin).
-    *   `nextcloud/`: Productivity suite (Standalone Docker deployment).
     *   `tailscale/`: Mesh networking operator.
 
 ## 4. Technology Stack & Implementation
@@ -42,14 +41,8 @@ This project is a personal Home Lab orchestrating a diverse range of self-hosted
 *   **Key Paths:**
     *   **Media Shared:** `/data/apps/media/shared/{downloads,movies,shows}` (ReadWriteMany)
     *   **App Configs:** `/data/apps/{category}/{app_name}/config`
-    *   **Postgres Data:** `/data/apps/infra/postgres-operator/data`
-    *   **Nextcloud:** `/data/apps/nextcloud/nextcloud/data` mounted to `/var/www/html` (Single Volume Strategy).
 
 ### Database Architecture
-*   **PostgreSQL:**
-    *   Deployed via standard chart in `apps/infra/postgresql`.
-    *   **Shared Instance:** Used by Nextcloud and potentially others.
-    *   **Connection:** Internal ClusterIP service `postgresql.infra.svc.cluster.local`.
 
 ## 5. Operational Workflows
 *   **Deploy New App:** Add a Helm chart to `apps/<category>/<name>`. The `ApplicationSet` automatically detects and deploys it.
@@ -58,11 +51,7 @@ This project is a personal Home Lab orchestrating a diverse range of self-hosted
 
 ## 6. Known Configurations & Fixes
 *   **Argo CD Repo Server:** Requires explicit resource limits (`memory: 512Mi`) to prevent OOM kills during heavy syncs.
-*   **Nextcloud:**
-    *   **Architecture:** Standalone `deployment` using official `nextcloud:apache` image (no sub-chart).
-    *   **Persistence:** Single persistent volume (`nextcloud-data-pvc`) mounted to `/var/www/html` to persist configuration, apps, and data.
-    *   **Networking:** Requires `TRUSTED_PROXIES` (space-separated) and `NEXTCLOUD_TRUSTED_DOMAINS` (space-separated) in `values.yaml`.
-*   **Tailscale Ingress:** Must target the **HTTPS port (443)** for services enforcing HTTPS (Argo CD) and **HTTP port (80)** for services listening on HTTP (Nextcloud Apache).
+*   **Tailscale Ingress:** Must target the **HTTPS port (443)** for services enforcing HTTPS (Argo CD).
 *   **Large CRDs:** `ServerSideApply` must be enabled in the ApplicationSet to support applying large CRDs like `applicationsets.argoproj.io`.
 
 ## 7. Agent Guidelines

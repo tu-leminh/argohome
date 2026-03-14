@@ -31,8 +31,6 @@ Services are exposed via three methods:
 *   **Homepage:** Beautiful start page.
 
 #### Cloud & Productivity
-*   **Nextcloud:** File storage & collaboration.
-    *   *Backend:* PostgreSQL (HA-ready operator).
 
 #### Media Stack (The *Arr* Suite)
 *   **Sonarr:** TV Series management.
@@ -50,7 +48,6 @@ Services are exposed via three methods:
     *   **Traefik:** Ingress Controller handling SSL (Let's Encrypt) and routing.
     *   **Tailscale:** Kubernetes Operator for secure, VPN-less remote access to internal services.
 *   **Storage:** All persistent data resides in `/data/apps/` on the host (`dell`), mounted via HostPath PVs.
-*   **Database:** A shared PostgreSQL instance handles backend storage for apps, managed by the Postgres Operator.
 
 ## Management
 

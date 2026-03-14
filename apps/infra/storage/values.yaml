@@ -37,23 +37,6 @@ mounts:
     path: /data/apps/media/bazarr/config
     size: 1Gi
 
-  # Nextcloud
-  - name: nextcloud-config
-    namespace: nextcloud
-    path: /data/apps/nextcloud/nextcloud/config
-    size: 1Gi
-  - name: nextcloud-data
-    namespace: nextcloud
-    path: /data/apps/nextcloud/nextcloud/data
-    size: 500Gi
-    accessMode: ReadWriteMany
-
-  # PostgreSQL
-  - name: infra-postgres-data
-    namespace: infra
-    path: /data/apps/infra/postgres-operator/data
-    size: 8Gi
-
   # oCIS
   - name: owncloud-ocis-config
     namespace: ocis

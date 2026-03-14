@@ -1,5 +1,0 @@
-apiVersion: v2
-name: cloud-nextcloud
-version: 0.1.0
-description: Nextcloud Standalone Chart
-type: application
