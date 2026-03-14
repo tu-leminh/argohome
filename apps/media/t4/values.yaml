@@ -21,6 +21,15 @@ transmission:
       existingClaim: media-shared-downloads-pvc
       mountPath: /downloads
   ingressTargets:
-    myddns:
-      host: t4.myddns
+    duckdns:
+      host: t4.epricesx.duckdns.org
       certResolver: letsencrypt
+    freemyip:
+      host: t4.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: '*.lmtu.freemyip.com'
+      tlsSans:
+      - lmtu.freemyip.com
+    myaddr:
+      host: t4.lmtlmt.myaddr.io
+      certResolver: myaddr
