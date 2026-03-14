@@ -1,0 +1,26 @@
+transmission:
+  image:
+    repository: lscr.io/linuxserver/transmission
+    tag: latest
+    pullPolicy: IfNotPresent
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+    USER: ''
+    PASS: ''
+  service:
+    type: ClusterIP
+    port: 9091
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-t5-config-pvc
+    downloads:
+      enabled: true
+      existingClaim: media-shared-downloads-pvc
+      mountPath: /downloads
+  ingressTargets:
+    myddns:
+      host: t5.myddns
+      certResolver: letsencrypt

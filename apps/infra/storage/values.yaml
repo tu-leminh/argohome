@@ -24,6 +24,21 @@ mounts:
   - name: media-transmission-config
     path: /data/apps/media/transmission/config
     size: 1Gi
+  - name: media-t1-config
+    path: /data/apps/media/t1/config
+    size: 1Gi
+  - name: media-t2-config
+    path: /data/apps/media/t2/config
+    size: 1Gi
+  - name: media-t3-config
+    path: /data/apps/media/t3/config
+    size: 1Gi
+  - name: media-t4-config
+    path: /data/apps/media/t4/config
+    size: 1Gi
+  - name: media-t5-config
+    path: /data/apps/media/t5/config
+    size: 1Gi
   - name: media-deluge-config
     path: /data/apps/media/deluge/config
     size: 1Gi

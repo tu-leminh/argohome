@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  type: {{ .Values.transmission.service.type | default "ClusterIP" }}
+  {{- if .Values.transmission.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.transmission.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.transmission.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 51413
+      targetPort: torrent-tcp
+      protocol: TCP
+      name: torrent-tcp
+    - port: 51413
+      targetPort: torrent-udp
+      protocol: UDP
+      name: torrent-udp
+  selector:
+    {{- include "common.labels.selector" . | nindent 4 }}
