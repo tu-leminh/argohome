@@ -34,6 +34,5 @@ deluge:
       tlsSans:
         - lmtu.freemyip.com
     myaddr:
-      host: lmtlmt.myaddr.io
-      path: /deluge
+      host: deluge.lmtlmt.myaddr.io
       certResolver: myaddr

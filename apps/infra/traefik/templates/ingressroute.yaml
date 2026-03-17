@@ -9,7 +9,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`{{ $target.host }}`){{- if $target.path }} && PathPrefix(`{{ $target.path }}`){{- end }} && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+  - match: Host(`{{ $target.host }}`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
     kind: Rule
     services:
     - name: api@internal

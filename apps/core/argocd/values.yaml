@@ -20,9 +20,8 @@ ingressTargets:
     host: argo.lmtu.freemyip.com
     certResolver: freemyip
   myaddr:
-      host: lmtlmt.myaddr.io
-      path: /argo
-      certResolver: myaddr
+    host: argo.lmtlmt.myaddr.io
+    certResolver: myaddr
   local-ip:
     host: "192.168.1.111"
     certResolver: ""

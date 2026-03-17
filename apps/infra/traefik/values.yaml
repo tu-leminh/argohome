@@ -86,6 +86,5 @@ ingressTargets:
     host: "traefik.lmtu.freemyip.com"
     certResolver: freemyip
   myaddr:
-    host: "lmtlmt.myaddr.io"
-    path: "/traefik"
+    host: "traefik.lmtlmt.myaddr.io"
     certResolver: myaddr

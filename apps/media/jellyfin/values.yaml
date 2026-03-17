@@ -37,6 +37,5 @@ jellyfin:
       tlsSans:
         - lmtu.freemyip.com
     myaddr:
-      host: lmtlmt.myaddr.io
-      path: /jellyfin
+      host: jellyfin.lmtlmt.myaddr.io
       certResolver: myaddr

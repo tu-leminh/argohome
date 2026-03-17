@@ -29,6 +29,5 @@ prowlarr:
       tlsSans:
         - lmtu.freemyip.com
     myaddr:
-      host: lmtlmt.myaddr.io
-      path: /prowlarr
+      host: prowlarr.lmtlmt.myaddr.io
       certResolver: myaddr

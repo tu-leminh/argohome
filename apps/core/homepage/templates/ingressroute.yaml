@@ -9,7 +9,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`{{ $target.host }}`){{- if $target.path }} && PathPrefix(`{{ $target.path }}`){{- end }}
+  - match: Host(`{{ $target.host }}`)
     kind: Rule
     services:
     - name: homepage

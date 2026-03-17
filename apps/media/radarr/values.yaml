@@ -37,6 +37,5 @@ radarr:
       tlsSans:
         - lmtu.freemyip.com
     myaddr:
-      host: lmtlmt.myaddr.io
-      path: /radarr
+      host: radarr.lmtlmt.myaddr.io
       certResolver: myaddr
