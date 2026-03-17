@@ -30,3 +30,12 @@ bazarr:
     duckdns:
       host: bazarr.epricesx.duckdns.org
       certResolver: letsencrypt
+    freemyip:
+      host: bazarr.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: bazarr.lmtlmt.myaddr.io
+      certResolver: myaddr

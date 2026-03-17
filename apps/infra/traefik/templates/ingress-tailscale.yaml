@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik-tailscale
+  annotations:
+    tailscale.com/funnel: "true"
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - traefik
+  defaultBackend:
+    service:
+      name: infra-traefik
+      port:
+        number: 8080
