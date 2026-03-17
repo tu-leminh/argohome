@@ -1,0 +1,33 @@
+autobrr:
+  image:
+    repository: ghcr.io/autobrr/autobrr
+    tag: latest
+    pullPolicy: IfNotPresent
+  env:
+    TZ: Etc/UTC
+    PUID: "1000"
+    PGID: "1000"
+  
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.1.157
+    port: 7474
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-autobrr-config-pvc
+  
+  ingressTargets:
+    duckdns:
+      host: autobrr.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: autobrr.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: autobrr.lmtlmt.myaddr.io
+      certResolver: myaddr

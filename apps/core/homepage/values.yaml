@@ -61,6 +61,10 @@ config:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/bazarr.png
             href: https://bazarr.lmtlmt.myaddr.io
             description: Subtitles Manager
+        - Autobrr:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/autobrr.png
+            href: https://autobrr.lmtlmt.myaddr.io
+            description: Torrent Automation
 
   widgets: []
 

@@ -51,6 +51,9 @@ mounts:
   - name: media-bazarr-config
     path: /data/apps/media/bazarr/config
     size: 1Gi
+  - name: media-autobrr-config
+    path: /data/apps/media/autobrr/config
+    size: 1Gi
 
   # oCIS
   - name: owncloud-ocis-config
