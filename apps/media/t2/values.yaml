@@ -31,5 +31,6 @@ transmission:
       tlsSans:
       - lmtu.freemyip.com
     myaddr:
-      host: t2.lmtlmt.myaddr.io
+      host: lmtlmt.myaddr.io
+      path: /t2
       certResolver: myaddr

@@ -25,41 +25,41 @@ config:
         - Argo CD:
             # Verified: "argo-cd.png" is the correct filename in the main branch
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/argo-cd.png
-            href: https://argo.lmtlmt.myaddr.io
+            href: https://lmtlmt.myaddr.io/argo
             description: GitOps Deployment
         - Traefik:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/traefik.png
-            href: https://traefik.lmtlmt.myaddr.io/dashboard/
+            href: https://lmtlmt.myaddr.io/traefik/dashboard/
             description: Ingress Controller
 
     - Media:
         - Jellyfin:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/jellyfin.png
-            href: https://jellyfin.lmtlmt.myaddr.io
+            href: https://lmtlmt.myaddr.io/jellyfin
             description: Media Server
         - Sonarr:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/sonarr.png
-            href: https://sonarr.lmtlmt.myaddr.io
+            href: https://lmtlmt.myaddr.io/sonarr
             description: TV Shows
         - Radarr:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/radarr.png
-            href: https://radarr.lmtlmt.myaddr.io
+            href: https://lmtlmt.myaddr.io/radarr
             description: Movies
         - Prowlarr:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/prowlarr.png
-            href: https://prowlarr.lmtlmt.myaddr.io
+            href: https://lmtlmt.myaddr.io/prowlarr
             description: Indexer Manager
         - Transmission:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/transmission.png
-            href: https://transmission.lmtlmt.myaddr.io
+            href: https://lmtlmt.myaddr.io/transmission
             description: Torrent Client
         - Deluge:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/deluge.png
-            href: https://deluge.lmtlmt.myaddr.io
+            href: https://lmtlmt.myaddr.io/deluge
             description: Torrent Client
         - Bazarr:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/bazarr.png
-            href: https://bazarr.lmtlmt.myaddr.io
+            href: https://lmtlmt.myaddr.io/bazarr
             description: Subtitles Manager
 
   widgets: []
