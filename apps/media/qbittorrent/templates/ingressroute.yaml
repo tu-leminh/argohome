@@ -1,9 +1,9 @@
-{{- range $name, $target := .Values.flood.ingressTargets }}
+{{- range $name, $target := .Values.qbittorrent.ingressTargets }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: flood-{{ $name }}
+  name: qbittorrent-{{ $name }}
   namespace: {{ $.Release.Namespace }}
 spec:
   entryPoints:
@@ -13,7 +13,7 @@ spec:
     kind: Rule
     services:
     - name: {{ include "common.names.fullname" $ }}
-      port: {{ $.Values.flood.service.port }}
+      port: {{ $.Values.qbittorrent.service.port }}
   tls:
     certResolver: {{ $target.certResolver }}
     {{- if $target.tlsDomain }}

@@ -54,8 +54,8 @@ mounts:
   - name: media-autobrr-config
     path: /data/apps/media/autobrr/config
     size: 1Gi
-  - name: media-flood-config
-    path: /data/apps/media/flood/config
+  - name: media-qbittorrent-config
+    path: /data/apps/media/qbittorrent/config
     size: 1Gi
 
   # oCIS

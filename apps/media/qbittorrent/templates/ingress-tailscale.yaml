@@ -1,16 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: flood-tailscale
+  name: qbittorrent-tailscale
   annotations:
     tailscale.com/funnel: "true"
 spec:
   ingressClassName: tailscale
   tls:
   - hosts:
-    - flood
+    - qbittorrent
   defaultBackend:
     service:
       name: {{ include "common.names.fullname" . }}
       port:
-        number: {{ .Values.flood.service.port }}
+        number: {{ .Values.qbittorrent.service.port }}
