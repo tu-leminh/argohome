@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  type: {{ .Values.flood.service.type | default "ClusterIP" }}
+  {{- if .Values.flood.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.flood.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.flood.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "common.labels.selector" . | nindent 4 }}

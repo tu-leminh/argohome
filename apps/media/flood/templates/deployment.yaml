@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: flood
+          image: "{{ .Values.flood.image.repository }}:{{ .Values.flood.image.tag }}"
+          imagePullPolicy: {{ .Values.flood.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.flood.service.port }}
+              protocol: TCP
+
+          args:
+            - --port
+            - "{{ .Values.flood.service.port }}"
+            - --allowedpath
+            - /data
+
+          volumeMounts:
+            {{- if .Values.flood.persistence.config.enabled }}
+            - name: config
+              mountPath: /server
+            {{- end }}
+            {{- if .Values.flood.persistence.downloads.enabled }}
+            - name: downloads
+              mountPath: {{ .Values.flood.persistence.downloads.mountPath }}
+            {{- end }}
+
+      volumes:
+        {{- if .Values.flood.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.flood.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.flood.persistence.downloads.enabled }}
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.flood.persistence.downloads.existingClaim }}
+        {{- end }}

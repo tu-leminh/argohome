@@ -1,0 +1,33 @@
+flood:
+  image:
+    repository: jesec/flood
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.1.157
+    port: 3000
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-flood-config-pvc
+    downloads:
+      enabled: true
+      existingClaim: media-shared-downloads-pvc
+      mountPath: /data
+
+  ingressTargets:
+    duckdns:
+      host: flood.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: flood.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: flood.lmtlmt.myaddr.io
+      certResolver: myaddr

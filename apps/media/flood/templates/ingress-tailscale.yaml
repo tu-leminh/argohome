@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flood-tailscale
+  annotations:
+    tailscale.com/funnel: "true"
+spec:
+  ingressClassName: tailscale
+  tls:
+  - hosts:
+    - flood
+  defaultBackend:
+    service:
+      name: {{ include "common.names.fullname" . }}
+      port:
+        number: {{ .Values.flood.service.port }}

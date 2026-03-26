@@ -54,6 +54,9 @@ mounts:
   - name: media-autobrr-config
     path: /data/apps/media/autobrr/config
     size: 1Gi
+  - name: media-flood-config
+    path: /data/apps/media/flood/config
+    size: 1Gi
 
   # oCIS
   - name: owncloud-ocis-config
