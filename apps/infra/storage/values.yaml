@@ -59,12 +59,9 @@ mounts:
     size: 1Gi
 
   # rTorrent
-  - name: media-rtorrent-data
-    path: /data/apps/media/rtorrent/data
+  - name: media-rtorrent-config
+    path: /data/apps/media/rtorrent/config
     size: 5Gi
-  - name: media-rtorrent-passwd
-    path: /data/apps/media/rtorrent/passwd
-    size: 100Mi
 
   # oCIS
   - name: owncloud-ocis-config

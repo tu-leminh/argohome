@@ -10,16 +10,13 @@ rtorrent:
     port: 8080
 
   persistence:
-    data:
+    config:
       enabled: true
-      existingClaim: media-rtorrent-data-pvc
+      existingClaim: media-rtorrent-config-pvc
     downloads:
       enabled: true
       existingClaim: media-shared-downloads-pvc
       mountPath: /downloads
-    passwd:
-      enabled: true
-      existingClaim: media-rtorrent-passwd-pvc
 
   ingressTargets:
     duckdns:

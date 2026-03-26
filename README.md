@@ -1,6 +1,6 @@
 # GitOps Home Lab
 
-A robust, self-healing Home Lab powered by **MicroK8s** and **Argo CD**.
+A robust, self-healing Home Lab powered by **K3s** and **Argo CD**.
 
 ## Overview
 

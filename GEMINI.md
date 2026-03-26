@@ -1,10 +1,10 @@
 # GitOps Home Lab Project Specification
 
 ## 1. Project Overview
-This project is a personal Home Lab orchestrating a diverse range of self-hosted applications using Kubernetes (MicroK8s) and **GitOps** principles (Argo CD). The repository is the single source of truth.
+This project is a personal Home Lab orchestrating a diverse range of self-hosted applications using Kubernetes (K3s) and **GitOps** principles (Argo CD). The repository is the single source of truth.
 
 ## 2. Core Architecture
-*   **Orchestrator:** MicroK8s (Single Node: `dell`)
+*   **Orchestrator:** K3s (Single Node: `dell`)
 *   **GitOps Engine:** Argo CD (App of Apps pattern)
     *   **Bootstrap:** `bootstrap/applicationset.yaml` targets all subdirectories in `apps/`.
     *   **Sync Waves:** `core` (-5) -> `infra` (-1) -> `media` (5).

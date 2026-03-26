@@ -56,32 +56,23 @@ spec:
               value: "50000"
 
           volumeMounts:
-            {{- if .Values.rtorrent.persistence.data.enabled }}
-            - name: data
+            {{- if .Values.rtorrent.persistence.config.enabled }}
+            - name: config
               mountPath: /data
             {{- end }}
             {{- if .Values.rtorrent.persistence.downloads.enabled }}
             - name: downloads
               mountPath: {{ .Values.rtorrent.persistence.downloads.mountPath }}
             {{- end }}
-            {{- if .Values.rtorrent.persistence.passwd.enabled }}
-            - name: passwd
-              mountPath: /passwd
-            {{- end }}
 
       volumes:
-        {{- if .Values.rtorrent.persistence.data.enabled }}
-        - name: data
+        {{- if .Values.rtorrent.persistence.config.enabled }}
+        - name: config
           persistentVolumeClaim:
-            claimName: {{ .Values.rtorrent.persistence.data.existingClaim }}
+            claimName: {{ .Values.rtorrent.persistence.config.existingClaim }}
         {{- end }}
         {{- if .Values.rtorrent.persistence.downloads.enabled }}
         - name: downloads
           persistentVolumeClaim:
             claimName: {{ .Values.rtorrent.persistence.downloads.existingClaim }}
-        {{- end }}
-        {{- if .Values.rtorrent.persistence.passwd.enabled }}
-        - name: passwd
-          persistentVolumeClaim:
-            claimName: {{ .Values.rtorrent.persistence.passwd.existingClaim }}
         {{- end }}
