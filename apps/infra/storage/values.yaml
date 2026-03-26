@@ -58,6 +58,14 @@ mounts:
     path: /data/apps/media/qbittorrent/config
     size: 1Gi
 
+  # rTorrent
+  - name: media-rtorrent-data
+    path: /data/apps/media/rtorrent/data
+    size: 5Gi
+  - name: media-rtorrent-passwd
+    path: /data/apps/media/rtorrent/passwd
+    size: 100Mi
+
   # oCIS
   - name: owncloud-ocis-config
     namespace: ocis

@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: rtorrent
+          image: "{{ .Values.rtorrent.image.repository }}:{{ .Values.rtorrent.image.tag }}"
+          imagePullPolicy: {{ .Values.rtorrent.image.pullPolicy }}
+          ports:
+            - name: rutorrent
+              containerPort: 8080
+              protocol: TCP
+            - name: xmlrpc
+              containerPort: 8000
+              protocol: TCP
+            - name: webdav
+              containerPort: 9000
+              protocol: TCP
+            - name: dht
+              containerPort: 6881
+              protocol: UDP
+            - name: incoming
+              containerPort: 50000
+              protocol: TCP
+
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Etc/UTC
+            - name: RUTORRENT_PORT
+              value: "8080"
+            - name: XMLRPC_PORT
+              value: "8000"
+            - name: WEBDAV_PORT
+              value: "9000"
+            - name: RT_DHT_PORT
+              value: "6881"
+            - name: RT_INC_PORT
+              value: "50000"
+
+          volumeMounts:
+            {{- if .Values.rtorrent.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+            {{- if .Values.rtorrent.persistence.downloads.enabled }}
+            - name: downloads
+              mountPath: {{ .Values.rtorrent.persistence.downloads.mountPath }}
+            {{- end }}
+            {{- if .Values.rtorrent.persistence.passwd.enabled }}
+            - name: passwd
+              mountPath: /passwd
+            {{- end }}
+
+      volumes:
+        {{- if .Values.rtorrent.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.rtorrent.persistence.data.existingClaim }}
+        {{- end }}
+        {{- if .Values.rtorrent.persistence.downloads.enabled }}
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.rtorrent.persistence.downloads.existingClaim }}
+        {{- end }}
+        {{- if .Values.rtorrent.persistence.passwd.enabled }}
+        - name: passwd
+          persistentVolumeClaim:
+            claimName: {{ .Values.rtorrent.persistence.passwd.existingClaim }}
+        {{- end }}
