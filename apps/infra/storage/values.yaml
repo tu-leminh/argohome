@@ -43,22 +43,6 @@ mounts:
     path: /data/apps/media/q3/config
     size: 1Gi
 
-  # rTorrent
-  - name: media-rtorrent-config
-    path: /data/apps/media/rtorrent/config
-    size: 5Gi
-
-  # oCIS
-  - name: owncloud-ocis-config
-    namespace: ocis
-    path: /data/apps/ocis/owncloud-ocis/config
-    size: 1Gi
-  - name: owncloud-ocis-data
-    namespace: ocis
-    path: /data/apps/ocis/owncloud-ocis/data
-    size: 500Gi
-    accessMode: ReadWriteMany
-
   # Infrastructure
   - name: infra-traefik-config
     namespace: infra
