@@ -21,9 +21,6 @@ mounts:
   - name: media-radarr-config
     path: /data/apps/media/radarr/config
     size: 1Gi
-  - name: media-deluge-config
-    path: /data/apps/media/deluge/config
-    size: 1Gi
   - name: media-jellyfin-config
     path: /data/apps/media/jellyfin/config
     size: 100Gi
