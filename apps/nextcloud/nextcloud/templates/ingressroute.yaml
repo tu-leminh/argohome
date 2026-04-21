@@ -1,3 +1,11 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: nextcloud-transport
+  namespace: {{ .Release.Namespace }}
+spec:
+  insecureSkipVerify: true
 {{- range $name, $target := .Values.nextcloud.ingressTargets }}
 ---
 apiVersion: traefik.io/v1alpha1
@@ -14,6 +22,8 @@ spec:
     services:
     - name: nextcloud
       port: {{ $.Values.nextcloud.service.port }}
+      scheme: https
+      serversTransport: nextcloud-transport
   tls:
     certResolver: {{ $target.certResolver }}
     {{- if $target.tlsDomain }}
