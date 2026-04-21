@@ -1,0 +1,29 @@
+{{- range $name, $target := .Values.q2.ingressTargets }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: q2-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`{{ $target.host }}`)
+    kind: Rule
+    services:
+    - name: {{ include "common.names.fullname" $ }}
+      port: {{ $.Values.q2.service.port }}
+  tls:
+    certResolver: {{ $target.certResolver }}
+    {{- if $target.tlsDomain }}
+    domains:
+    - main: "{{ $target.tlsDomain }}"
+      {{- if $target.tlsSans }}
+      sans:
+        {{- range $target.tlsSans }}
+        - "{{ . }}"
+        {{- end }}
+      {{- end }}
+    {{- end }}
+{{- end }}

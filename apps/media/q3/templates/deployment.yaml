@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: q3
+          image: "{{ .Values.q3.image.repository }}:{{ .Values.q3.image.tag }}"
+          imagePullPolicy: {{ .Values.q3.image.pullPolicy }}
+          ports:
+            - name: webui
+              containerPort: 8080
+              protocol: TCP
+            - name: torrent-tcp
+              containerPort: 6881
+              protocol: TCP
+            - name: torrent-udp
+              containerPort: 6881
+              protocol: UDP
+
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Etc/UTC
+            - name: WEBUI_PORT
+              value: "8080"
+            - name: TORRENTING_PORT
+              value: "6881"
+
+          volumeMounts:
+            {{- if .Values.q3.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.q3.persistence.downloads.enabled }}
+            - name: downloads
+              mountPath: {{ .Values.q3.persistence.downloads.mountPath }}
+            {{- end }}
+
+      volumes:
+        {{- if .Values.q3.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.q3.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.q3.persistence.downloads.enabled }}
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.q3.persistence.downloads.existingClaim }}
+        {{- end }}

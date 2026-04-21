@@ -36,7 +36,7 @@ Services are exposed via three methods:
 *   **Sonarr:** TV Series management.
 *   **Radarr:** Movie management.
 *   **Prowlarr:** Indexer manager (connects Sonarr/Radarr to trackers).
-*   **Transmission:** BitTorrent client.
+*   **Q1/Q2/Q3:** BitTorrent clients.
 *   **Deluge:** BitTorrent client.
 *   **Jellyfin:** Media server/player.
 
