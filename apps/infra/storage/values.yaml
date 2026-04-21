@@ -43,6 +43,31 @@ mounts:
     path: /data/apps/media/q3/config
     size: 1Gi
 
+  # Nextcloud
+  - name: nextcloud-config
+    namespace: nextcloud
+    path: /data/apps/nextcloud/config
+    size: 5Gi
+  - name: nextcloud-data
+    namespace: nextcloud
+    path: /data/apps/nextcloud/data
+    size: 500Gi
+  - name: nextcloud-shared-downloads
+    namespace: nextcloud
+    path: /data/apps/media/shared/downloads
+    size: 500Gi
+    accessMode: ReadWriteMany
+  - name: nextcloud-shared-movies
+    namespace: nextcloud
+    path: /data/apps/media/shared/movies
+    size: 500Gi
+    accessMode: ReadWriteMany
+  - name: nextcloud-shared-shows
+    namespace: nextcloud
+    path: /data/apps/media/shared/shows
+    size: 500Gi
+    accessMode: ReadWriteMany
+
   # Infrastructure
   - name: infra-traefik-config
     namespace: infra

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+  labels:
+    app.kubernetes.io/name: nextcloud
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nextcloud
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nextcloud
+    spec:
+      containers:
+        - name: nextcloud
+          image: "{{ .Values.nextcloud.image.repository }}:{{ .Values.nextcloud.image.tag }}"
+          imagePullPolicy: {{ .Values.nextcloud.image.pullPolicy }}
+          ports:
+            - name: https
+              containerPort: 443
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Etc/UTC
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+            - name: shared-downloads
+              mountPath: /downloads
+            - name: shared-movies
+              mountPath: /movies
+            - name: shared-shows
+              mountPath: /shows
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.nextcloud.persistence.config.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.nextcloud.persistence.data.existingClaim }}
+        - name: shared-downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.nextcloud.persistence.sharedDownloads.existingClaim }}
+        - name: shared-movies
+          persistentVolumeClaim:
+            claimName: {{ .Values.nextcloud.persistence.sharedMovies.existingClaim }}
+        - name: shared-shows
+          persistentVolumeClaim:
+            claimName: {{ .Values.nextcloud.persistence.sharedShows.existingClaim }}

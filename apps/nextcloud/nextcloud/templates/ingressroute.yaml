@@ -1,0 +1,29 @@
+{{- range $name, $target := .Values.nextcloud.ingressTargets }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nextcloud-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`{{ $target.host }}`)
+    kind: Rule
+    services:
+    - name: nextcloud
+      port: {{ $.Values.nextcloud.service.port }}
+  tls:
+    certResolver: {{ $target.certResolver }}
+    {{- if $target.tlsDomain }}
+    domains:
+    - main: "{{ $target.tlsDomain }}"
+      {{- if $target.tlsSans }}
+      sans:
+        {{- range $target.tlsSans }}
+        - "{{ . }}"
+        {{- end }}
+      {{- end }}
+    {{- end }}
+{{- end }}

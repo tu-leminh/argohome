@@ -1,0 +1,40 @@
+nextcloud:
+  image:
+    repository: lscr.io/linuxserver/nextcloud
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 443
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: nextcloud-config-pvc
+    data:
+      enabled: true
+      existingClaim: nextcloud-data-pvc
+    sharedDownloads:
+      enabled: true
+      existingClaim: nextcloud-shared-downloads-pvc
+    sharedMovies:
+      enabled: true
+      existingClaim: nextcloud-shared-movies-pvc
+    sharedShows:
+      enabled: true
+      existingClaim: nextcloud-shared-shows-pvc
+
+  ingressTargets:
+    duckdns:
+      host: nextcloud.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: nextcloud.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: nextcloud.lmtlmt.myaddr.io
+      certResolver: myaddr

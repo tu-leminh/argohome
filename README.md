@@ -39,6 +39,9 @@ Services are exposed via three methods:
 *   **Q1/Q2/Q3:** BitTorrent clients.
 *   **Jellyfin:** Media server/player.
 
+#### Cloud & Storage
+*   **Nextcloud:** Personal cloud storage and collaboration platform.
+
 ## Architecture Highlights
 
 *   **GitOps:** Argo CD manages all applications via an "App of Apps" pattern (`bootstrap/applicationset.yaml`).
