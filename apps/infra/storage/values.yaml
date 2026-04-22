@@ -54,6 +54,11 @@ mounts:
     size: 1000Gi
     accessMode: ReadWriteMany
 
+statefulSetMounts:
+  - pvName: nextcloud-db-1-pv
+    path: /data/apps/nextcloud/db
+    size: 5Gi
+
   # Infrastructure
   - name: infra-traefik-config
     namespace: infra
