@@ -44,28 +44,14 @@ mounts:
     size: 1Gi
 
   # Nextcloud
-  - name: nextcloud-config
+  - name: nextcloud-app
     namespace: nextcloud
-    path: /data/apps/nextcloud/config
-    size: 5Gi
-  - name: nextcloud-data
+    path: /data/apps/nextcloud/app
+    size: 20Gi
+  - name: nextcloud-host-data
     namespace: nextcloud
-    path: /data/apps/nextcloud/data
-    size: 500Gi
-  - name: nextcloud-shared-downloads
-    namespace: nextcloud
-    path: /data/apps/media/shared/downloads
-    size: 500Gi
-    accessMode: ReadWriteMany
-  - name: nextcloud-shared-movies
-    namespace: nextcloud
-    path: /data/apps/media/shared/movies
-    size: 500Gi
-    accessMode: ReadWriteMany
-  - name: nextcloud-shared-shows
-    namespace: nextcloud
-    path: /data/apps/media/shared/shows
-    size: 500Gi
+    path: /data
+    size: 1000Gi
     accessMode: ReadWriteMany
 
   # Infrastructure

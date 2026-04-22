@@ -1,29 +1,20 @@
 nextcloud:
   image:
-    repository: lscr.io/linuxserver/nextcloud
+    repository: nextcloud
     tag: latest
     pullPolicy: IfNotPresent
 
   service:
     type: ClusterIP
-    port: 443
+    port: 80
 
   persistence:
-    config:
+    app:
       enabled: true
-      existingClaim: nextcloud-config-pvc
-    data:
+      existingClaim: nextcloud-app-pvc
+    hostData:
       enabled: true
-      existingClaim: nextcloud-data-pvc
-    sharedDownloads:
-      enabled: true
-      existingClaim: nextcloud-shared-downloads-pvc
-    sharedMovies:
-      enabled: true
-      existingClaim: nextcloud-shared-movies-pvc
-    sharedShows:
-      enabled: true
-      existingClaim: nextcloud-shared-shows-pvc
+      existingClaim: nextcloud-host-data-pvc
 
   ingressTargets:
     duckdns:

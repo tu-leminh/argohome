@@ -21,40 +21,43 @@ spec:
           image: "{{ .Values.nextcloud.image.repository }}:{{ .Values.nextcloud.image.tag }}"
           imagePullPolicy: {{ .Values.nextcloud.image.pullPolicy }}
           ports:
-            - name: https
-              containerPort: 443
+            - name: http
+              containerPort: 80
               protocol: TCP
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: TZ
-              value: Etc/UTC
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-app
+                  key: dbname
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-app
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-app
+                  key: password
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db-app
+                  key: host
           volumeMounts:
-            - name: config
-              mountPath: /config
-            - name: data
-              mountPath: /data
-            - name: shared-downloads
-              mountPath: /downloads
-            - name: shared-movies
-              mountPath: /movies
-            - name: shared-shows
-              mountPath: /shows
+            - name: nextcloud-app
+              mountPath: /var/www/html
+              subPath: html
+            - name: nextcloud-app
+              mountPath: /var/www/html/data
+              subPath: data
+            - name: host-data
+              mountPath: /host-data
       volumes:
-        - name: config
+        - name: nextcloud-app
           persistentVolumeClaim:
-            claimName: {{ .Values.nextcloud.persistence.config.existingClaim }}
-        - name: data
+            claimName: {{ .Values.nextcloud.persistence.app.existingClaim }}
+        - name: host-data
           persistentVolumeClaim:
-            claimName: {{ .Values.nextcloud.persistence.data.existingClaim }}
-        - name: shared-downloads
-          persistentVolumeClaim:
-            claimName: {{ .Values.nextcloud.persistence.sharedDownloads.existingClaim }}
-        - name: shared-movies
-          persistentVolumeClaim:
-            claimName: {{ .Values.nextcloud.persistence.sharedMovies.existingClaim }}
-        - name: shared-shows
-          persistentVolumeClaim:
-            claimName: {{ .Values.nextcloud.persistence.sharedShows.existingClaim }}
+            claimName: {{ .Values.nextcloud.persistence.hostData.existingClaim }}

@@ -8,8 +8,8 @@ spec:
   type: {{ .Values.nextcloud.service.type }}
   ports:
     - port: {{ .Values.nextcloud.service.port }}
-      targetPort: https
+      targetPort: http
       protocol: TCP
-      name: https
+      name: http
   selector:
     app.kubernetes.io/name: nextcloud
