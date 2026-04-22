@@ -33,9 +33,11 @@ Services are exposed via three methods:
 #### Cloud & Productivity
 
 #### Media Stack (The *Arr* Suite)
+*   **Seerr:** Media request management.
 *   **Sonarr:** TV Series management.
 *   **Radarr:** Movie management.
 *   **Prowlarr:** Indexer manager (connects Sonarr/Radarr to trackers).
+*   **Autobrr & Qui:** Torrent automation and GUI.
 *   **Q1/Q2/Q3:** BitTorrent clients.
 *   **Jellyfin:** Media server/player.
 

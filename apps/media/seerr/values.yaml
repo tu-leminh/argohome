@@ -1,0 +1,33 @@
+seerr:
+  image:
+    repository: sctx/overseerr
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.1.155
+    port: 5055
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-seerr-config-pvc
+    downloads:
+      enabled: false
+      existingClaim: media-shared-downloads-pvc
+      mountPath: /downloads
+
+  ingressTargets:
+    duckdns:
+      host: seerr.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: seerr.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: seerr.lmtlmt.myaddr.io
+      certResolver: myaddr

@@ -32,11 +32,21 @@ config:
             href: https://traefik.lmtlmt.myaddr.io/dashboard/
             description: Ingress Controller
 
+    - Cloud:
+        - Nextcloud:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/nextcloud.png
+            href: https://nextcloud.lmtlmt.myaddr.io
+            description: Personal Cloud
+
     - Media:
         - Jellyfin:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/jellyfin.png
             href: https://jellyfin.lmtlmt.myaddr.io
             description: Media Server
+        - Seerr:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/overseerr.png
+            href: https://seerr.lmtlmt.myaddr.io
+            description: Media Requests
         - Sonarr:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/sonarr.png
             href: https://sonarr.lmtlmt.myaddr.io
@@ -69,6 +79,10 @@ config:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/autobrr.png
             href: https://autobrr.lmtlmt.myaddr.io
             description: Torrent Automation
+        - Qui:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/autobrr.png
+            href: https://qui.lmtlmt.myaddr.io
+            description: Autobrr GUI
 
   widgets: []
 
@@ -115,14 +129,6 @@ config:
         background: rgba(54, 58, 79, 0.85) !important; /* Macchiato Surface0 with opacity */
         border: 1px solid var(--ctp-macchiato-mantle);
         backdrop-filter: blur(5px);
-      }
-      .service-name {
-        color: var(--ctp-macchiato-text) !important;
-      }
-      .service-desc {
-        color: #a5adcb !important;
-      }
-op-filter: blur(5px);
       }
       .service-name {
         color: var(--ctp-macchiato-text) !important;

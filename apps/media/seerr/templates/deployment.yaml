@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: seerr
+          image: "{{ .Values.seerr.image.repository }}:{{ .Values.seerr.image.tag }}"
+          imagePullPolicy: {{ .Values.seerr.image.pullPolicy }}
+          ports:
+            - name: webui
+              containerPort: 5055
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "{{ .Values.seerr.env.PUID }}"
+            - name: PGID
+              value: "{{ .Values.seerr.env.PGID }}"
+            - name: TZ
+              value: "{{ .Values.seerr.env.TZ }}"
+          volumeMounts:
+            {{- if .Values.seerr.persistence.config.enabled }}
+            - name: config
+              mountPath: /app/config
+            {{- end }}
+      volumes:
+        {{- if .Values.seerr.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.seerr.persistence.config.existingClaim }}
+        {{- end }}

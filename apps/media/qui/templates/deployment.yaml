@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: qui
+          image: "{{ .Values.qui.image.repository }}:{{ .Values.qui.image.tag }}"
+          imagePullPolicy: {{ .Values.qui.image.pullPolicy }}
+          ports:
+            - name: webui
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "{{ .Values.qui.env.PUID }}"
+            - name: PGID
+              value: "{{ .Values.qui.env.PGID }}"
+            - name: TZ
+              value: "{{ .Values.qui.env.TZ }}"
+          volumeMounts:
+            {{- if .Values.qui.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+      volumes:
+        {{- if .Values.qui.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.qui.persistence.config.existingClaim }}
+        {{- end }}
