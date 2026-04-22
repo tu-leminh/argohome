@@ -2,6 +2,7 @@ sonarr:
   image:
     repository: lscr.io/linuxserver/sonarr
     tag: latest
+    pullPolicy: Always
   service:
     main:
       type: LoadBalancer

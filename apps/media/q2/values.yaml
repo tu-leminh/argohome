@@ -2,7 +2,7 @@ q2:
   image:
     repository: lscr.io/linuxserver/qbittorrent
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
 
   service:
     type: LoadBalancer

@@ -2,7 +2,7 @@ autobrr:
   image:
     repository: ghcr.io/autobrr/autobrr
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   env:
     TZ: Etc/UTC
     PUID: "1000"

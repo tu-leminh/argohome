@@ -1,7 +1,7 @@
 nextcloud:
   image:
     repository: nextcloud
-    tag: latest
+    tag: 33.0.2
     pullPolicy: IfNotPresent
 
   service:

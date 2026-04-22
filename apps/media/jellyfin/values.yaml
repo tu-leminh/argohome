@@ -2,7 +2,7 @@ jellyfin:
   image:
     repository: lscr.io/linuxserver/jellyfin
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   env:
     TZ: Etc/UTC
     PUID: 1000
