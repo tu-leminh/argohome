@@ -44,10 +44,10 @@ traefik:
     - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=duckdns"
     - "--certificatesresolvers.freemyip.acme.storage=/data/freemyip.json"
     - "--certificatesresolvers.freemyip.acme.email=mt.the.dev@gmail.com"
-    - "--certificatesresolvers.freemyip.acme.dnschallenge.provider=duckdns"
+    - "--certificatesresolvers.freemyip.acme.dnschallenge.provider=freemyip"
     - "--certificatesresolvers.myaddr.acme.storage=/data/myaddr.json"
     - "--certificatesresolvers.myaddr.acme.email=mt.the.dev@gmail.com"
-    - "--certificatesresolvers.myaddr.acme.dnschallenge.provider=duckdns"
+    - "--certificatesresolvers.myaddr.acme.dnschallenge.provider=myaddr"
     # Enable Dashboard (Insecure mode for internal access, or use IngressRoute to secure)
     - "--api.dashboard=true"
     - "--api.insecure=true"
