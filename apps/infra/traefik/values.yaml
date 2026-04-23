@@ -38,27 +38,16 @@ traefik:
         - ALL
       add:
         - NET_BIND_SERVICE
-  certificatesResolvers:
-    letsencrypt:
-      acme:
-        email: mt.the.dev@gmail.com
-        storage: /data/duckdns.json
-        dnsChallenge:
-          provider: duckdns
-    freemyip:
-      acme:
-        email: mt.the.dev@gmail.com
-        storage: /data/freemyip.json
-        dnsChallenge:
-          provider: freemyip
-    myaddr:
-      acme:
-        email: mt.the.dev@gmail.com
-        storage: /data/myaddr.json
-        dnsChallenge:
-          provider: myaddr
-
   additionalArguments:
+    - "--certificatesresolvers.letsencrypt.acme.storage=/data/duckdns.json"
+    - "--certificatesresolvers.letsencrypt.acme.email=mt.the.dev@gmail.com"
+    - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=duckdns"
+    - "--certificatesresolvers.freemyip.acme.storage=/data/freemyip.json"
+    - "--certificatesresolvers.freemyip.acme.email=mt.the.dev@gmail.com"
+    - "--certificatesresolvers.freemyip.acme.dnschallenge.provider=duckdns"
+    - "--certificatesresolvers.myaddr.acme.storage=/data/myaddr.json"
+    - "--certificatesresolvers.myaddr.acme.email=mt.the.dev@gmail.com"
+    - "--certificatesresolvers.myaddr.acme.dnschallenge.provider=duckdns"
     # Enable Dashboard (Insecure mode for internal access, or use IngressRoute to secure)
     - "--api.dashboard=true"
     - "--api.insecure=true"
