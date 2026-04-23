@@ -16,6 +16,13 @@ spec:
       labels:
         app.kubernetes.io/name: nextcloud
     spec:
+      initContainers:
+        - name: init-permissions
+          image: busybox
+          command: ['sh', '-c', 'mkdir -p /mnt/html /mnt/data && chown -R 33:33 /mnt/html /mnt/data']
+          volumeMounts:
+            - name: nextcloud-app
+              mountPath: /mnt
       containers:
         - name: nextcloud
           image: "{{ .Values.nextcloud.image.repository }}:{{ .Values.nextcloud.image.tag }}"
