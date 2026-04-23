@@ -41,13 +41,13 @@ traefik:
   additionalArguments:
     - "--certificatesresolvers.letsencrypt.acme.storage=/data/duckdns.json"
     - "--certificatesresolvers.letsencrypt.acme.email=mt.the.dev@gmail.com"
-    - "--certificatesresolvers.letsencrypt.acme.dnsChallenge.provider=duckdns"
+    - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=duckdns"
     - "--certificatesresolvers.freemyip.acme.storage=/data/freemyip.json"
     - "--certificatesresolvers.freemyip.acme.email=mt.the.dev@gmail.com"
-    - "--certificatesresolvers.freemyip.acme.dnsChallenge.provider=freemyip"
+    - "--certificatesresolvers.freemyip.acme.dnschallenge.provider=freemyip"
     - "--certificatesresolvers.myaddr.acme.storage=/data/myaddr.json"
     - "--certificatesresolvers.myaddr.acme.email=mt.the.dev@gmail.com"
-    - "--certificatesresolvers.myaddr.acme.dnsChallenge.provider=myaddr"
+    - "--certificatesresolvers.myaddr.acme.dnschallenge.provider=myaddr"
     # Enable Dashboard (Insecure mode for internal access, or use IngressRoute to secure)
     - "--api.dashboard=true"
     - "--api.insecure=true"
