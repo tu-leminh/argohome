@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: {{ .Values.qui.image.pullPolicy }}
           ports:
             - name: webui
-              containerPort: 3000
+              containerPort: 7476
               protocol: TCP
           env:
             - name: PUID

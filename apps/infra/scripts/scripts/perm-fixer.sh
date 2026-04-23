@@ -1,15 +1,26 @@
 #!/bin/sh
 echo "Fixing permissions on /data..."
-# Set ownership to User 1000 (Host/Media/Traefik standard)
-chown -R 1000:1000 /data
 
-# Secure Traefik ACME files (Must be 600)
+# Shared media directories (all media apps use UID 1000)
+chown -R 1000:1000 /data/shared
+chown -R 1000:1000 /data/apps
+
+# Config directories: chown each subdirectory individually,
+# skipping dirs owned by other UIDs (e.g. postgres runs as UID 26)
+SKIP="nextcloud-db"
+for dir in /data/configs/*/; do
+  name=$(basename "$dir")
+  case " $SKIP " in
+    *" $name "*) echo "Skipping $dir (excluded)" ;;
+    *) chown -R 1000:1000 "$dir" ;;
+  esac
+done
+
+# Secure Traefik ACME files (must be 600)
 TRAEFIK_DATA_PATH="/data/configs/traefik"
 echo "Securing ACME storage at ${TRAEFIK_DATA_PATH}..."
 if ls ${TRAEFIK_DATA_PATH}/*.json 1> /dev/null 2>&1; then
-  # Ensure owner is 1000 (redundant but safe)
   chown 1000:1000 ${TRAEFIK_DATA_PATH}/*.json
-  # Strictly restrict to owner-only
   chmod 600 ${TRAEFIK_DATA_PATH}/*.json
 fi
 
