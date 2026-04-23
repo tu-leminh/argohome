@@ -6,7 +6,7 @@ q3:
 
   service:
     type: LoadBalancer
-    loadBalancerIP: 192.168.1.164
+    loadBalancerIP: 192.168.1.166
     port: 8080
 
   persistence:
