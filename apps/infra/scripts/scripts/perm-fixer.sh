@@ -7,7 +7,7 @@ chown -R 1000:1000 /data/apps
 
 # Config directories: chown each subdirectory individually,
 # skipping dirs owned by other UIDs (e.g. postgres runs as UID 26)
-SKIP="nextcloud-db"
+SKIP="nextcloud-db nextcloud-app"
 for dir in /data/configs/*/; do
   name=$(basename "$dir")
   case " $SKIP " in
