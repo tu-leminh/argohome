@@ -1,5 +1,5 @@
 apiVersion: v2
-name: general-cronjobs
+name: scripts
 description: A generic chart for creating CronJobs
 type: application
 version: 1.0.0
