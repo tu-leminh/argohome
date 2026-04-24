@@ -20,6 +20,7 @@ spec:
         - name: qui
           image: "{{ .Values.qui.image.repository }}:{{ .Values.qui.image.tag }}"
           imagePullPolicy: {{ .Values.qui.image.pullPolicy }}
+          command: ["qui", "serve", "--config-dir", "/config"]
           ports:
             - name: webui
               containerPort: 7476
