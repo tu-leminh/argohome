@@ -5,8 +5,6 @@ autobrr:
     pullPolicy: Always
   env:
     TZ: Etc/UTC
-    PUID: "1000"
-    PGID: "1000"
   
   service:
     type: LoadBalancer

@@ -3,7 +3,6 @@ echo "Fixing permissions on /data..."
 
 # Shared media directories (all media apps use UID 1000)
 chown -R 1000:1000 /data/shared
-chown -R 1000:1000 /data/apps
 
 # Config directories: chown each subdirectory individually,
 # skipping dirs owned by other UIDs (e.g. postgres runs as UID 26)

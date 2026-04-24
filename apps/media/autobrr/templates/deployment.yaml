@@ -16,6 +16,10 @@ spec:
       labels:
         {{- include "common.labels.selector" . | nindent 8 }}
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: autobrr
           image: "{{ .Values.autobrr.image.repository }}:{{ .Values.autobrr.image.tag }}"
