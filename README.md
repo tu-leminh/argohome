@@ -140,19 +140,20 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 helm template apps/<category>/<app>
 ```
 
-**Step 2 — after every push, verify the sync succeeded (required):**
+**Step 2 — after pushing, wait up to 3 minutes for Argo CD to poll git, then verify (required):**
 ```bash
-# Check Argo CD sync + health status
+# Expected: Synced Healthy
 kubectl get application -n core <app-name> -o jsonpath='{.status.sync.status} {.status.health.status}'
-# Expected output: Synced Healthy
 
-# Check pods are running
+# Expected: pod Running
 kubectl get pod -n <namespace> -l app.kubernetes.io/name=<name>
 
-# If something is wrong, inspect events
+# If something is wrong
 kubectl describe pod -n <namespace> <pod-name>
 kubectl logs -n <namespace> <pod-name>
 ```
+
+> Do not manually trigger `argocd app sync` — push to git and let Argo CD reconcile. That's the point.
 
 ## Troubleshooting
 
