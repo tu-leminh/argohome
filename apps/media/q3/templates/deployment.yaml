@@ -41,7 +41,7 @@ spec:
             - name: WEBUI_PORT
               value: "8080"
             - name: TORRENTING_PORT
-              value: "6881"
+              value: "7010"
 
           volumeMounts:
             {{- if .Values.q3.persistence.config.enabled }}
