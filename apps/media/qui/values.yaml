@@ -17,9 +17,17 @@ qui:
       enabled: true
       existingClaim: media-qui-config-pvc
     downloads:
-      enabled: false
+      enabled: true
       existingClaim: media-shared-downloads-pvc
       mountPath: /downloads
+    movies:
+      enabled: true
+      existingClaim: media-shared-movies-pvc
+      mountPath: /movies
+    shows:
+      enabled: true
+      existingClaim: media-shared-shows-pvc
+      mountPath: /shows
 
   ingressTargets:
     duckdns:

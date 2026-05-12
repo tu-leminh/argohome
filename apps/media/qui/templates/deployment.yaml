@@ -37,9 +37,36 @@ spec:
             - name: config
               mountPath: /config
             {{- end }}
+            {{- if .Values.qui.persistence.downloads.enabled }}
+            - name: downloads
+              mountPath: {{ .Values.qui.persistence.downloads.mountPath }}
+            {{- end }}
+            {{- if .Values.qui.persistence.movies.enabled }}
+            - name: movies
+              mountPath: {{ .Values.qui.persistence.movies.mountPath }}
+            {{- end }}
+            {{- if .Values.qui.persistence.shows.enabled }}
+            - name: shows
+              mountPath: {{ .Values.qui.persistence.shows.mountPath }}
+            {{- end }}
       volumes:
         {{- if .Values.qui.persistence.config.enabled }}
         - name: config
           persistentVolumeClaim:
             claimName: {{ .Values.qui.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.qui.persistence.downloads.enabled }}
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.qui.persistence.downloads.existingClaim }}
+        {{- end }}
+        {{- if .Values.qui.persistence.movies.enabled }}
+        - name: movies
+          persistentVolumeClaim:
+            claimName: {{ .Values.qui.persistence.movies.existingClaim }}
+        {{- end }}
+        {{- if .Values.qui.persistence.shows.enabled }}
+        - name: shows
+          persistentVolumeClaim:
+            claimName: {{ .Values.qui.persistence.shows.existingClaim }}
         {{- end }}
