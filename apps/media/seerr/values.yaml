@@ -1,6 +1,6 @@
 seerr:
   image:
-    repository: sctx/overseerr
+    repository: seerr/seerr
     tag: latest
     pullPolicy: Always
 
