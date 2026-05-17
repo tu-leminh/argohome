@@ -51,11 +51,11 @@ mounts:
 
   # Nextcloud
   - name: nextcloud-app
-    namespace: nextcloud
+    namespace: cloud
     path: /data/configs/nextcloud-app
     size: 20Gi
   - name: nextcloud-host-data
-    namespace: nextcloud
+    namespace: cloud
     path: /data
     size: 1000Gi
     accessMode: ReadWriteMany
