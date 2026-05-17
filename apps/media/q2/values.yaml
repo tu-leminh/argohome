@@ -1,13 +1,13 @@
 q2:
   image:
     repository: lscr.io/linuxserver/qbittorrent
-    tag: latest
+    tag: 5.1.4
     pullPolicy: Always
 
   service:
     type: LoadBalancer
     loadBalancerIP: 192.168.1.165
-    port: 8080
+    port: 7009
 
   persistence:
     config:
