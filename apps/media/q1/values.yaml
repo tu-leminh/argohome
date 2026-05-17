@@ -7,7 +7,7 @@ q1:
   service:
     type: LoadBalancer
     loadBalancerIP: 192.168.1.164
-    port: 7008
+    port: 8080
 
   persistence:
     config:
