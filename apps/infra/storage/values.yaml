@@ -48,6 +48,9 @@ mounts:
   - name: media-qui-config
     path: /data/configs/qui
     size: 1Gi
+  - name: media-recyclarr-config
+    path: /data/configs/recyclarr
+    size: 1Gi
 
   # Nextcloud
   - name: nextcloud-app

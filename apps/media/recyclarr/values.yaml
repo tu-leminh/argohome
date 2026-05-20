@@ -1,0 +1,5 @@
+image:
+  repository: ghcr.io/recyclarr/recyclarr
+  tag: 8
+
+schedule: "0 4 * * *" # Runs daily at 4:00 AM
