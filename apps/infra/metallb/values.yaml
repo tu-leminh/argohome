@@ -2,3 +2,5 @@ metallb:
   speaker:
     frr:
       enabled: false
+    memberlist:
+      mlBindAddrOverride: "0.0.0.0"
