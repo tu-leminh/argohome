@@ -44,6 +44,9 @@ data:
           - trash_id: 72dae194fc92bf828f32cde7744e51a1
             reset_unmatched_scores:
               enabled: true
+          - trash_id: 20e0fc959f1f1704bed501f23bdae76f
+            reset_unmatched_scores:
+              enabled: true
         custom_format_groups:
           add:
             - trash_id: 158188097a58d7687dee647e04af0da3
@@ -63,13 +66,3 @@ data:
                 - 9c11cd3f07101cdba90a2d81cf0e56b4
                 - e2315f990da2e2cbfc9fa5b7a6fcfe48
                 - 23297a736ca77c0fc8e70f8edd7ee56c
-
-      sonarr-anime-remux-1080p:
-        base_url: http://media-sonarr:8989
-        api_key: !env_var SONARR_API_KEY
-        quality_definition:
-          type: anime
-        quality_profiles:
-          - trash_id: 20e0fc959f1f1704bed501f23bdae76f
-            reset_unmatched_scores:
-              enabled: true
