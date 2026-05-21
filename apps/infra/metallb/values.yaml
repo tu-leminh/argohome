@@ -4,3 +4,7 @@ metallb:
       enabled: false
     memberlist:
       mlBindAddrOverride: "0.0.0.0"
+  frr-k8s:
+    prometheus:
+      serviceMonitor:
+        enabled: false
