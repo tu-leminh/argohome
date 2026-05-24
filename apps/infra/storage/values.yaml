@@ -51,6 +51,9 @@ mounts:
   - name: media-profilarr-config
     path: /data/configs/profilarr
     size: 1Gi
+  - name: media-upload-assistant-config
+    path: /data/configs/upload-assistant
+    size: 2Gi
 
   # Nextcloud
   - name: nextcloud-app

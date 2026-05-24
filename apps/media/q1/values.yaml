@@ -1,7 +1,7 @@
 q1:
   image:
     repository: lscr.io/linuxserver/qbittorrent
-    tag: 5.1.4
+    tag: latest
     pullPolicy: Always
 
   service:
