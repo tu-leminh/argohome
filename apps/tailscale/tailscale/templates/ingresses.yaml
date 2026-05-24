@@ -1,16 +1,20 @@
+{{- range .Values.ingresses }}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prowlarr-tailscale
+  name: {{ .name }}-tailscale
+  namespace: {{ .namespace }}
   annotations:
     tailscale.com/funnel: "true"
 spec:
   ingressClassName: tailscale
   tls:
   - hosts:
-    - prowlarr
+    - {{ .host }}
   defaultBackend:
     service:
-      name: {{ include "common.names.fullname" . }}
+      name: {{ .serviceName }}
       port:
-        number: 9696
+        number: {{ .port }}
+{{- end }}

@@ -1,6 +1,0 @@
-tailscale-operator:
-  oauth:
-    clientId: "kSC5Es3VV911CNTRL"
-    clientSecret: "tskey-client-kSC5Es3VV911CNTRL-Y6NP6zQau6iNWSfMqmmf6idibafhucgvT"
-  operatorConfig:
-    logging: "info"

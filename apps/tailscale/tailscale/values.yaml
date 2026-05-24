@@ -1,0 +1,88 @@
+tailscale-operator:
+  oauthSecretVolume:
+    secret:
+      secretName: tailscale-secret
+  operatorConfig:
+    logging: "info"
+
+ingresses:
+  - name: argocd
+    namespace: core
+    serviceName: argocd-server
+    port: 443
+    host: argo
+  - name: homepage
+    namespace: core
+    serviceName: homepage
+    port: 3000
+    host: homepage
+  - name: traefik
+    namespace: infra
+    serviceName: infra-traefik
+    port: 8080
+    host: traefik
+  - name: autobrr
+    namespace: media
+    serviceName: media-autobrr
+    port: 7474
+    host: autobrr
+  - name: bazarr
+    namespace: media
+    serviceName: media-bazarr
+    port: 6767
+    host: bazarr
+  - name: jellyfin
+    namespace: media
+    serviceName: media-jellyfin
+    port: 8096
+    host: jellyfin
+  - name: profilarr
+    namespace: media
+    serviceName: media-profilarr
+    port: 6868
+    host: profilarr
+  - name: prowlarr
+    namespace: media
+    serviceName: media-prowlarr
+    port: 9696
+    host: prowlarr
+  - name: q1
+    namespace: media
+    serviceName: media-q1
+    port: 8080
+    host: q1
+  - name: q2
+    namespace: media
+    serviceName: media-q2
+    port: 8080
+    host: q2
+  - name: q3
+    namespace: media
+    serviceName: media-q3
+    port: 8080
+    host: q3
+  - name: qui
+    namespace: media
+    serviceName: media-qui
+    port: 7476
+    host: qui
+  - name: radarr
+    namespace: media
+    serviceName: media-radarr
+    port: 7878
+    host: radarr
+  - name: seerr
+    namespace: media
+    serviceName: media-seerr
+    port: 5055
+    host: seerr
+  - name: sonarr
+    namespace: media
+    serviceName: media-sonarr
+    port: 8989
+    host: sonarr
+  - name: upload-assistant
+    namespace: media
+    serviceName: media-upload-assistant
+    port: 5000
+    host: upload-assistant
