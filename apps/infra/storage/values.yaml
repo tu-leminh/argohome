@@ -55,10 +55,7 @@ mounts:
     path: /data/configs/upload-assistant
     size: 2Gi
 
-  # Filebrowser
-  - name: media-filebrowser-config
-    path: /data/configs/filebrowser
-    size: 1Gi
+  # SFTPGo (data PV exposes /data over SFTP and WebDAV)
   - name: media-sftpgo-config
     path: /data/configs/sftpgo
     size: 1Gi

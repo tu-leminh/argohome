@@ -31,16 +31,16 @@ sftpgo:
 
   ingressTargets:
     duckdns:
-      host: sftpgo.epricesx.duckdns.org
+      host: file.epricesx.duckdns.org
       certResolver: letsencrypt
     freemyip:
-      host: sftpgo.lmtu.freemyip.com
+      host: file.lmtu.freemyip.com
       certResolver: freemyip
       tlsDomain: "*.lmtu.freemyip.com"
       tlsSans:
         - lmtu.freemyip.com
     myaddr:
-      host: sftpgo.lmtlmt.myaddr.io
+      host: file.lmtlmt.myaddr.io
       certResolver: myaddr
 
   webdavIngressTargets:

@@ -33,14 +33,10 @@ config:
             description: Ingress Controller
 
     - Cloud:
-        - Filebrowser:
-            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/filebrowser.png
-            href: https://files.lmtlmt.myaddr.io
-            description: File Browser
         - SFTPGo:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/sftpgo.png
-            href: https://sftpgo.lmtlmt.myaddr.io
-            description: SFTP Server
+            href: https://file.lmtlmt.myaddr.io
+            description: SFTP / WebDAV Server
 
     - Media:
         - Jellyfin:

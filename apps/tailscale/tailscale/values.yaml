@@ -31,16 +31,11 @@ ingresses:
     serviceName: media-bazarr
     port: 6767
     host: bazarr
-  - name: filebrowser
-    namespace: media
-    serviceName: media-filebrowser
-    port: 80
-    host: files
   - name: sftpgo
     namespace: media
     serviceName: media-sftpgo
     port: 8080
-    host: sftpgo
+    host: file
   - name: webdav
     namespace: media
     serviceName: media-sftpgo

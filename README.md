@@ -119,8 +119,7 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 | Q3 | `linuxserver/qbittorrent` | 8080 | 192.168.1.166 |
 | Jellyfin | `linuxserver/jellyfin` | 8096 | 192.168.1.155 |
 | Bazarr | `linuxserver/bazarr` | 6767 | — |
-| Filebrowser | `gtstef/filebrowser` | 8080 | 192.168.1.159 |
-| SFTPGo | `drakkan/sftpgo` | 2022/8080 | 192.168.1.160 |
+| SFTPGo | `drakkan/sftpgo` | 2022/8080/10080 | 192.168.1.160 |
 
 ## Deploying a New App
 
