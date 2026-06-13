@@ -41,6 +41,11 @@ ingresses:
     serviceName: media-sftpgo
     port: 8080
     host: sftpgo
+  - name: webdav
+    namespace: media
+    serviceName: media-sftpgo
+    port: 10080
+    host: webdav
   - name: jellyfin
     namespace: media
     serviceName: media-jellyfin

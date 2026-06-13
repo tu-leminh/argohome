@@ -10,7 +10,7 @@ sftpgo:
     fsGroup: 1000
 
   env:
-    SFTPGO_WEBDAVD__BINDINGS__0__PORT: "0"
+    SFTPGO_WEBDAVD__BINDINGS__0__PORT: "10080"
     SFTPGO_FTPD__BINDINGS__0__PORT: "0"
 
   service:
@@ -18,6 +18,7 @@ sftpgo:
     loadBalancerIP: 192.168.1.160
     sftpPort: 2022
     httpPort: 8080
+    webdavPort: 10080
 
   persistence:
     config:
@@ -40,4 +41,18 @@ sftpgo:
         - lmtu.freemyip.com
     myaddr:
       host: sftpgo.lmtlmt.myaddr.io
+      certResolver: myaddr
+
+  webdavIngressTargets:
+    duckdns:
+      host: webdav.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: webdav.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: webdav.lmtlmt.myaddr.io
       certResolver: myaddr

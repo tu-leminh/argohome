@@ -29,6 +29,9 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+            - name: webdav
+              containerPort: 10080
+              protocol: TCP
           env:
             {{- range $key, $value := .Values.sftpgo.env }}
             - name: {{ $key }}

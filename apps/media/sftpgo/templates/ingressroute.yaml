@@ -27,3 +27,33 @@ spec:
       {{- end }}
     {{- end }}
 {{- end }}
+
+{{- range $name, $target := .Values.sftpgo.webdavIngressTargets }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sftpgo-webdav-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`{{ $target.host }}`)
+    kind: Rule
+    services:
+    - name: {{ include "common.names.fullname" $ }}
+      port: {{ $.Values.sftpgo.service.webdavPort }}
+  tls:
+    certResolver: {{ $target.certResolver }}
+    {{- if $target.tlsDomain }}
+    domains:
+    - main: "{{ $target.tlsDomain }}"
+      {{- if $target.tlsSans }}
+      sans:
+        {{- range $target.tlsSans }}
+        - "{{ . }}"
+        {{- end }}
+      {{- end }}
+    {{- end }}
+{{- end }}

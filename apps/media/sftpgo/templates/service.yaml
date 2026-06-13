@@ -18,5 +18,9 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+    - port: {{ .Values.sftpgo.service.webdavPort }}
+      targetPort: webdav
+      protocol: TCP
+      name: webdav
   selector:
     {{- include "common.labels.selector" . | nindent 4 }}
