@@ -120,6 +120,7 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 | Jellyfin | `linuxserver/jellyfin` | 8096 | 192.168.1.155 |
 | Bazarr | `linuxserver/bazarr` | 6767 | — |
 | Filebrowser | `gtstef/filebrowser` | 8080 | 192.168.1.159 |
+| SFTPGo | `drakkan/sftpgo` | 2022/8080 | 192.168.1.160 |
 
 ## Deploying a New App
 

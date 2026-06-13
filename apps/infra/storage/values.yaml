@@ -59,6 +59,9 @@ mounts:
   - name: media-filebrowser-config
     path: /data/configs/filebrowser
     size: 1Gi
+  - name: media-sftpgo-config
+    path: /data/configs/sftpgo
+    size: 1Gi
   - name: media-filebrowser-data
     path: /data
     size: 1000Gi

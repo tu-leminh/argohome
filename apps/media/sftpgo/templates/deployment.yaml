@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.sftpgo.securityContext | nindent 8 }}
+      containers:
+        - name: sftpgo
+          image: "{{ .Values.sftpgo.image.repository }}:{{ .Values.sftpgo.image.tag }}"
+          imagePullPolicy: {{ .Values.sftpgo.image.pullPolicy }}
+          ports:
+            - name: sftp
+              containerPort: 2022
+              protocol: TCP
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            {{- range $key, $value := .Values.sftpgo.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.sftpgo.persistence.config.enabled }}
+            - name: config
+              mountPath: /var/lib/sftpgo
+            {{- end }}
+            {{- if .Values.sftpgo.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.sftpgo.persistence.data.mountPath }}
+            {{- end }}
+      volumes:
+        {{- if .Values.sftpgo.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.sftpgo.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.sftpgo.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.sftpgo.persistence.data.existingClaim }}
+        {{- end }}

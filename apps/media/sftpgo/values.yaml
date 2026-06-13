@@ -1,0 +1,43 @@
+sftpgo:
+  image:
+    repository: drakkan/sftpgo
+    tag: latest
+    pullPolicy: Always
+
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  env:
+    SFTPGO_WEBDAVD__BINDINGS__0__PORT: "0"
+    SFTPGO_FTPD__BINDINGS__0__PORT: "0"
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.1.160
+    sftpPort: 2022
+    httpPort: 8080
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-sftpgo-config-pvc
+    data:
+      enabled: true
+      existingClaim: media-filebrowser-data-pvc
+      mountPath: /data
+
+  ingressTargets:
+    duckdns:
+      host: sftpgo.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: sftpgo.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: sftpgo.lmtlmt.myaddr.io
+      certResolver: myaddr

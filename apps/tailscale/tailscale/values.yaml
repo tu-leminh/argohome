@@ -36,6 +36,11 @@ ingresses:
     serviceName: media-filebrowser
     port: 80
     host: files
+  - name: sftpgo
+    namespace: media
+    serviceName: media-sftpgo
+    port: 8080
+    host: sftpgo
   - name: jellyfin
     namespace: media
     serviceName: media-jellyfin
