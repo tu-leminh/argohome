@@ -33,7 +33,6 @@ Apps are deployed in sync waves:
 | -5 | `core` | Argo CD, Homepage |
 | -1 | `infra` | MetalLB, Traefik, Secrets, Storage, Scripts |
 | 5 | `media` | All media apps |
-| — | `nextcloud` | Nextcloud + CNPG database |
 | — | `tailscale` | Tailscale operator |
 
 Each app is a standalone Helm chart with `Chart.yaml`, `values.yaml`, and `templates/`. Helm artifacts (`*.lock`, `*.tgz`) are gitignored.
@@ -66,7 +65,7 @@ All persistent data on the host at `/data/`. PVs are HostPath, pinned to node `d
 
 ### Security Context & UID Rules
 
-The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/configs/*` (except `nextcloud-db` and `nextcloud-app`). Apps must therefore run as UID 1000:
+The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/configs/*`. Apps must therefore run as UID 1000:
 
 - **LinuxServer.io images** (`lscr.io/linuxserver/*`): pass `PUID: "1000"` and `PGID: "1000"` env vars — the image's init script drops to that UID internally.
 - **Non-LinuxServer images** (e.g. `ghcr.io/autobrr/qui`, `ghcr.io/autobrr/autobrr`): `PUID`/`PGID` env vars are **ignored**. Use pod `securityContext` instead:
@@ -76,7 +75,6 @@ The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/configs
     runAsGroup: 1000
     fsGroup: 1000
   ```
-- **Special cases** (CNPG postgres UID 26, Nextcloud www-data UID 33): these are in the `SKIP` list in `perm-fixer.sh`.
 
 ## Scripts / CronJobs (`apps/infra/scripts`)
 
@@ -85,7 +83,7 @@ The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/configs
 | `duckdns-updater` | `*/20 * * * *` | Update DuckDNS DDNS record |
 | `freemyip-updater` | `5-59/20 * * * *` | Update FreeMyIP DDNS record |
 | `myaddr-updater` | `10-59/20 * * * *` | Update MyAddr DDNS record |
-| `perm-fixer` | `0 * * * *` | `chown -R 1000:1000` on `/data/configs/*` (excludes nextcloud-db, nextcloud-app) |
+| `perm-fixer` | `0 * * * *` | `chown -R 1000:1000` on `/data/configs/*` |
 | `tailscale-cleanup` | `0 4 * * *` | Remove stale Tailscale devices |
 
 All jobs also run on Argo CD sync via `job-on-sync.yaml`.
@@ -103,7 +101,6 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 |---|---|
 | MetalLB | L2 LoadBalancer |
 | Traefik | Ingress + TLS |
-| CNPG | CloudNativePG operator (Nextcloud DB) |
 | Secrets | Kubernetes Secret manifests |
 | Storage | PV/PVC definitions |
 | Scripts | CronJobs: DDNS updaters, perm-fixer, Tailscale cleanup |
@@ -122,11 +119,7 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 | Q3 | `linuxserver/qbittorrent` | 8080 | 192.168.1.166 |
 | Jellyfin | `linuxserver/jellyfin` | 8096 | 192.168.1.155 |
 | Bazarr | `linuxserver/bazarr` | 6767 | — |
-
-### Cloud
-| App | Description |
-|---|---|
-| Nextcloud | Personal cloud (CNPG PostgreSQL backend) |
+| Filebrowser | `gtstef/filebrowser` | 8080 | 192.168.1.159 |
 
 ## Deploying a New App
 
@@ -197,9 +190,6 @@ All 11 media charts share ~90% identical `deployment.yaml`, `_helpers.tpl`, and 
 
 **No CI validation**
 No `helm lint`, `helm template`, or manifest validation runs before changes merge. Errors are caught only after Argo CD attempts to sync. A pre-commit hook running `helm template apps/<category>/<app>` would catch most issues early.
-
-**CNPG `nextcloud-db-app` secret is undocumented**
-`apps/nextcloud/nextcloud/templates/deployment.yaml` references secret `nextcloud-db-app` which is created by CNPG, not by this repo. This implicit dependency is not documented anywhere and will cause the Nextcloud pod to crash on a fresh cluster until CNPG finishes bootstrapping.
 
 ### Low
 

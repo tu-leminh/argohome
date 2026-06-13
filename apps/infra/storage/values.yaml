@@ -55,13 +55,11 @@ mounts:
     path: /data/configs/upload-assistant
     size: 2Gi
 
-  # Nextcloud
-  - name: nextcloud-app
-    namespace: media
-    path: /data/configs/nextcloud-app
-    size: 20Gi
-  - name: nextcloud-host-data
-    namespace: media
+  # Filebrowser
+  - name: media-filebrowser-config
+    path: /data/configs/filebrowser
+    size: 1Gi
+  - name: media-filebrowser-data
     path: /data
     size: 1000Gi
     accessMode: ReadWriteMany
@@ -71,8 +69,3 @@ mounts:
     namespace: infra
     path: /data/configs/traefik
     size: 1Gi
-
-statefulSetMounts:
-  - pvName: nextcloud-db-1-pv
-    path: /data/configs/nextcloud-db
-    size: 5Gi

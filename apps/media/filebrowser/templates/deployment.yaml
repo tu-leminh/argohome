@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.filebrowser.securityContext | nindent 8 }}
+      containers:
+        - name: filebrowser
+          image: "{{ .Values.filebrowser.image.repository }}:{{ .Values.filebrowser.image.tag }}"
+          imagePullPolicy: {{ .Values.filebrowser.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.filebrowser.containerPort }}
+              protocol: TCP
+          volumeMounts:
+            {{- if .Values.filebrowser.persistence.config.enabled }}
+            - name: config
+              mountPath: /home/filebrowser/data
+            {{- end }}
+            - name: config-file
+              mountPath: /home/filebrowser/data/config.yaml
+              subPath: config.yaml
+            {{- if .Values.filebrowser.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.filebrowser.persistence.data.mountPath }}
+            {{- end }}
+      volumes:
+        - name: config-file
+          configMap:
+            name: {{ include "common.names.fullname" . }}-config
+        {{- if .Values.filebrowser.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.filebrowser.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.filebrowser.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.filebrowser.persistence.data.existingClaim }}
+        {{- end }}

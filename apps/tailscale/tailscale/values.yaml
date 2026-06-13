@@ -31,6 +31,11 @@ ingresses:
     serviceName: media-bazarr
     port: 6767
     host: bazarr
+  - name: filebrowser
+    namespace: media
+    serviceName: media-filebrowser
+    port: 80
+    host: files
   - name: jellyfin
     namespace: media
     serviceName: media-jellyfin

@@ -1,9 +1,9 @@
-{{- range $name, $target := .Values.nextcloud.ingressTargets }}
+{{- range $name, $target := .Values.filebrowser.ingressTargets }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: nextcloud-{{ $name }}
+  name: filebrowser-{{ $name }}
   namespace: {{ $.Release.Namespace }}
 spec:
   entryPoints:
@@ -12,8 +12,8 @@ spec:
   - match: Host(`{{ $target.host }}`)
     kind: Rule
     services:
-    - name: nextcloud
-      port: {{ $.Values.nextcloud.service.port }}
+    - name: {{ include "common.names.fullname" $ }}
+      port: {{ $.Values.filebrowser.service.port }}
   tls:
     certResolver: {{ $target.certResolver }}
     {{- if $target.tlsDomain }}
