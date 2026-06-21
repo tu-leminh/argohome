@@ -25,6 +25,10 @@ jellyfin:
       enabled: true
       existingClaim: media-shared-shows-pvc
       mountPath: /data/tv
+    music:
+      enabled: true
+      existingClaim: media-shared-music-pvc
+      mountPath: /data/music
   
   ingressTargets:
     duckdns:

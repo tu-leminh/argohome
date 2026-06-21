@@ -7,6 +7,10 @@ slskd:
     SLSKD_REMOTE_CONFIGURATION: "true"
     SLSKD_HTTP_PORT: "5030"
     SLSKD_SLSK_LISTEN_PORT: "5031"
+    # slskd's own HTTPS listener defaults to 5031 and would clash with the
+    # Soulseek peer listener. Traefik terminates TLS in front of the service,
+    # so the internal HTTPS endpoint is redundant.
+    SLSKD_NO_HTTPS: "true"
 
   # Loaded into the pod via envFrom from media-slskd-secret. base64-encoded
   # plaintext, matching the existing pattern in apps/infra/secrets/values.yaml.

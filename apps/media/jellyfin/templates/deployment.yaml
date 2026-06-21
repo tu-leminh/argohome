@@ -44,7 +44,11 @@ spec:
             - name: tv
               mountPath: {{ .Values.jellyfin.persistence.tv.mountPath }}
             {{- end }}
-      
+            {{- if .Values.jellyfin.persistence.music.enabled }}
+            - name: music
+              mountPath: {{ .Values.jellyfin.persistence.music.mountPath }}
+            {{- end }}
+
       volumes:
         {{- if .Values.jellyfin.persistence.config.enabled }}
         - name: config
@@ -60,4 +64,9 @@ spec:
         - name: tv
           persistentVolumeClaim:
             claimName: {{ .Values.jellyfin.persistence.tv.existingClaim }}
+        {{- end }}
+        {{- if .Values.jellyfin.persistence.music.enabled }}
+        - name: music
+          persistentVolumeClaim:
+            claimName: {{ .Values.jellyfin.persistence.music.existingClaim }}
         {{- end }}
