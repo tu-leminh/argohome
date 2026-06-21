@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      containers:
+        - name: lidarr
+          image: "{{ .Values.lidarr.image.repository }}:{{ .Values.lidarr.image.tag }}"
+          imagePullPolicy: {{ .Values.lidarr.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.lidarr.service.port }}
+              protocol: TCP
+
+          env:
+            {{- range $key, $value := .Values.lidarr.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+
+          volumeMounts:
+            {{- if .Values.lidarr.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.lidarr.persistence.music.enabled }}
+            - name: music
+              mountPath: {{ .Values.lidarr.persistence.music.mountPath }}
+            {{- end }}
+            {{- if .Values.lidarr.persistence.downloads.enabled }}
+            - name: downloads
+              mountPath: {{ .Values.lidarr.persistence.downloads.mountPath }}
+            {{- end }}
+
+      volumes:
+        {{- if .Values.lidarr.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.lidarr.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.lidarr.persistence.music.enabled }}
+        - name: music
+          persistentVolumeClaim:
+            claimName: {{ .Values.lidarr.persistence.music.existingClaim }}
+        {{- end }}
+        {{- if .Values.lidarr.persistence.downloads.enabled }}
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.lidarr.persistence.downloads.existingClaim }}
+        {{- end }}

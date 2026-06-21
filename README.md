@@ -61,6 +61,7 @@ All persistent data on the host at `/data/`. PVs are HostPath, pinned to node `d
 | `/data/shared/downloads` | Shared torrent downloads | RWX |
 | `/data/shared/movies` | Movies library | RWX |
 | `/data/shared/shows` | TV shows library | RWX |
+| `/data/shared/music` | Music library | RWX |
 | `/data/configs/<app>` | Per-app config directories | RWO |
 
 ### Security Context & UID Rules
@@ -112,6 +113,7 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 | Sonarr | `linuxserver/sonarr` | 8989 | 192.168.1.151 |
 | Radarr | `linuxserver/radarr` | 7878 | 192.168.1.152 |
 | Prowlarr | `linuxserver/prowlarr` | 9696 | 192.168.1.153 |
+| Lidarr | `linuxserver/lidarr:nightly` (Plugins branch — [supports Tubifarry](https://wiki.servarr.com/en/lidarr/plugins)) | 8686 | 192.168.1.158 |
 | Autobrr | `ghcr.io/autobrr/autobrr` | 7474 | 192.168.1.154 |
 | Qui | `ghcr.io/autobrr/qui` | 7476 | 192.168.1.156 |
 | Q1 | `linuxserver/qbittorrent` | 8080 | 192.168.1.157 |
@@ -133,15 +135,19 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 helm template apps/<category>/<app>
 ```
 
-**Step 2 — after pushing, wait up to 3 minutes for Argo CD to poll git, then verify (required):**
-```bash
-# Expected: Synced Healthy
-kubectl get application -n core <app-name> -o jsonpath='{.status.sync.status} {.status.health.status}'
+**Step 2 — after pushing, monitor with kubectl until Synced + Healthy (required):**
 
-# Expected: pod Running
-kubectl get pod -n <namespace> -l app.kubernetes.io/name=<name>
+Argo CD polls git every ~3 minutes. Do not call the task done at "pushed" — watch the Application until both columns report green, and watch the pod until it's `Running` with ready replicas. If either stalls, dig into events/logs before moving on.
+
+```bash
+# Watch the Application's sync + health (Ctrl-C once both are Synced/Healthy)
+kubectl get application -n core <category>-<name> -w
+
+# Watch the pod come up
+kubectl get pod -n <namespace> -l app.kubernetes.io/name=<name> -w
 
 # If something is wrong
+kubectl describe application -n core <category>-<name>
 kubectl describe pod -n <namespace> <pod-name>
 kubectl logs -n <namespace> <pod-name>
 ```

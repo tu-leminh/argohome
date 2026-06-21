@@ -59,6 +59,10 @@ config:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/prowlarr.png
             href: https://prowlarr.lmtlmt.myaddr.io
             description: Indexer Manager
+        - Lidarr:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/lidarr.png
+            href: https://lidarr.lmtlmt.myaddr.io
+            description: Music
         - Q1:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/qbittorrent.png
             href: https://q1.lmtlmt.myaddr.io
