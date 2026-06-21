@@ -114,7 +114,7 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 | Radarr | `linuxserver/radarr` | 7878 | 192.168.1.152 |
 | Prowlarr | `linuxserver/prowlarr` | 9696 | 192.168.1.153 |
 | Lidarr | `linuxserver/lidarr:nightly` (Plugins branch — [supports Tubifarry](https://wiki.servarr.com/en/lidarr/plugins)) | 8686 | 192.168.1.158 |
-| Slskd | `slskd/slskd` ([Soulseek daemon](https://github.com/slskd/slskd)) | 5030 (UI) / 50300 (peer) | 192.168.1.159 |
+| Slskd | `slskd/slskd` ([Soulseek daemon](https://github.com/slskd/slskd)) | 5030 (UI) / 5031 (peer) | 192.168.1.159 |
 | Autobrr | `ghcr.io/autobrr/autobrr` | 7474 | 192.168.1.154 |
 | Qui | `ghcr.io/autobrr/qui` | 7476 | 192.168.1.156 |
 | Q1 | `linuxserver/qbittorrent` | 8080 | 192.168.1.157 |

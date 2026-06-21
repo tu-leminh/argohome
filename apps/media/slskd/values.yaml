@@ -7,14 +7,14 @@ slskd:
     # First-boot defaults; rotate via UI after login (System → Options → Authentication).
     SLSKD_REMOTE_CONFIGURATION: "true"
     SLSKD_HTTP_PORT: "5030"
-    SLSKD_SLSK_LISTEN_PORT: "50300"
+    SLSKD_SLSK_LISTEN_PORT: "5031"
 
   service:
     type: LoadBalancer
     loadBalancerIP: 192.168.1.159
     ports:
       http: 5030
-      peer: 50300
+      peer: 5031
 
   persistence:
     config:
