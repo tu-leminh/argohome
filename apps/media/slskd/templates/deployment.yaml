@@ -32,6 +32,9 @@ spec:
               containerPort: {{ .Values.slskd.service.ports.peer }}
               protocol: TCP
 
+          envFrom:
+            - secretRef:
+                name: media-slskd-secret
           env:
             {{- range $key, $value := .Values.slskd.env }}
             - name: {{ $key }}

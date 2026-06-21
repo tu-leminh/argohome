@@ -4,10 +4,16 @@ slskd:
     tag: latest
     pullPolicy: Always
   env:
-    # First-boot defaults; rotate via UI after login (System → Options → Authentication).
     SLSKD_REMOTE_CONFIGURATION: "true"
     SLSKD_HTTP_PORT: "5030"
     SLSKD_SLSK_LISTEN_PORT: "5031"
+
+  # Loaded into the pod via envFrom from media-slskd-secret. base64-encoded
+  # plaintext, matching the existing pattern in apps/infra/secrets/values.yaml.
+  # Rotate by replacing these values and pushing; Argo CD will recreate the pod.
+  secretData:
+    SLSKD_USERNAME: "ZXByaWNlc3g="
+    SLSKD_API_KEY: "OGU0ZGY4MGIyNTU3YTA5Y2MzMGMzOTJlZDU4NmQ4MGY="
 
   service:
     type: LoadBalancer
