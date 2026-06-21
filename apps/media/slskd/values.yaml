@@ -1,0 +1,45 @@
+slskd:
+  image:
+    repository: slskd/slskd
+    tag: latest
+    pullPolicy: Always
+  env:
+    # First-boot defaults; rotate via UI after login (System → Options → Authentication).
+    SLSKD_REMOTE_CONFIGURATION: "true"
+    SLSKD_HTTP_PORT: "5030"
+    SLSKD_SLSK_LISTEN_PORT: "50300"
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.1.159
+    ports:
+      http: 5030
+      peer: 50300
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-slskd-config-pvc
+      mountPath: /app
+    music:
+      enabled: true
+      existingClaim: media-shared-music-pvc
+      mountPath: /music
+    downloads:
+      enabled: true
+      existingClaim: media-shared-downloads-pvc
+      mountPath: /downloads
+
+  ingressTargets:
+    duckdns:
+      host: slskd.epricesx.duckdns.org
+      certResolver: letsencrypt
+    freemyip:
+      host: slskd.lmtu.freemyip.com
+      certResolver: freemyip
+      tlsDomain: "*.lmtu.freemyip.com"
+      tlsSans:
+        - lmtu.freemyip.com
+    myaddr:
+      host: slskd.lmtlmt.myaddr.io
+      certResolver: myaddr

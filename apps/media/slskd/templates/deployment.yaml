@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: slskd
+          image: "{{ .Values.slskd.image.repository }}:{{ .Values.slskd.image.tag }}"
+          imagePullPolicy: {{ .Values.slskd.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.slskd.service.ports.http }}
+              protocol: TCP
+            - name: peer
+              containerPort: {{ .Values.slskd.service.ports.peer }}
+              protocol: TCP
+
+          env:
+            {{- range $key, $value := .Values.slskd.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+
+          volumeMounts:
+            {{- if .Values.slskd.persistence.config.enabled }}
+            - name: config
+              mountPath: {{ .Values.slskd.persistence.config.mountPath }}
+            {{- end }}
+            {{- if .Values.slskd.persistence.music.enabled }}
+            - name: music
+              mountPath: {{ .Values.slskd.persistence.music.mountPath }}
+            {{- end }}
+            {{- if .Values.slskd.persistence.downloads.enabled }}
+            - name: downloads
+              mountPath: {{ .Values.slskd.persistence.downloads.mountPath }}
+            {{- end }}
+
+      volumes:
+        {{- if .Values.slskd.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.slskd.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.slskd.persistence.music.enabled }}
+        - name: music
+          persistentVolumeClaim:
+            claimName: {{ .Values.slskd.persistence.music.existingClaim }}
+        {{- end }}
+        {{- if .Values.slskd.persistence.downloads.enabled }}
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.slskd.persistence.downloads.existingClaim }}
+        {{- end }}

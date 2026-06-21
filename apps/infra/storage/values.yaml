@@ -28,6 +28,9 @@ mounts:
   - name: media-lidarr-config
     path: /data/configs/lidarr
     size: 1Gi
+  - name: media-slskd-config
+    path: /data/configs/slskd
+    size: 1Gi
   - name: media-jellyfin-config
     path: /data/configs/jellyfin
     size: 100Gi

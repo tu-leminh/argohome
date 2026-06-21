@@ -63,6 +63,10 @@ config:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/lidarr.png
             href: https://lidarr.lmtlmt.myaddr.io
             description: Music
+        - Slskd:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/soulseek.png
+            href: https://slskd.lmtlmt.myaddr.io
+            description: Soulseek Daemon
         - Q1:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/qbittorrent.png
             href: https://q1.lmtlmt.myaddr.io
