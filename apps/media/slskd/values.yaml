@@ -16,8 +16,12 @@ slskd:
   # plaintext, matching the existing pattern in apps/infra/secrets/values.yaml.
   # Rotate by replacing these values and pushing; Argo CD will recreate the pod.
   secretData:
+    # Web UI credentials
     SLSKD_USERNAME: "ZXByaWNlc3g="
     SLSKD_API_KEY: "OGU0ZGY4MGIyNTU3YTA5Y2MzMGMzOTJlZDU4NmQ4MGY="
+    # Soulseek network account (separate from UI login — register at slsknet.org)
+    SLSKD_SLSK_USERNAME: "ZXByaWNlc3gx"
+    SLSKD_SLSK_PASSWORD: "ZXByaWNlc3gx"
 
   service:
     type: LoadBalancer
