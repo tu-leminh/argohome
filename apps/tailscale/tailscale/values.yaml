@@ -46,6 +46,11 @@ ingresses:
     serviceName: media-jellyfin
     port: 8096
     host: jellyfin
+  - name: lidarr
+    namespace: media
+    serviceName: media-lidarr
+    port: 8686
+    host: lidarr
   - name: profilarr
     namespace: media
     serviceName: media-profilarr
