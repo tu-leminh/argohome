@@ -22,7 +22,12 @@ spec:
           containers:
           - name: runner
             image: {{ $config.image }}
+            {{- if $config.command }}
+            command:
+              {{- toYaml $config.command | nindent 14 }}
+            {{- else if not $config.useImageEntrypoint }}
             command: ["/bin/sh", "/scripts/{{ $name }}.sh"]
+            {{- end }}
             {{- if $config.containerSecurityContext }}
             securityContext:
               {{- toYaml $config.containerSecurityContext | nindent 14 }}

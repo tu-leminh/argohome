@@ -76,3 +76,7 @@ mounts:
     namespace: infra
     path: /data/configs/traefik
     size: 1Gi
+  - name: infra-configarr-repos
+    namespace: infra
+    path: /data/configs/configarr-repos
+    size: 2Gi

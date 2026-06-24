@@ -86,8 +86,29 @@ The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/configs
 | `myaddr-updater` | `10-59/20 * * * *` | Update MyAddr DDNS record |
 | `perm-fixer` | `0 * * * *` | `chown -R 1000:1000` on `/data/configs/*` |
 | `tailscale-cleanup` | `0 4 * * *` | Remove stale Tailscale devices |
+| `recyclarr` | on-demand | Sync TRaSH Guide quality profiles + custom formats to Sonarr & Radarr (language CFs excluded) |
 
-All jobs also run on Argo CD sync via `job-on-sync.yaml`.
+Scheduled jobs also run on Argo CD sync via `job-on-sync.yaml` (`runOnStartup: true`).
+
+### Triggering recyclarr on demand
+
+> **recyclarr never fires on a schedule** (`"0 0 31 2 *"`) and does not run on sync — trigger it explicitly:
+
+```bash
+kubectl create job --from=cronjob/recyclarr recyclarr-manual -n infra
+```
+
+Wait and stream logs (use pod name, not label selector — label selector truncates logs):
+```bash
+until kubectl get pod -n infra -l job-name=recyclarr-manual --no-headers | grep -qE "Running|Completed|Error"; do sleep 2; done
+POD=$(kubectl get pod -n infra -l job-name=recyclarr-manual -o jsonpath='{.items[0].metadata.name}')
+kubectl logs -n infra $POD -f
+```
+
+Clean up when done (Kubernetes does not auto-delete manually-created jobs):
+```bash
+kubectl delete job recyclarr-manual -n infra
+```
 
 ## Applications
 
@@ -124,6 +145,49 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 | Bazarr | `linuxserver/bazarr` | 6767 | — |
 | SFTPGo | `drakkan/sftpgo` | 2022/8080/10080 | 192.168.1.160 |
 
+## Removing an App
+
+> **GitOps removal: commit → push → Argo CD prunes automatically.**
+
+1. Delete `apps/<category>/<name>/`.
+2. Remove its PV/PVC entry from `apps/infra/storage/values.yaml`.
+3. If it has a Tailscale ingress, remove the entry from `apps/tailscale/tailscale/values.yaml`.
+4. If it appears in the Homepage dashboard, remove it from `apps/core/homepage/values.yaml`.
+5. Validate, commit, and push:
+   ```bash
+   helm template apps/infra/storage
+   helm template apps/tailscale/tailscale
+   git commit -am "remove <name>"
+   git push
+   ```
+6. Log in to the Argo CD CLI (one-liner — run once per session):
+   ```bash
+   argocd login localhost --insecure --grpc-web --port-forward --port-forward-namespace core \
+     --username admin \
+     --password "$(kubectl -n core get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
+   ```
+
+7. **Wait** — do not stop here. Poll until every affected app is done:
+   ```bash
+   # Wait for the app's Application object to be pruned (disappear completely)
+   until ! argocd app get media-<name> --grpc-web --port-forward --port-forward-namespace core &>/dev/null; do
+     echo "$(date '+%H:%M:%S') media-<name> still exists, sleeping 15s..."; sleep 15
+   done
+   echo "pruned"
+
+   # Wait for infra-storage to reconcile to the new commit and prune the PV/PVC
+   until argocd app get infra-storage --grpc-web --port-forward --port-forward-namespace core 2>/dev/null \
+     | grep -q "<commit-sha>"; do
+     echo "$(date '+%H:%M:%S') infra-storage on old commit, sleeping 15s..."; sleep 15
+   done
+   argocd app wait infra-storage --sync --health --grpc-web --port-forward --port-forward-namespace core
+
+   # Wait for tailscale ingress to be pruned
+   argocd app wait tailscale-tailscale --sync --health --grpc-web --port-forward --port-forward-namespace core
+   ```
+
+> **Do not manually delete Kubernetes resources — push to git and let Argo CD prune. That's the point.**
+
 ## Deploying a New App
 
 1. Create `apps/<category>/<name>/` as a Helm chart.
@@ -136,13 +200,20 @@ All jobs also run on Argo CD sync via `job-on-sync.yaml`.
 helm template apps/<category>/<app>
 ```
 
-**Step 2 — after pushing, monitor with kubectl until Synced + Healthy (required):**
+**Step 2 — log in to the Argo CD CLI (once per session):**
+```bash
+argocd login localhost --insecure --grpc-web --port-forward --port-forward-namespace core \
+  --username admin \
+  --password "$(kubectl -n core get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
+```
 
-Argo CD polls git every ~3 minutes. Do not call the task done at "pushed" — watch the Application until both columns report green, and watch the pod until it's `Running` with ready replicas. If either stalls, dig into events/logs before moving on.
+**Step 3 — after pushing, wait until Synced + Healthy (required). Do not stop here — actually run these and wait:**
+
+Argo CD polls git every ~3 minutes. Do not call the task done at "pushed" — block until the app reports green and the pod is Running. If either stalls, dig into events/logs before moving on.
 
 ```bash
-# Watch the Application's sync + health (Ctrl-C once both are Synced/Healthy)
-kubectl get application -n core <category>-<name> -w
+# Block until the Application is Synced + Healthy
+argocd app wait <category>-<name> --sync --health --grpc-web --port-forward --port-forward-namespace core
 
 # Watch the pod come up
 kubectl get pod -n <namespace> -l app.kubernetes.io/name=<name> -w
