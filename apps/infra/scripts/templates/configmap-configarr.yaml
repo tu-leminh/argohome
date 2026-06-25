@@ -46,6 +46,17 @@ data:
                 score: 101
               - name: "Remux-1080p - Anime"
                 score: 101
+          - trash_ids:
+              - c9eafd50846d299b862ca9bb6ea91950  # x265 / h265 / HEVC
+            assign_scores_to:
+              - name: "Base Profile"
+                score: 1
+              - name: "WEB-1080p"
+                score: 1
+              - name: "WEB-2160p"
+                score: 1
+              - name: "Remux-1080p - Anime"
+                score: 1
 
     radarr:
       radarr:
@@ -101,3 +112,26 @@ data:
                 score: 101
               - name: "Remux-1080p - Anime"
                 score: 101
+          - trash_ids:
+              - 9170d55c319f4fe40da8711ba9d8050d  # x265 / h265 / HEVC
+            assign_scores_to:
+              - name: "SD"
+                score: 1
+              - name: "Ultra-HD"
+                score: 1
+              - name: "2160p Efficient"
+                score: 1
+              - name: "Remux 2160p (Alternative)"
+                score: 1
+              - name: "Remux 2160p (Combined)"
+                score: 1
+              - name: "HD Bluray + WEB"
+                score: 1
+              - name: "UHD Bluray + WEB"
+                score: 1
+              - name: "Remux + WEB 1080p"
+                score: 1
+              - name: "Remux + WEB 2160p"
+                score: 1
+              - name: "Remux-1080p - Anime"
+                score: 1
