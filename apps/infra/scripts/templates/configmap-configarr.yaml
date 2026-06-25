@@ -29,23 +29,23 @@ data:
               - 418f50b10f1907201b6cfdf881f467b7  # Anime Dual Audio
             assign_scores_to:
               - name: "Remux-1080p - Anime"
-                score: 4000
+                score: 2000
           - trash_ids:
               - 7ba05c6e0e14e793538174c679126996  # MULTi
             assign_scores_to:
               - name: "Remux-1080p - Anime"
-                score: 4000
+                score: 2000
           - trash_ids:
               - 15a05bc7c1a36e2b57fd628f8977e2fc  # AV1
             assign_scores_to:
               - name: "Base Profile"
-                score: 2000
+                score: 101
               - name: "WEB-1080p"
-                score: 2000
+                score: 101
               - name: "WEB-2160p"
-                score: 2000
+                score: 101
               - name: "Remux-1080p - Anime"
-                score: 2000
+                score: 101
 
     radarr:
       radarr:
