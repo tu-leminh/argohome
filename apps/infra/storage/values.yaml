@@ -58,8 +58,8 @@ mounts:
   - name: media-qui-config
     path: /data/configs/qui
     size: 1Gi
-  - name: media-upload-assistant-config
-    path: /data/configs/upload-assistant
+  - name: media-upbrr-config
+    path: /data/configs/upbrr
     size: 2Gi
 
   # SFTPGo (data PV exposes /data over SFTP and WebDAV)

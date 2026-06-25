@@ -5,12 +5,12 @@ metadata:
   labels:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
-  type: {{ .Values.uploadAssistant.service.type | default "ClusterIP" }}
-  {{- if .Values.uploadAssistant.service.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.uploadAssistant.service.loadBalancerIP }}
+  type: {{ .Values.upbrr.service.type | default "ClusterIP" }}
+  {{- if .Values.upbrr.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.upbrr.service.loadBalancerIP }}
   {{- end }}
   ports:
-    - port: {{ .Values.uploadAssistant.service.port }}
+    - port: {{ .Values.upbrr.service.port }}
       targetPort: http
       protocol: TCP
       name: http

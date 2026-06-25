@@ -1,9 +1,9 @@
-{{- range $name, $target := .Values.uploadAssistant.ingressTargets }}
+{{- range $name, $target := .Values.upbrr.ingressTargets }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: upload-assistant-{{ $name }}
+  name: upbrr-{{ $name }}
   namespace: {{ $.Release.Namespace }}
 spec:
   entryPoints:
@@ -13,7 +13,7 @@ spec:
     kind: Rule
     services:
     - name: {{ include "common.names.fullname" $ }}
-      port: {{ $.Values.uploadAssistant.service.port }}
+      port: {{ $.Values.upbrr.service.port }}
   tls:
     certResolver: {{ $target.certResolver }}
     {{- if $target.tlsDomain }}

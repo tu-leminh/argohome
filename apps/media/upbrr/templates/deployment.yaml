@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      # ghcr.io/autobrr/upbrr ignores PUID/PGID; enforce UID 1000 via securityContext
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: upbrr
+          image: "{{ .Values.upbrr.image.repository }}:{{ .Values.upbrr.image.tag }}"
+          imagePullPolicy: {{ .Values.upbrr.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.upbrr.service.port }}
+              protocol: TCP
+
+          env:
+            {{- range $key, $value := .Values.upbrr.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+
+          volumeMounts:
+            {{- if .Values.upbrr.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.upbrr.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+
+      volumes:
+        {{- if .Values.upbrr.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.upbrr.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.upbrr.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.upbrr.persistence.data.existingClaim }}
+        {{- end }}

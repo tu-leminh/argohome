@@ -1,0 +1,26 @@
+upbrr:
+  image:
+    repository: ghcr.io/autobrr/upbrr
+    tag: latest
+    pullPolicy: Always
+
+  env:
+    TZ: Etc/UTC
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.1.168
+    port: 7480
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-upbrr-config-pvc
+    data:
+      enabled: true
+      existingClaim: media-shared-downloads-pvc
+
+  ingressTargets:
+    duckdns:
+      host: upbrr.epricesx.duckdns.org
+      certResolver: letsencrypt

@@ -1,4 +1,6 @@
-{{/* Expand the name of the chart. */}}
+{{/*
+Expand the name of the chart.
+*/}}
 {{- define "common.names.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
@@ -12,14 +14,18 @@
 {{- end -}}
 {{- end -}}
 
-{{/* Common labels */}}
+{{/*
+Common labels
+*/}}
 {{- define "common.labels.standard" -}}
 app.kubernetes.io/name: {{ include "common.names.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
-{{/* Selector labels */}}
+{{/*
+Selector labels
+*/}}
 {{- define "common.labels.selector" -}}
 app.kubernetes.io/name: {{ include "common.names.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}

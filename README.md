@@ -138,6 +138,7 @@ kubectl delete job recyclarr-manual -n infra
 | Slskd | `slskd/slskd` ([Soulseek daemon](https://github.com/slskd/slskd)) | 5030 (UI) / 5031 (peer) | 192.168.1.159 |
 | Autobrr | `ghcr.io/autobrr/autobrr` | 7474 | 192.168.1.154 |
 | Qui | `ghcr.io/autobrr/qui` | 7476 | 192.168.1.156 |
+| Upbrr | `ghcr.io/autobrr/upbrr` ([private-tracker upload prep](https://github.com/autobrr/upbrr)) | 7480 | 192.168.1.168 |
 | Q1 | `linuxserver/qbittorrent` | 8080 | 192.168.1.157 |
 | Q2 | `linuxserver/qbittorrent` | 8080 | 192.168.1.165 |
 | Q3 | `linuxserver/qbittorrent` | 8080 | 192.168.1.166 |
