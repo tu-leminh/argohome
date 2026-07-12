@@ -20,6 +20,22 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+      initContainers:
+        - name: qui-init-config
+          image: "{{ .Values.qui.image.repository }}:{{ .Values.qui.image.tag }}"
+          imagePullPolicy: {{ .Values.qui.image.pullPolicy }}
+          # `qui serve` fails immediately if config.toml doesn't already
+          # exist rather than creating it itself; generate it once, if
+          # missing, before the main container starts.
+          command:
+            - sh
+            - -c
+            - '[ -f /config/config.toml ] || qui generate-config --config-dir /config'
+          volumeMounts:
+            {{- if .Values.qui.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
       containers:
         - name: qui
           image: "{{ .Values.qui.image.repository }}:{{ .Values.qui.image.tag }}"
