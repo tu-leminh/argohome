@@ -6,7 +6,7 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://github.com/tu-leminh/argohome
+      repoURL: git@github.com:tu-leminh/argohome.git
       revision: HEAD
       directories:
       - path: apps/*/*
@@ -16,7 +16,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/tu-leminh/argohome
+        repoURL: git@github.com:tu-leminh/argohome.git
         targetRevision: HEAD
         path: '{{path}}'
       destination:
