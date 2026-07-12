@@ -58,15 +58,15 @@ All persistent data on the host at `/data/`. PVs are HostPath, pinned to node `d
 
 | Path | Contents | Mode |
 |---|---|---|
-| `/data/shared/downloads` | Shared torrent downloads | RWX |
-| `/data/shared/movies` | Movies library | RWX |
-| `/data/shared/shows` | TV shows library | RWX |
-| `/data/shared/music` | Music library | RWX |
-| `/data/configs/<app>` | Per-app config directories | RWO |
+| `/data/tier3/shared/downloads` | Shared torrent downloads | RWX |
+| `/data/tier3/shared/movies` | Movies library | RWX |
+| `/data/tier3/shared/shows` | TV shows library | RWX |
+| `/data/tier3/shared/music` | Music library | RWX |
+| `/data/tier2/configs/<app>` | Per-app config directories | RWO |
 
 ### Security Context & UID Rules
 
-The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/configs/*`. Apps must therefore run as UID 1000:
+The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/tier2/configs/*`. Apps must therefore run as UID 1000:
 
 - **LinuxServer.io images** (`lscr.io/linuxserver/*`): pass `PUID: "1000"` and `PGID: "1000"` env vars — the image's init script drops to that UID internally.
 - **Non-LinuxServer images** (e.g. `ghcr.io/autobrr/qui`, `ghcr.io/autobrr/autobrr`): `PUID`/`PGID` env vars are **ignored**. Use pod `securityContext` instead:
@@ -84,7 +84,7 @@ The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/configs
 | `duckdns-updater` | `*/20 * * * *` | Update DuckDNS DDNS record |
 | `freemyip-updater` | `5-59/20 * * * *` | Update FreeMyIP DDNS record |
 | `myaddr-updater` | `10-59/20 * * * *` | Update MyAddr DDNS record |
-| `perm-fixer` | `0 * * * *` | `chown -R 1000:1000` on `/data/configs/*` |
+| `perm-fixer` | `0 * * * *` | `chown -R 1000:1000` on `/data/tier2/configs/*` |
 | `tailscale-cleanup` | `0 4 * * *` | Remove stale Tailscale devices |
 | `recyclarr` | on-demand | Sync TRaSH Guide quality profiles + custom formats to Sonarr & Radarr (language CFs excluded) |
 
@@ -232,7 +232,7 @@ kubectl logs -n <namespace> <pod-name>
 | Problem | Fix |
 |---|---|
 | Argo CD sync stuck on large CRDs | `ServerSideApply=true` is set in the ApplicationSet; check `repo-server` memory (≥ `512Mi`) |
-| App can't write to config dir | Ensure `securityContext.runAsUser: 1000` — perm-fixer chowns all `/data/configs/*` to UID 1000 |
+| App can't write to config dir | Ensure `securityContext.runAsUser: 1000` — perm-fixer chowns all `/data/tier2/configs/*` to UID 1000 |
 | Non-LinuxServer image running as root | `PUID`/`PGID` env vars are silently ignored; use `securityContext` instead |
 | Qui first-run setup | After first deploy, exec into pod and run `qui create-user` |
 | Traefik cert not issued | Check DDNS token secrets; ACME files must be `chmod 600` owned by UID 1000 |

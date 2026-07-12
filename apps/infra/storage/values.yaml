@@ -2,69 +2,69 @@ nodeName: "dell"
 mounts:
   # Media Volumes (Shared)
   - name: media-shared-downloads
-    path: /data/shared/downloads
+    path: /data/tier3/shared/downloads
     size: 500Gi
     accessMode: ReadWriteMany
   - name: media-shared-movies
-    path: /data/shared/movies
+    path: /data/tier3/shared/movies
     size: 500Gi
     accessMode: ReadWriteMany
   - name: media-shared-shows
-    path: /data/shared/shows
+    path: /data/tier3/shared/shows
     size: 500Gi
     accessMode: ReadWriteMany
   - name: media-shared-music
-    path: /data/shared/music
+    path: /data/tier3/shared/music
     size: 500Gi
     accessMode: ReadWriteMany
 
   # App Configs (Media)
   - name: media-sonarr-config
-    path: /data/configs/sonarr
+    path: /data/tier2/configs/sonarr
     size: 1Gi
   - name: media-radarr-config
-    path: /data/configs/radarr
+    path: /data/tier2/configs/radarr
     size: 1Gi
   - name: media-lidarr-config
-    path: /data/configs/lidarr
+    path: /data/tier2/configs/lidarr
     size: 1Gi
   - name: media-slskd-config
-    path: /data/configs/slskd
+    path: /data/tier2/configs/slskd
     size: 1Gi
   - name: media-jellyfin-config
-    path: /data/configs/jellyfin
+    path: /data/tier2/configs/jellyfin
     size: 100Gi
   - name: media-prowlarr-config
-    path: /data/configs/prowlarr
+    path: /data/tier2/configs/prowlarr
     size: 1Gi
   - name: media-bazarr-config
-    path: /data/configs/bazarr
+    path: /data/tier2/configs/bazarr
     size: 1Gi
   - name: media-autobrr-config
-    path: /data/configs/autobrr
+    path: /data/tier2/configs/autobrr
     size: 1Gi
   - name: media-q1-config
-    path: /data/configs/q1
+    path: /data/tier2/configs/q1
     size: 1Gi
   - name: media-q2-config
-    path: /data/configs/q2
+    path: /data/tier2/configs/q2
     size: 1Gi
   - name: media-q3-config
-    path: /data/configs/q3
+    path: /data/tier2/configs/q3
     size: 1Gi
   - name: media-seerr-config
-    path: /data/configs/seerr
+    path: /data/tier2/configs/seerr
     size: 1Gi
   - name: media-qui-config
-    path: /data/configs/qui
+    path: /data/tier2/configs/qui
     size: 1Gi
   - name: media-upbrr-config
-    path: /data/configs/upbrr
+    path: /data/tier2/configs/upbrr
     size: 2Gi
 
   # SFTPGo (data PV exposes /data over SFTP and WebDAV)
   - name: media-sftpgo-config
-    path: /data/configs/sftpgo
+    path: /data/tier2/configs/sftpgo
     size: 1Gi
   - name: media-filebrowser-data
     path: /data
@@ -74,9 +74,9 @@ mounts:
   # Infrastructure
   - name: infra-traefik-config
     namespace: infra
-    path: /data/configs/traefik
+    path: /data/tier2/configs/traefik
     size: 1Gi
   - name: infra-configarr-repos
     namespace: infra
-    path: /data/configs/configarr-repos
+    path: /data/tier2/configs/configarr-repos
     size: 2Gi
