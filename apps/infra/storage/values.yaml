@@ -1,4 +1,4 @@
-nodeName: "dell"
+nodeName: "homelab"
 mounts:
   # Media Volumes (Shared)
   - name: media-shared-downloads
