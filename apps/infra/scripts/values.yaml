@@ -84,20 +84,3 @@ jobs:
         mountPath: /app/config/config.yml
         subPath: config.yml
         readOnly: true
-
-  perm-fixer:
-    runOnStartup: true
-    schedule: "0 * * * *"
-    image: alpine:latest
-    securityContext:
-      runAsUser: 0
-      runAsGroup: 0
-      fsGroup: 0
-    volumes:
-      - name: data-volume
-        hostPath:
-          path: /data
-          type: Directory
-    volumeMounts:
-      - name: data-volume
-        mountPath: /data

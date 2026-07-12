@@ -54,7 +54,7 @@ Services are reachable three ways:
 **DDNS providers:** DuckDNS (`epricesx`), FreeMyIP (`lmtu.freemyip.com`), MyAddr (`lmtlmt.myaddr.io`)
 
 ### Storage
-All persistent data on the host at `/data/`. PVs are HostPath, pinned to node `dell` via node affinity. Defined in `apps/infra/storage/values.yaml`.
+All persistent data on the host at `/data/`. PVs are HostPath, pinned to node `homelab` via node affinity. Defined in `apps/infra/storage/values.yaml`.
 
 | Path | Contents | Mode |
 |---|---|---|
@@ -66,7 +66,7 @@ All persistent data on the host at `/data/`. PVs are HostPath, pinned to node `d
 
 ### Security Context & UID Rules
 
-The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/tier2/configs/*`. Apps must therefore run as UID 1000:
+A NixOS systemd timer on the host (`perm-fixer.timer`, not part of this repo — see the `nix` flake) runs `chown -R 1000:1000` hourly on `/data/tier2/configs/*` and `/data/tier3/shared/*`, since kubelet auto-creates new hostPath directories as `root:root`. Apps must therefore run as UID 1000:
 
 - **LinuxServer.io images** (`lscr.io/linuxserver/*`): pass `PUID: "1000"` and `PGID: "1000"` env vars — the image's init script drops to that UID internally.
 - **Non-LinuxServer images** (e.g. `ghcr.io/autobrr/qui`, `ghcr.io/autobrr/autobrr`): `PUID`/`PGID` env vars are **ignored**. Use pod `securityContext` instead:
@@ -84,7 +84,6 @@ The `perm-fixer` cron job runs `chown -R 1000:1000` hourly on all `/data/tier2/c
 | `duckdns-updater` | `*/20 * * * *` | Update DuckDNS DDNS record |
 | `freemyip-updater` | `5-59/20 * * * *` | Update FreeMyIP DDNS record |
 | `myaddr-updater` | `10-59/20 * * * *` | Update MyAddr DDNS record |
-| `perm-fixer` | `0 * * * *` | `chown -R 1000:1000` on `/data/tier2/configs/*` |
 | `tailscale-cleanup` | `0 4 * * *` | Remove stale Tailscale devices |
 | `recyclarr` | on-demand | Sync TRaSH Guide quality profiles + custom formats to Sonarr & Radarr (language CFs excluded) |
 
@@ -125,7 +124,7 @@ kubectl delete job recyclarr-manual -n infra
 | Traefik | Ingress + TLS |
 | Secrets | Kubernetes Secret manifests |
 | Storage | PV/PVC definitions |
-| Scripts | CronJobs: DDNS updaters, perm-fixer, Tailscale cleanup |
+| Scripts | CronJobs: DDNS updaters, Tailscale cleanup |
 
 ### Media Stack
 | App | Image | Port | LAN IP |
@@ -232,7 +231,7 @@ kubectl logs -n <namespace> <pod-name>
 | Problem | Fix |
 |---|---|
 | Argo CD sync stuck on large CRDs | `ServerSideApply=true` is set in the ApplicationSet; check `repo-server` memory (≥ `512Mi`) |
-| App can't write to config dir | Ensure `securityContext.runAsUser: 1000` — perm-fixer chowns all `/data/tier2/configs/*` to UID 1000 |
+| App can't write to config dir | Ensure `securityContext.runAsUser: 1000` — the host's `perm-fixer.timer` chowns all `/data/tier2/configs/*` to UID 1000 hourly |
 | Non-LinuxServer image running as root | `PUID`/`PGID` env vars are silently ignored; use `securityContext` instead |
 | Qui first-run setup | After first deploy, exec into pod and run `qui create-user` |
 | Traefik cert not issued | Check DDNS token secrets; ACME files must be `chmod 600` owned by UID 1000 |
