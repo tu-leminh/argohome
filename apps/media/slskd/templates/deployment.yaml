@@ -20,6 +20,17 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+      # fsGroup is ignored on hostPath PVs, so chown the config mount as root first.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command: ["sh", "-c", "chown -R 1000:1000 {{ .Values.slskd.persistence.config.mountPath }}"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.slskd.persistence.config.mountPath }}
       containers:
         - name: slskd
           image: "{{ .Values.slskd.image.repository }}:{{ .Values.slskd.image.tag }}"

@@ -21,6 +21,17 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
       initContainers:
+        # fsGroup is ignored on hostPath PVs, so chown /config as root before
+        # the (uid 1000) generate-config init container runs.
+        - name: fix-perms
+          image: busybox:latest
+          command: ["sh", "-c", "chown -R 1000:1000 /config"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: config
+              mountPath: /config
         - name: qui-init-config
           image: "{{ .Values.qui.image.repository }}:{{ .Values.qui.image.tag }}"
           imagePullPolicy: {{ .Values.qui.image.pullPolicy }}

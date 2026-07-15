@@ -16,6 +16,17 @@ spec:
       labels:
         {{- include "common.labels.selector" . | nindent 8 }}
     spec:
+      # fsGroup is ignored on hostPath PVs, so chown /app/config as root first.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command: ["sh", "-c", "chown -R 1000:1000 /app/config"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
       containers:
         - name: seerr
           image: "{{ .Values.seerr.image.repository }}:{{ .Values.seerr.image.tag }}"

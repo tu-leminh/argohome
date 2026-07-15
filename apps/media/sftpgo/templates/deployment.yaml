@@ -18,6 +18,17 @@ spec:
     spec:
       securityContext:
         {{- toYaml .Values.sftpgo.securityContext | nindent 8 }}
+      # fsGroup is ignored on hostPath PVs, so chown /var/lib/sftpgo as root first.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command: ["sh", "-c", "chown -R 1000:1000 /var/lib/sftpgo"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: config
+              mountPath: /var/lib/sftpgo
       containers:
         - name: sftpgo
           image: "{{ .Values.sftpgo.image.repository }}:{{ .Values.sftpgo.image.tag }}"
