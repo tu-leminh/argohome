@@ -10,6 +10,19 @@ traefik:
     existingClaim: infra-traefik-config-pvc
     size: 1Gi
     path: /data
+  deployment:
+    initContainers:
+      # fsGroup is ignored on hostPath PVs, so chown /data as root before
+      # Traefik (uid 1000) tries to write its ACME storage files.
+      - name: fix-perms
+        image: busybox:latest
+        command: ["sh", "-c", "chown -R 1000:1000 /data"]
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        volumeMounts:
+          - name: data
+            mountPath: /data
   envFrom:
     - secretRef:
         name: duckdns-secret
