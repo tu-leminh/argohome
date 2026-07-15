@@ -84,7 +84,6 @@ A NixOS systemd `.path` unit on the host (`perm-fixer.path`, not part of this re
 | `duckdns-updater` | `*/20 * * * *` | Update DuckDNS DDNS record |
 | `freemyip-updater` | `5-59/20 * * * *` | Update FreeMyIP DDNS record |
 | `myaddr-updater` | `10-59/20 * * * *` | Update MyAddr DDNS record |
-| `tailscale-cleanup` | `0 4 * * *` | Remove stale Tailscale devices |
 | `recyclarr` | on-demand | Sync TRaSH Guide quality profiles + custom formats to Sonarr & Radarr (language CFs excluded) |
 
 Scheduled jobs also run on Argo CD sync via `job-on-sync.yaml` (`runOnStartup: true`).
@@ -124,7 +123,7 @@ kubectl delete job recyclarr-manual -n infra
 | Traefik | Ingress + TLS |
 | Secrets | Kubernetes Secret manifests |
 | Storage | PV/PVC definitions |
-| Scripts | CronJobs: DDNS updaters, Tailscale cleanup |
+| Scripts | CronJobs: DDNS updaters, recyclarr |
 
 ### Media Stack
 | App | Image | Port | LAN IP |
