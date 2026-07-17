@@ -1,7 +1,3 @@
 apiVersion: v2
 name: media-sonarr
 version: 1.0.0
-dependencies:
-  - name: sonarr
-    version: "*"
-    repository: https://pree.github.io/helm-charts

@@ -18,10 +18,6 @@ seerr:
     config:
       enabled: true
       existingClaim: media-seerr-config-pvc
-    downloads:
-      enabled: false
-      existingClaim: media-shared-downloads-pvc
-      mountPath: /downloads
 
   ingressTargets:
     duckdns:

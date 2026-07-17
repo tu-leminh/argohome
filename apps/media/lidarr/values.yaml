@@ -19,14 +19,10 @@ lidarr:
     config:
       enabled: true
       existingClaim: media-lidarr-config-pvc
-    music:
+    data:
       enabled: true
-      existingClaim: media-shared-music-pvc
-      mountPath: /music
-    downloads:
-      enabled: true
-      existingClaim: media-shared-downloads-pvc
-      mountPath: /downloads
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
 
   ingressTargets:
     duckdns:

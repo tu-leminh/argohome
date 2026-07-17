@@ -16,6 +16,26 @@ spec:
       labels:
         {{- include "common.labels.selector" . | nindent 8 }}
     spec:
+      # fsGroup is ignored on hostPath PVs, and containerd auto-creates the
+      # shared data dir as root:root - chmod the top-level dirs (not -R,
+      # library is huge) to 777 so any app, regardless of uid, can
+      # create/move files under them.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              chmod 777 /data /data/shared /data/shared/downloads 2>/dev/null || true
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            {{- if .Values.q3.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
       containers:
         - name: q3
           image: "{{ .Values.q3.image.repository }}:{{ .Values.q3.image.tag }}"
@@ -48,9 +68,9 @@ spec:
             - name: config
               mountPath: /config
             {{- end }}
-            {{- if .Values.q3.persistence.downloads.enabled }}
-            - name: downloads
-              mountPath: {{ .Values.q3.persistence.downloads.mountPath }}
+            {{- if .Values.q3.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.q3.persistence.data.mountPath }}
             {{- end }}
 
       volumes:
@@ -59,8 +79,8 @@ spec:
           persistentVolumeClaim:
             claimName: {{ .Values.q3.persistence.config.existingClaim }}
         {{- end }}
-        {{- if .Values.q3.persistence.downloads.enabled }}
-        - name: downloads
+        {{- if .Values.q3.persistence.data.enabled }}
+        - name: data
           persistentVolumeClaim:
-            claimName: {{ .Values.q3.persistence.downloads.existingClaim }}
+            claimName: {{ .Values.q3.persistence.data.existingClaim }}
         {{- end }}

@@ -17,18 +17,10 @@ jellyfin:
     config:
       enabled: true
       existingClaim: media-jellyfin-config-pvc
-    movies:
+    data:
       enabled: true
-      existingClaim: media-shared-movies-pvc
-      mountPath: /data/movies
-    tv:
-      enabled: true
-      existingClaim: media-shared-shows-pvc
-      mountPath: /data/tv
-    music:
-      enabled: true
-      existingClaim: media-shared-music-pvc
-      mountPath: /data/music
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
   
   ingressTargets:
     duckdns:

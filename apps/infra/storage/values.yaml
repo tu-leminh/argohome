@@ -1,21 +1,11 @@
 nodeName: "homelab"
 mounts:
-  # Media Volumes (Shared)
-  - name: media-shared-downloads
-    path: /data/tier3/shared/downloads
-    size: 500Gi
-    accessMode: ReadWriteMany
-  - name: media-shared-movies
-    path: /data/tier3/shared/movies
-    size: 500Gi
-    accessMode: ReadWriteMany
-  - name: media-shared-shows
-    path: /data/tier3/shared/shows
-    size: 500Gi
-    accessMode: ReadWriteMany
-  - name: media-shared-music
-    path: /data/tier3/shared/music
-    size: 500Gi
+  # Media Volumes (Shared) - one PV/PVC over all of tier3 instead of one
+  # per media type, so every app mounts the same claim at /data. Actual
+  # library layout underneath is unchanged: /data/shared/{downloads,movies,shows,music}.
+  - name: media-shared-data
+    path: /data/tier3
+    size: 2000Gi
     accessMode: ReadWriteMany
 
   # App Configs (Media)

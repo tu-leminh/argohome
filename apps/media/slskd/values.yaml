@@ -11,11 +11,11 @@ slskd:
     # Soulseek peer listener. Traefik terminates TLS in front of the service,
     # so the internal HTTPS endpoint is redundant.
     SLSKD_NO_HTTPS: "true"
-    # Land finished downloads on the shared-downloads PVC so Lidarr sees them
-    # at the same path. Both slskd and Lidarr mount it at /downloads, so no
-    # Remote Path Mapping is needed in Lidarr. Incomplete files stay under
-    # the default /app/incomplete (inside slskd's config PVC).
-    SLSKD_DOWNLOADS_DIR: "/downloads"
+    # Land finished downloads on the shared-data PVC so Lidarr sees them at
+    # the same path. Both slskd and Lidarr mount it at /data, so no Remote
+    # Path Mapping is needed in Lidarr. Incomplete files stay under the
+    # default /app/incomplete (inside slskd's config PVC).
+    SLSKD_DOWNLOADS_DIR: "/data/shared/downloads"
 
   # Loaded into the pod via envFrom from media-slskd-secret. base64-encoded
   # plaintext, matching the existing pattern in apps/infra/secrets/values.yaml.
@@ -40,14 +40,10 @@ slskd:
       enabled: true
       existingClaim: media-slskd-config-pvc
       mountPath: /app
-    music:
+    data:
       enabled: true
-      existingClaim: media-shared-music-pvc
-      mountPath: /music
-    downloads:
-      enabled: true
-      existingClaim: media-shared-downloads-pvc
-      mountPath: /downloads
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
 
   ingressTargets:
     duckdns:

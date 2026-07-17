@@ -27,60 +27,48 @@ spec:
             - sh
             - -c
             - |
-              chmod 777 /data /data/shared /data/shared/downloads 2>/dev/null || true
+              chmod 777 /data /data/shared /data/shared/shows /data/shared/downloads 2>/dev/null || true
           securityContext:
             runAsUser: 0
             runAsGroup: 0
           volumeMounts:
-            {{- if .Values.q2.persistence.data.enabled }}
+            {{- if .Values.sonarr.persistence.data.enabled }}
             - name: data
               mountPath: /data
             {{- end }}
       containers:
-        - name: q2
-          image: "{{ .Values.q2.image.repository }}:{{ .Values.q2.image.tag }}"
-          imagePullPolicy: {{ .Values.q2.image.pullPolicy }}
+        - name: sonarr
+          image: "{{ .Values.sonarr.image.repository }}:{{ .Values.sonarr.image.tag }}"
+          imagePullPolicy: {{ .Values.sonarr.image.pullPolicy }}
           ports:
-            - name: webui
-              containerPort: 8080
+            - name: http
+              containerPort: {{ .Values.sonarr.service.port }}
               protocol: TCP
-            - name: torrent-tcp
-              containerPort: 7009
-              protocol: TCP
-            - name: torrent-udp
-              containerPort: 7009
-              protocol: UDP
 
           env:
-            - name: PUID
-              value: "1000"
-            - name: PGID
-              value: "1000"
-            - name: TZ
-              value: Etc/UTC
-            - name: WEBUI_PORT
-              value: "8080"
-            - name: TORRENTING_PORT
-              value: "7009"
+            {{- range $key, $value := .Values.sonarr.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
 
           volumeMounts:
-            {{- if .Values.q2.persistence.config.enabled }}
+            {{- if .Values.sonarr.persistence.config.enabled }}
             - name: config
               mountPath: /config
             {{- end }}
-            {{- if .Values.q2.persistence.data.enabled }}
+            {{- if .Values.sonarr.persistence.data.enabled }}
             - name: data
-              mountPath: {{ .Values.q2.persistence.data.mountPath }}
+              mountPath: {{ .Values.sonarr.persistence.data.mountPath }}
             {{- end }}
 
       volumes:
-        {{- if .Values.q2.persistence.config.enabled }}
+        {{- if .Values.sonarr.persistence.config.enabled }}
         - name: config
           persistentVolumeClaim:
-            claimName: {{ .Values.q2.persistence.config.existingClaim }}
+            claimName: {{ .Values.sonarr.persistence.config.existingClaim }}
         {{- end }}
-        {{- if .Values.q2.persistence.data.enabled }}
+        {{- if .Values.sonarr.persistence.data.enabled }}
         - name: data
           persistentVolumeClaim:
-            claimName: {{ .Values.q2.persistence.data.existingClaim }}
+            claimName: {{ .Values.sonarr.persistence.data.existingClaim }}
         {{- end }}

@@ -20,17 +20,29 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-      # fsGroup is ignored on hostPath PVs, so chown the config mount as root first.
+      # fsGroup is ignored on hostPath PVs, so chown the config mount as root
+      # first. Shared data dir is auto-created root:root by containerd too -
+      # chmod its top-level dirs (not -R, library is huge) to 777 so any
+      # app, regardless of uid, can manage downloaded files under them.
       initContainers:
         - name: fix-perms
           image: busybox:latest
-          command: ["sh", "-c", "chown -R 1000:1000 {{ .Values.slskd.persistence.config.mountPath }}"]
+          command:
+            - sh
+            - -c
+            - |
+              chown -R 1000:1000 {{ .Values.slskd.persistence.config.mountPath }}
+              chmod 777 /data /data/shared /data/shared/music /data/shared/downloads 2>/dev/null || true
           securityContext:
             runAsUser: 0
             runAsGroup: 0
           volumeMounts:
             - name: config
               mountPath: {{ .Values.slskd.persistence.config.mountPath }}
+            {{- if .Values.slskd.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
       containers:
         - name: slskd
           image: "{{ .Values.slskd.image.repository }}:{{ .Values.slskd.image.tag }}"
@@ -57,13 +69,9 @@ spec:
             - name: config
               mountPath: {{ .Values.slskd.persistence.config.mountPath }}
             {{- end }}
-            {{- if .Values.slskd.persistence.music.enabled }}
-            - name: music
-              mountPath: {{ .Values.slskd.persistence.music.mountPath }}
-            {{- end }}
-            {{- if .Values.slskd.persistence.downloads.enabled }}
-            - name: downloads
-              mountPath: {{ .Values.slskd.persistence.downloads.mountPath }}
+            {{- if .Values.slskd.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.slskd.persistence.data.mountPath }}
             {{- end }}
 
       volumes:
@@ -72,13 +80,8 @@ spec:
           persistentVolumeClaim:
             claimName: {{ .Values.slskd.persistence.config.existingClaim }}
         {{- end }}
-        {{- if .Values.slskd.persistence.music.enabled }}
-        - name: music
+        {{- if .Values.slskd.persistence.data.enabled }}
+        - name: data
           persistentVolumeClaim:
-            claimName: {{ .Values.slskd.persistence.music.existingClaim }}
-        {{- end }}
-        {{- if .Values.slskd.persistence.downloads.enabled }}
-        - name: downloads
-          persistentVolumeClaim:
-            claimName: {{ .Values.slskd.persistence.downloads.existingClaim }}
+            claimName: {{ .Values.slskd.persistence.data.existingClaim }}
         {{- end }}

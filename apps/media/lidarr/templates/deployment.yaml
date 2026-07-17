@@ -16,6 +16,26 @@ spec:
       labels:
         {{- include "common.labels.selector" . | nindent 8 }}
     spec:
+      # fsGroup is ignored on hostPath PVs, and containerd auto-creates the
+      # shared data dir as root:root - chmod the top-level dirs (not -R,
+      # library is huge) to 777 so any app, regardless of uid, can
+      # create/move files under them.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              chmod 777 /data /data/shared /data/shared/music /data/shared/downloads 2>/dev/null || true
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            {{- if .Values.lidarr.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
       containers:
         - name: lidarr
           image: "{{ .Values.lidarr.image.repository }}:{{ .Values.lidarr.image.tag }}"
@@ -36,13 +56,9 @@ spec:
             - name: config
               mountPath: /config
             {{- end }}
-            {{- if .Values.lidarr.persistence.music.enabled }}
-            - name: music
-              mountPath: {{ .Values.lidarr.persistence.music.mountPath }}
-            {{- end }}
-            {{- if .Values.lidarr.persistence.downloads.enabled }}
-            - name: downloads
-              mountPath: {{ .Values.lidarr.persistence.downloads.mountPath }}
+            {{- if .Values.lidarr.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.lidarr.persistence.data.mountPath }}
             {{- end }}
 
       volumes:
@@ -51,13 +67,8 @@ spec:
           persistentVolumeClaim:
             claimName: {{ .Values.lidarr.persistence.config.existingClaim }}
         {{- end }}
-        {{- if .Values.lidarr.persistence.music.enabled }}
-        - name: music
+        {{- if .Values.lidarr.persistence.data.enabled }}
+        - name: data
           persistentVolumeClaim:
-            claimName: {{ .Values.lidarr.persistence.music.existingClaim }}
-        {{- end }}
-        {{- if .Values.lidarr.persistence.downloads.enabled }}
-        - name: downloads
-          persistentVolumeClaim:
-            claimName: {{ .Values.lidarr.persistence.downloads.existingClaim }}
+            claimName: {{ .Values.lidarr.persistence.data.existingClaim }}
         {{- end }}

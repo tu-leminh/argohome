@@ -17,14 +17,10 @@ radarr:
     config:
       enabled: true
       existingClaim: media-radarr-config-pvc
-    movies:
+    data:
       enabled: true
-      existingClaim: media-shared-movies-pvc
-      mountPath: /movies
-    downloads:
-      enabled: true
-      existingClaim: media-shared-downloads-pvc
-      mountPath: /downloads
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
   
   ingressTargets:
     duckdns:

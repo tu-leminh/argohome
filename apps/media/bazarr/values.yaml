@@ -17,14 +17,10 @@ bazarr:
     config:
       enabled: true
       existingClaim: media-bazarr-config-pvc
-    movies:
+    data:
       enabled: true
-      existingClaim: media-shared-movies-pvc
-      mountPath: /movies
-    shows:
-      enabled: true
-      existingClaim: media-shared-shows-pvc
-      mountPath: /tv
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
   
   ingressTargets:
     duckdns:

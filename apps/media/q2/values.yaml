@@ -13,10 +13,10 @@ q2:
     config:
       enabled: true
       existingClaim: media-q2-config-pvc
-    downloads:
+    data:
       enabled: true
-      existingClaim: media-shared-downloads-pvc
-      mountPath: /downloads
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
 
   ingressTargets:
     duckdns:

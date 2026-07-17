@@ -22,16 +22,28 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
       # fsGroup is ignored on hostPath PVs, so chown /config as root first.
+      # Shared data dir is auto-created root:root by containerd too - chmod
+      # its top-level dirs (not -R, library is huge) to 777 so any app,
+      # regardless of uid, can access.
       initContainers:
         - name: fix-perms
           image: busybox:latest
-          command: ["sh", "-c", "chown -R 1000:1000 /config"]
+          command:
+            - sh
+            - -c
+            - |
+              chown -R 1000:1000 /config
+              chmod 777 /data /data/shared /data/shared/downloads /data/shared/movies /data/shared/shows /data/shared/music 2>/dev/null || true
           securityContext:
             runAsUser: 0
             runAsGroup: 0
           volumeMounts:
             - name: config
               mountPath: /config
+            {{- if .Values.upbrr.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
       containers:
         - name: upbrr
           image: "{{ .Values.upbrr.image.repository }}:{{ .Values.upbrr.image.tag }}"

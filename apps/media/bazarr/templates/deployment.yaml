@@ -16,6 +16,26 @@ spec:
       labels:
         {{- include "common.labels.selector" . | nindent 8 }}
     spec:
+      # fsGroup is ignored on hostPath PVs, and containerd auto-creates the
+      # shared data dir as root:root - chmod the top-level dirs (not -R,
+      # library is huge) to 777 so any app, regardless of uid, can
+      # create/move files under them.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              chmod 777 /data /data/shared /data/shared/movies /data/shared/shows 2>/dev/null || true
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            {{- if .Values.bazarr.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
       containers:
         - name: bazarr
           image: "{{ .Values.bazarr.image.repository }}:{{ .Values.bazarr.image.tag }}"
@@ -24,40 +44,31 @@ spec:
             - name: http
               containerPort: {{ .Values.bazarr.service.port }}
               protocol: TCP
-              
+
           env:
             {{- range $key, $value := .Values.bazarr.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-          
+
           volumeMounts:
             {{- if .Values.bazarr.persistence.config.enabled }}
             - name: config
               mountPath: /config
             {{- end }}
-            {{- if .Values.bazarr.persistence.movies.enabled }}
-            - name: movies
-              mountPath: {{ .Values.bazarr.persistence.movies.mountPath }}
+            {{- if .Values.bazarr.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.bazarr.persistence.data.mountPath }}
             {{- end }}
-            {{- if .Values.bazarr.persistence.shows.enabled }}
-            - name: shows
-              mountPath: {{ .Values.bazarr.persistence.shows.mountPath }}
-            {{- end }}
-      
+
       volumes:
         {{- if .Values.bazarr.persistence.config.enabled }}
         - name: config
           persistentVolumeClaim:
             claimName: {{ .Values.bazarr.persistence.config.existingClaim }}
         {{- end }}
-        {{- if .Values.bazarr.persistence.movies.enabled }}
-        - name: movies
+        {{- if .Values.bazarr.persistence.data.enabled }}
+        - name: data
           persistentVolumeClaim:
-            claimName: {{ .Values.bazarr.persistence.movies.existingClaim }}
-        {{- end }}
-        {{- if .Values.bazarr.persistence.shows.enabled }}
-        - name: shows
-          persistentVolumeClaim:
-            claimName: {{ .Values.bazarr.persistence.shows.existingClaim }}
+            claimName: {{ .Values.bazarr.persistence.data.existingClaim }}
         {{- end }}

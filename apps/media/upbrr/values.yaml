@@ -18,7 +18,7 @@ upbrr:
       existingClaim: media-upbrr-config-pvc
     data:
       enabled: true
-      existingClaim: media-shared-downloads-pvc
+      existingClaim: media-shared-data-pvc
 
   ingressTargets:
     duckdns:

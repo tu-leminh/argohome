@@ -4,14 +4,14 @@ sonarr:
     tag: latest
     pullPolicy: Always
   service:
-    main:
-      type: LoadBalancer
-      loadBalancerIP: 192.168.1.150
+    type: LoadBalancer
+    loadBalancerIP: 192.168.1.150
+    port: 8989
   env:
     TZ: Etc/UTC
     PUID: 1000
     PGID: 1000
-  
+
   ingressTargets:
     duckdns:
       host: sonarr.epricesx.duckdns.org
@@ -30,14 +30,7 @@ sonarr:
     config:
       enabled: true
       existingClaim: media-sonarr-config-pvc
-    shows:
+    data:
       enabled: true
-      existingClaim: media-shared-shows-pvc
-      mountPath: /shows
-    downloads:
-      enabled: true
-      existingClaim: media-shared-downloads-pvc
-      mountPath: /downloads
-  ingress:
-    main:
-      enabled: false
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
