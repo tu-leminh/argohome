@@ -1,8 +1,8 @@
 nodeName: "homelab"
 mounts:
   # Media Volumes (Shared) - one PV/PVC over all of tier3 instead of one
-  # per media type, so every app mounts the same claim at /data. Actual
-  # library layout underneath is unchanged: /data/shared/{downloads,movies,shows,music}.
+  # per media type, so every app mounts the same claim at /data, seeing
+  # /data/{downloads,movies,shows,music} directly underneath.
   - name: media-shared-data
     path: /data/tier3
     size: 2000Gi

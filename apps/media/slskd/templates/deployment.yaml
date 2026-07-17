@@ -32,7 +32,7 @@ spec:
             - -c
             - |
               chown -R 1000:1000 {{ .Values.slskd.persistence.config.mountPath }}
-              chmod 777 /data /data/shared /data/shared/music /data/shared/downloads 2>/dev/null || true
+              chmod 777 /data /data/music /data/downloads 2>/dev/null || true
           securityContext:
             runAsUser: 0
             runAsGroup: 0

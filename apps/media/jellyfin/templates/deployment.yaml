@@ -26,7 +26,7 @@ spec:
             - sh
             - -c
             - |
-              chmod 777 /data /data/shared /data/shared/movies /data/shared/shows /data/shared/music 2>/dev/null || true
+              chmod 777 /data /data/movies /data/shows /data/music 2>/dev/null || true
           securityContext:
             runAsUser: 0
             runAsGroup: 0

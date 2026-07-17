@@ -27,7 +27,7 @@ spec:
             - sh
             - -c
             - |
-              chmod 777 /data /data/shared /data/shared/downloads 2>/dev/null || true
+              chmod 777 /data /data/downloads 2>/dev/null || true
           securityContext:
             runAsUser: 0
             runAsGroup: 0
