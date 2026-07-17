@@ -19,7 +19,7 @@ spec:
   - match: Host(`{{ $target.host }}`)
     kind: Rule
     services:
-    - name: {{ $.Release.Name }}-server
+    - name: argocd-server
       port: 443
       scheme: https
       serversTransport: argocd-transport
