@@ -11,7 +11,7 @@ seerr:
 
   service:
     type: LoadBalancer
-    loadBalancerIP: 192.168.1.158
+    loadBalancerIP: 192.168.1.153
     port: 5055
 
   persistence:
