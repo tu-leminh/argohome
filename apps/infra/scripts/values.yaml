@@ -38,17 +38,30 @@ jobs:
     schedule: "0 0 * * 0"  # weekly, Sunday midnight; trigger on-demand via Argo CD "Create Job"
     image: ghcr.io/raydak-labs/configarr:latest
     useImageEntrypoint: true
-    env:
-      - name: SONARR_API_KEY
-        valueFrom:
-          secretKeyRef:
-            name: configarr-env
-            key: SONARR_API_KEY
-      - name: RADARR_API_KEY
-        valueFrom:
-          secretKeyRef:
-            name: configarr-env
-            key: RADARR_API_KEY
+    # Sonarr/Radarr don't expose their API key as a secret - it lives in
+    # <ApiKey> inside each app's config.xml. Extract it at runtime from the
+    # read-only config PV mirrors instead of hardcoding it as a k8s secret.
+    initContainers:
+      - name: extract-api-keys
+        image: alpine:3.20
+        command:
+          - sh
+          - -c
+          - |
+            set -eu
+            key=$(sed -n 's:.*<ApiKey>\(.*\)</ApiKey>.*:\1:p' /sonarr-config/config.xml)
+            printf '%s' "$key" > /secrets/SONARR_API_KEY
+            key=$(sed -n 's:.*<ApiKey>\(.*\)</ApiKey>.*:\1:p' /radarr-config/config.xml)
+            printf '%s' "$key" > /secrets/RADARR_API_KEY
+        volumeMounts:
+          - name: sonarr-config
+            mountPath: /sonarr-config
+            readOnly: true
+          - name: radarr-config
+            mountPath: /radarr-config
+            readOnly: true
+          - name: extracted-secrets
+            mountPath: /secrets
     volumes:
       - name: repos
         persistentVolumeClaim:
@@ -56,10 +69,21 @@ jobs:
       - name: configarr-config
         configMap:
           name: configarr-config
+      - name: sonarr-config
+        persistentVolumeClaim:
+          claimName: infra-sonarr-config-ro-pvc
+      - name: radarr-config
+        persistentVolumeClaim:
+          claimName: infra-radarr-config-ro-pvc
+      - name: extracted-secrets
+        emptyDir: {}
     volumeMounts:
       - name: repos
         mountPath: /app/repos
       - name: configarr-config
         mountPath: /app/config/config.yml
         subPath: config.yml
+        readOnly: true
+      - name: extracted-secrets
+        mountPath: /app/secrets
         readOnly: true

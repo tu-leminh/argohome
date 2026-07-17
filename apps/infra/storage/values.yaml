@@ -80,3 +80,17 @@ mounts:
     namespace: infra
     path: /data/tier2/configs/configarr-repos
     size: 2Gi
+  # Read-only mirrors of the media-namespace Sonarr/Radarr config PVs, so the
+  # configarr job (infra namespace) can extract api_key from config.xml
+  # without a hardcoded secret. PVCs are namespace-scoped, so this can't just
+  # mount the media-sonarr-config-pvc/media-radarr-config-pvc directly.
+  - name: infra-sonarr-config-ro
+    namespace: infra
+    path: /data/tier2/configs/sonarr
+    size: 1Gi
+    accessMode: ReadOnlyMany
+  - name: infra-radarr-config-ro
+    namespace: infra
+    path: /data/tier2/configs/radarr
+    size: 1Gi
+    accessMode: ReadOnlyMany

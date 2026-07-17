@@ -11,7 +11,7 @@ data:
     sonarr:
       sonarr:
         base_url: http://media-sonarr.media:8989
-        api_key: !env SONARR_API_KEY
+        api_key: !file /app/secrets/SONARR_API_KEY
         quality_definition:
           type: anime
         delete_unmanaged_custom_formats:
@@ -61,7 +61,7 @@ data:
     radarr:
       radarr:
         base_url: http://media-radarr.media:7878
-        api_key: !env RADARR_API_KEY
+        api_key: !file /app/secrets/RADARR_API_KEY
         quality_definition:
           type: anime
         delete_unmanaged_custom_formats:

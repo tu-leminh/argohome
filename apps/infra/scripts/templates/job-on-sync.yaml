@@ -17,6 +17,10 @@ spec:
       securityContext:
         {{- toYaml $config.securityContext | nindent 8 }}
       {{- end }}
+      {{- if $config.initContainers }}
+      initContainers:
+        {{- toYaml $config.initContainers | nindent 6 }}
+      {{- end }}
       containers:
       - name: runner
         image: {{ $config.image }}
