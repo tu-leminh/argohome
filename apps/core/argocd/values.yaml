@@ -1,5 +1,4 @@
 argo-cd:
-  fullnameOverride: argocd
   configs:
     cm:
       url: "" # Explicitly empty to support multi-domain access

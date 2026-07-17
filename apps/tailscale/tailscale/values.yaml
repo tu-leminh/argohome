@@ -8,7 +8,7 @@ tailscale-operator:
 ingresses:
   - name: argocd
     namespace: core
-    serviceName: argocd-server
+    serviceName: core-argocd-server
     port: 443
     host: argo
   - name: homepage
