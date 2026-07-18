@@ -23,12 +23,19 @@ jellyfin:
       mountPath: /data
 
   # AMD GPU passthrough for VAAPI hardware transcoding (amdgpu + Mesa on the
-  # host - renderD128 is world-writable, so no securityContext/GID matching
-  # needed). Set VA-API device = /dev/dri/renderD128 in Jellyfin's own
+  # host). The hostPath mount alone isn't enough: this cluster is cgroup v2
+  # with no legacy `devices` controller, and vanilla Kubernetes has no field
+  # to grant one specific device to the runtime's per-container BPF device
+  # allow-list - confirmed live ("No VA display found for device
+  # /dev/dri/renderD128" even though the file/permissions were fine).
+  # `privileged: true` is the pragmatic fix for a single-node trusted
+  # homelab; a proper AMD device plugin would be the scoped alternative.
+  # Set VA-API device = /dev/dri/renderD128 in Jellyfin's own
   # Admin > Playback > Transcoding settings after this is deployed.
   gpu:
     enabled: true
     devicePath: /dev/dri
+    privileged: true
 
   ingressTargets:
     duckdns:

@@ -39,6 +39,10 @@ spec:
         - name: jellyfin
           image: "{{ .Values.jellyfin.image.repository }}:{{ .Values.jellyfin.image.tag }}"
           imagePullPolicy: {{ .Values.jellyfin.image.pullPolicy }}
+          {{- if and .Values.jellyfin.gpu.enabled .Values.jellyfin.gpu.privileged }}
+          securityContext:
+            privileged: true
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.jellyfin.service.port }}
