@@ -21,13 +21,10 @@ for d in $LEGO_DOMAINS; do
   set -- "$@" -d "$d"
 done
 
-if [ -s "$CERT_DIR/${LEGO_CERT_FILE_STEM}.crt" ]; then
-  echo "Existing cert found for ${LEGO_CERT_FILE_STEM}, renewing"
-  lego --accept-tos --email "$LEGO_EMAIL" --dns "$LEGO_PROVIDER" --path "$STORAGE" "$@" renew --days 30
-else
-  echo "No existing cert for ${LEGO_CERT_FILE_STEM}, issuing"
-  lego --accept-tos --email "$LEGO_EMAIL" --dns "$LEGO_PROVIDER" --path "$STORAGE" "$@" run
-fi
+# lego v5 merged "renew" into "run" - it renews in place when a cert already
+# exists in --path and is due, and issues fresh otherwise. All ACME flags are
+# now subcommand flags of "run", not global ones.
+lego run --accept-tos --email "$LEGO_EMAIL" --dns "$LEGO_PROVIDER" --path "$STORAGE" "$@"
 
 echo "Writing Secret ${SECRET_NAME} in namespace ${NAMESPACE}"
 kubectl create secret tls "$SECRET_NAME" -n "$NAMESPACE" \
