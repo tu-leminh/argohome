@@ -1,0 +1,6 @@
+apiVersion: v2
+name: lego
+description: Issues ACME DNS-01 certificates via lego into TLS Secrets for future Cilium Gateway API use
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

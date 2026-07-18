@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lego-scripts
+  namespace: {{ .Release.Namespace }}
+data:
+{{- range $path, $bytes := .Files.Glob "scripts/*.sh" }}
+  {{ base $path }}: |
+{{ tpl ($bytes | toString) $ | indent 4 }}
+{{- end }}

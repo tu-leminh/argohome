@@ -66,6 +66,10 @@ mounts:
     namespace: infra
     path: /data/tier2/configs/traefik
     size: 1Gi
+  - name: infra-lego-config
+    namespace: infra
+    path: /data/tier2/configs/lego
+    size: 1Gi
   - name: infra-configarr-repos
     namespace: infra
     path: /data/tier2/configs/configarr-repos

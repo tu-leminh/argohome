@@ -108,6 +108,28 @@ Clean up when done (Kubernetes does not auto-delete manually-created jobs):
 kubectl delete job recyclarr-manual -n infra
 ```
 
+### Triggering a lego cert issuance on demand
+
+`apps/infra/lego` runs `lego-duckdns`, `lego-freemyip`, and `lego-myaddr` CronJobs daily
+(`0 3 * * *`) — daily `renew` calls are a cheap no-op until a cert is near expiry. There is
+no run-on-sync hook, so the first issuance for each must be triggered manually:
+
+```bash
+kubectl create job --from=cronjob/lego-duckdns lego-duckdns-manual -n infra
+```
+
+Wait and stream logs (use pod name, not label selector):
+```bash
+until kubectl get pod -n infra -l job-name=lego-duckdns-manual --no-headers | grep -qE "Running|Completed|Error"; do sleep 2; done
+POD=$(kubectl get pod -n infra -l job-name=lego-duckdns-manual -o jsonpath='{.items[0].metadata.name}')
+kubectl logs -n infra $POD -f
+```
+
+Clean up when done, and repeat for `lego-freemyip`/`lego-myaddr`:
+```bash
+kubectl delete job lego-duckdns-manual -n infra
+```
+
 ## Applications
 
 ### Core
@@ -121,6 +143,7 @@ kubectl delete job recyclarr-manual -n infra
 |---|---|
 | MetalLB | L2 LoadBalancer |
 | Traefik | Ingress + TLS |
+| Lego | Daily CronJobs issuing ACME DNS-01 certs into `*-tls` Secrets (duckdns/freemyip/myaddr) — prep for a future Cilium Gateway API cutover, not yet consumed by anything |
 | Secrets | Kubernetes Secret manifests |
 | Storage | PV/PVC definitions |
 | Scripts | CronJobs: DDNS updaters, recyclarr |

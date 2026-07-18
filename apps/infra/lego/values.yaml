@@ -1,0 +1,58 @@
+lego:
+  email: mt.the.dev@gmail.com
+  # Pinned explicitly - don't track "latest".
+  legoVersion: "v5.2.2"
+  kubectlVersion: "v1.36.2"
+  schedule: "0 3 * * *" # daily; lego renew is a cheap no-op when not near expiry
+  existingClaim: infra-lego-config-pvc
+
+certificates:
+  duckdns:
+    provider: duckdns
+    domains:
+      - "*.epricesx.duckdns.org"
+      - "epricesx.duckdns.org"
+    # lego replaces "*" with "_" in the output cert/key filenames.
+    certFileStem: "_.epricesx.duckdns.org"
+    secretName: duckdns-tls
+    envFrom:
+      - secretRef:
+          name: duckdns-secret
+
+  freemyip:
+    provider: freemyip
+    domains:
+      - "*.lmtu.freemyip.com"
+      - "lmtu.freemyip.com"
+    certFileStem: "_.lmtu.freemyip.com"
+    secretName: freemyip-tls
+    envFrom:
+      - secretRef:
+          name: freemyip-secret
+
+  myaddr:
+    provider: myaddr
+    # No wildcard support - one cert covering every subdomain in
+    # MYADDR_PRIVATE_KEYS_MAPPING (apps/infra/secrets) as SANs instead.
+    domains:
+      - argo.lmtlmt.myaddr.io
+      - autobrr.lmtlmt.myaddr.io
+      - bazarr.lmtlmt.myaddr.io
+      - jellyfin.lmtlmt.myaddr.io
+      - lmtlmt.myaddr.io
+      - nextcloud.lmtlmt.myaddr.io
+      - prowlarr.lmtlmt.myaddr.io
+      - q1.lmtlmt.myaddr.io
+      - q2.lmtlmt.myaddr.io
+      - q3.lmtlmt.myaddr.io
+      - qui.lmtlmt.myaddr.io
+      - radarr.lmtlmt.myaddr.io
+      - seerr.lmtlmt.myaddr.io
+      - sonarr.lmtlmt.myaddr.io
+      - traefik.lmtlmt.myaddr.io
+    # lego names the cert files after the first --domains value.
+    certFileStem: "argo.lmtlmt.myaddr.io"
+    secretName: myaddr-tls
+    envFrom:
+      - secretRef:
+          name: myaddr-secret

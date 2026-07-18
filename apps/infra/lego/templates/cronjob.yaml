@@ -1,0 +1,56 @@
+{{- range $name, $cert := .Values.certificates }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: lego-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  schedule: {{ $.Values.lego.schedule | quote }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: lego
+          containers:
+            - name: issue-cert
+              image: alpine:3.20
+              command: ["/bin/sh", "/scripts/issue-cert.sh"]
+              env:
+                - name: LEGO_EMAIL
+                  value: {{ $.Values.lego.email | quote }}
+                - name: LEGO_VERSION
+                  value: {{ $.Values.lego.legoVersion | quote }}
+                - name: KUBECTL_VERSION
+                  value: {{ $.Values.lego.kubectlVersion | quote }}
+                - name: LEGO_PROVIDER
+                  value: {{ $cert.provider | quote }}
+                - name: LEGO_DOMAINS
+                  value: {{ join " " $cert.domains | quote }}
+                - name: LEGO_CERT_FILE_STEM
+                  value: {{ $cert.certFileStem | quote }}
+                - name: SECRET_NAME
+                  value: {{ $cert.secretName | quote }}
+                - name: NAMESPACE
+                  value: {{ $.Release.Namespace | quote }}
+              envFrom:
+                {{- toYaml $cert.envFrom | nindent 16 }}
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+                - name: lego-storage
+                  mountPath: /lego-storage
+          volumes:
+            - name: scripts
+              configMap:
+                name: lego-scripts
+                defaultMode: 0755
+            - name: lego-storage
+              persistentVolumeClaim:
+                claimName: {{ $.Values.lego.existingClaim }}
+{{- end }}
