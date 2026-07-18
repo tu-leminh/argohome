@@ -9,7 +9,7 @@ ingresses:
   - name: argocd
     namespace: core
     serviceName: core-argocd-server
-    port: 443
+    port: 80 # argocd-server now genuinely serves plaintext HTTP (server.insecure)
     host: argo
   - name: homepage
     namespace: core

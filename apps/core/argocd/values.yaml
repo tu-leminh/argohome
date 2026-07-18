@@ -3,8 +3,14 @@ argo-cd:
     cm:
       url: "" # Explicitly empty to support multi-domain access
       exec.enabled: "true"
+    params:
+      # The real switch for plaintext mode (read via ARGOCD_SERVER_INSECURE
+      # from the argocd-cmd-params-cm ConfigMap) - server.insecure directly
+      # under `server:` below is not a real chart key and was silently
+      # ignored, so the backend was serving self-signed TLS all along and
+      # every plain-HTTP request to it 307-redirected to itself forever.
+      server.insecure: true
   server:
-    insecure: true
     service:
       type: LoadBalancer
       loadBalancerIP: "192.168.1.112"
