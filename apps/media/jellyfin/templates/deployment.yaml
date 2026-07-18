@@ -59,6 +59,10 @@ spec:
             - name: data
               mountPath: {{ .Values.jellyfin.persistence.data.mountPath }}
             {{- end }}
+            {{- if .Values.jellyfin.gpu.enabled }}
+            - name: dri
+              mountPath: {{ .Values.jellyfin.gpu.devicePath }}
+            {{- end }}
 
       volumes:
         {{- if .Values.jellyfin.persistence.config.enabled }}
@@ -70,4 +74,10 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: {{ .Values.jellyfin.persistence.data.existingClaim }}
+        {{- end }}
+        {{- if .Values.jellyfin.gpu.enabled }}
+        - name: dri
+          hostPath:
+            path: {{ .Values.jellyfin.gpu.devicePath }}
+            type: Directory
         {{- end }}

@@ -21,7 +21,15 @@ jellyfin:
       enabled: true
       existingClaim: media-shared-data-pvc
       mountPath: /data
-  
+
+  # AMD GPU passthrough for VAAPI hardware transcoding (amdgpu + Mesa on the
+  # host - renderD128 is world-writable, so no securityContext/GID matching
+  # needed). Set VA-API device = /dev/dri/renderD128 in Jellyfin's own
+  # Admin > Playback > Transcoding settings after this is deployed.
+  gpu:
+    enabled: true
+    devicePath: /dev/dri
+
   ingressTargets:
     duckdns:
       host: jellyfin.epricesx.duckdns.org
