@@ -24,13 +24,7 @@ qui:
   ingressTargets:
     duckdns:
       host: qui.epricesx.duckdns.org
-      certResolver: letsencrypt
     freemyip:
       host: qui.lmtu.freemyip.com
-      certResolver: freemyip
-      tlsDomain: "*.lmtu.freemyip.com"
-      tlsSans:
-        - lmtu.freemyip.com
     myaddr:
       host: qui.lmtlmt.myaddr.io
-      certResolver: myaddr

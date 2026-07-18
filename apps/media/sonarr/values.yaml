@@ -15,16 +15,10 @@ sonarr:
   ingressTargets:
     duckdns:
       host: sonarr.epricesx.duckdns.org
-      certResolver: letsencrypt
     freemyip:
       host: sonarr.lmtu.freemyip.com
-      certResolver: freemyip
-      tlsDomain: "*.lmtu.freemyip.com"
-      tlsSans:
-        - lmtu.freemyip.com
     myaddr:
       host: sonarr.lmtlmt.myaddr.io
-      certResolver: myaddr
 
   persistence:
     config:

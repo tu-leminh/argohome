@@ -1,0 +1,20 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: home-pool
+spec:
+  blocks:
+    - start: {{ (splitList "-" .Values.pool.ipv4) | first | quote }}
+      stop: {{ (splitList "-" .Values.pool.ipv4) | last | quote }}
+    - start: {{ (splitList "-" .Values.pool.ipv6) | first | quote }}
+      stop: {{ (splitList "-" .Values.pool.ipv6) | last | quote }}
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: home-l2
+spec:
+  interfaces:
+    - "^enp6s0$"
+  externalIPs: true
+  loadBalancerIPs: true

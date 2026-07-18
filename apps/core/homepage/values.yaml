@@ -10,13 +10,10 @@ service:
 ingressTargets:
   myaddr:
     host: lmtlmt.myaddr.io
-    certResolver: myaddr
   duckdns:
     host: epricesx.duckdns.org
-    certResolver: letsencrypt
   freemyip:
     host: lmtu.freemyip.com
-    certResolver: freemyip
 
 # Homepage Configuration
 config:
@@ -27,10 +24,6 @@ config:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/argo-cd.png
             href: https://argo.lmtlmt.myaddr.io
             description: GitOps Deployment
-        - Traefik:
-            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/traefik.png
-            href: https://traefik.lmtlmt.myaddr.io/dashboard/
-            description: Ingress Controller
 
     - Cloud:
         - SFTPGo:

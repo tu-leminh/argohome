@@ -23,4 +23,3 @@ upbrr:
   ingressTargets:
     duckdns:
       host: upbrr.epricesx.duckdns.org
-      certResolver: letsencrypt

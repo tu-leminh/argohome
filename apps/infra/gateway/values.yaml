@@ -1,0 +1,28 @@
+gateway:
+  name: infra-gateway
+  # Pinned to what Traefik's LoadBalancer Service used today, so nothing
+  # outside this repo (e.g. router port-forward rules) needs to change.
+  addresses:
+    ipv4: "192.168.1.111"
+    ipv6: "2001:4860:7:812::111"
+  # Recent Cilium versions auto-create a GatewayClass named "cilium" when
+  # gatewayAPI.enabled=true. Verify with `kubectl get gatewayclass` after the
+  # Cilium install and flip this to false if one already exists, to avoid an
+  # ownership fight.
+  createGatewayClass: true
+
+# One HTTPS listener per DNS-01 cert from apps/infra/lego. duckdns/freemyip
+# get a wildcard+apex pair (2 listeners sharing the same cert); myaddr has no
+# wildcard so gets a single hostname-less listener - the cert already has all
+# subdomains as SANs, and each app's HTTPRoute.hostnames narrows further.
+certs:
+  duckdns:
+    secretName: duckdns-tls
+    wildcard: "*.epricesx.duckdns.org"
+    apex: "epricesx.duckdns.org"
+  freemyip:
+    secretName: freemyip-tls
+    wildcard: "*.lmtu.freemyip.com"
+    apex: "lmtu.freemyip.com"
+  myaddr:
+    secretName: myaddr-tls

@@ -21,13 +21,7 @@ q3:
   ingressTargets:
     duckdns:
       host: q3.epricesx.duckdns.org
-      certResolver: letsencrypt
     freemyip:
       host: q3.lmtu.freemyip.com
-      certResolver: freemyip
-      tlsDomain: "*.lmtu.freemyip.com"
-      tlsSans:
-        - lmtu.freemyip.com
     myaddr:
       host: q3.lmtlmt.myaddr.io
-      certResolver: myaddr

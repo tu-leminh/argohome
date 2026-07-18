@@ -19,13 +19,7 @@ autobrr:
   ingressTargets:
     duckdns:
       host: autobrr.epricesx.duckdns.org
-      certResolver: letsencrypt
     freemyip:
       host: autobrr.lmtu.freemyip.com
-      certResolver: freemyip
-      tlsDomain: "*.lmtu.freemyip.com"
-      tlsSans:
-        - lmtu.freemyip.com
     myaddr:
       host: autobrr.lmtlmt.myaddr.io
-      certResolver: myaddr

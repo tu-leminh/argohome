@@ -1,0 +1,18 @@
+{{- range $name, $target := .Values.radarr.ingressTargets }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: radarr-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  parentRefs:
+    - name: infra-gateway
+      namespace: infra
+  hostnames:
+    - "{{ $target.host }}"
+  rules:
+    - backendRefs:
+        - name: {{ include "common.names.fullname" $ }}
+          port: {{ $.Values.radarr.service.port }}
+{{- end }}

@@ -48,13 +48,7 @@ slskd:
   ingressTargets:
     duckdns:
       host: slskd.epricesx.duckdns.org
-      certResolver: letsencrypt
     freemyip:
       host: slskd.lmtu.freemyip.com
-      certResolver: freemyip
-      tlsDomain: "*.lmtu.freemyip.com"
-      tlsSans:
-        - lmtu.freemyip.com
     myaddr:
       host: slskd.lmtlmt.myaddr.io
-      certResolver: myaddr

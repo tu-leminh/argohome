@@ -27,13 +27,7 @@ lidarr:
   ingressTargets:
     duckdns:
       host: lidarr.epricesx.duckdns.org
-      certResolver: letsencrypt
     freemyip:
       host: lidarr.lmtu.freemyip.com
-      certResolver: freemyip
-      tlsDomain: "*.lmtu.freemyip.com"
-      tlsSans:
-        - lmtu.freemyip.com
     myaddr:
       host: lidarr.lmtlmt.myaddr.io
-      certResolver: myaddr
