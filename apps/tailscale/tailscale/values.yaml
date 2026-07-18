@@ -16,11 +16,6 @@ ingresses:
     serviceName: homepage
     port: 3000
     host: homepage
-  - name: traefik
-    namespace: infra
-    serviceName: infra-traefik
-    port: 8080
-    host: traefik
   - name: autobrr
     namespace: media
     serviceName: media-autobrr
