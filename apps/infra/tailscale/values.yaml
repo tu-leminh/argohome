@@ -7,12 +7,12 @@ tailscale-operator:
 
 ingresses:
   - name: argocd
-    namespace: core
-    serviceName: core-argocd-server
+    namespace: infra
+    serviceName: infra-argocd-server
     port: 80 # argocd-server now genuinely serves plaintext HTTP (server.insecure)
     host: argo
   - name: homepage
-    namespace: core
+    namespace: infra
     serviceName: homepage
     port: 3000
     host: homepage

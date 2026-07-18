@@ -19,7 +19,7 @@ All infrastructure is defined as code in this repo. Argo CD watches it and keeps
 | Homepage | `https://epricesx.duckdns.org` |
 | Argo CD | `https://argo.epricesx.duckdns.org` |
 
-Argo CD password: `kubectl -n core get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d`
+Argo CD password: `kubectl -n infra get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d`
 
 ## Architecture
 
@@ -30,10 +30,9 @@ Apps are deployed in sync waves:
 
 | Wave | Namespace | What |
 |---|---|---|
-| -5 | `core` | Argo CD, Homepage |
-| -1 | `infra` | Cilium LB, Gateway, Lego, Secrets, Storage, Scripts |
+| -5 | `infra` | Argo CD, Homepage |
+| -1 | `infra` | Cilium LB, Gateway, Lego, Secrets, Storage, Scripts, Tailscale operator |
 | 5 | `media` | All media apps |
-| — | `tailscale` | Tailscale operator |
 
 Each app is a standalone Helm chart with `Chart.yaml`, `values.yaml`, and `templates/`. Helm artifacts (`*.lock`, `*.tgz`) are gitignored.
 
@@ -138,21 +137,18 @@ kubectl delete job lego-duckdns-manual -n infra
 
 ## Applications
 
-### Core
+### Infrastructure (namespace `infra`)
 | App | Description |
 |---|---|
 | Argo CD | GitOps controller |
 | Homepage | Dashboard |
-
-### Infrastructure
-| App | Description |
-|---|---|
 | Cilium LB | `CiliumLoadBalancerIPPool` + `CiliumL2AnnouncementPolicy` — L2 LoadBalancer, replaces MetalLB |
 | Gateway | Cilium `Gateway` + per-app `HTTPRoute`s — Ingress + TLS, replaces Traefik |
 | Lego | Daily CronJobs issuing ACME DNS-01 certs into `*-tls` Secrets (duckdns/freemyip/myaddr), consumed by the Gateway's listeners |
 | Secrets | Kubernetes Secret manifests |
 | Storage | PV/PVC definitions |
 | Scripts | CronJobs: DDNS updaters, recyclarr |
+| Tailscale | Tailscale Kubernetes operator — private mesh `Ingress` support |
 
 ### Media Stack
 | App | Image | Port | LAN IP |
@@ -179,39 +175,39 @@ kubectl delete job lego-duckdns-manual -n infra
 
 1. Delete `apps/<category>/<name>/`.
 2. Remove its PV/PVC entry from `apps/infra/storage/values.yaml`.
-3. If it has a Tailscale ingress, remove the entry from `apps/tailscale/tailscale/values.yaml`.
-4. If it appears in the Homepage dashboard, remove it from `apps/core/homepage/values.yaml`.
+3. If it has a Tailscale ingress, remove the entry from `apps/infra/tailscale/values.yaml`.
+4. If it appears in the Homepage dashboard, remove it from `apps/infra/homepage/values.yaml`.
 5. Validate, commit, and push:
    ```bash
    helm template apps/infra/storage
-   helm template apps/tailscale/tailscale
+   helm template apps/infra/tailscale
    git commit -am "remove <name>"
    git push
    ```
 6. Log in to the Argo CD CLI (one-liner — run once per session):
    ```bash
-   argocd login localhost --insecure --grpc-web --port-forward --port-forward-namespace core \
+   argocd login localhost --insecure --grpc-web --port-forward --port-forward-namespace infra \
      --username admin \
-     --password "$(kubectl -n core get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
+     --password "$(kubectl -n infra get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
    ```
 
 7. **Wait** — do not stop here. Poll until every affected app is done:
    ```bash
    # Wait for the app's Application object to be pruned (disappear completely)
-   until ! argocd app get media-<name> --grpc-web --port-forward --port-forward-namespace core &>/dev/null; do
+   until ! argocd app get media-<name> --grpc-web --port-forward --port-forward-namespace infra &>/dev/null; do
      echo "$(date '+%H:%M:%S') media-<name> still exists, sleeping 15s..."; sleep 15
    done
    echo "pruned"
 
    # Wait for infra-storage to reconcile to the new commit and prune the PV/PVC
-   until argocd app get infra-storage --grpc-web --port-forward --port-forward-namespace core 2>/dev/null \
+   until argocd app get infra-storage --grpc-web --port-forward --port-forward-namespace infra 2>/dev/null \
      | grep -q "<commit-sha>"; do
      echo "$(date '+%H:%M:%S') infra-storage on old commit, sleeping 15s..."; sleep 15
    done
-   argocd app wait infra-storage --sync --health --grpc-web --port-forward --port-forward-namespace core
+   argocd app wait infra-storage --sync --health --grpc-web --port-forward --port-forward-namespace infra
 
-   # Wait for tailscale ingress to be pruned
-   argocd app wait tailscale-tailscale --sync --health --grpc-web --port-forward --port-forward-namespace core
+   # Wait for the tailscale ingress to be pruned
+   argocd app wait infra-tailscale --sync --health --grpc-web --port-forward --port-forward-namespace infra
    ```
 
 > **Do not manually delete Kubernetes resources — push to git and let Argo CD prune. That's the point.**
@@ -230,9 +226,9 @@ helm template apps/<category>/<app>
 
 **Step 2 — log in to the Argo CD CLI (once per session):**
 ```bash
-argocd login localhost --insecure --grpc-web --port-forward --port-forward-namespace core \
+argocd login localhost --insecure --grpc-web --port-forward --port-forward-namespace infra \
   --username admin \
-  --password "$(kubectl -n core get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
+  --password "$(kubectl -n infra get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
 ```
 
 **Step 3 — after pushing, wait until Synced + Healthy (required). Do not stop here — actually run these and wait:**
@@ -241,13 +237,13 @@ Argo CD polls git every ~3 minutes. Do not call the task done at "pushed" — bl
 
 ```bash
 # Block until the Application is Synced + Healthy
-argocd app wait <category>-<name> --sync --health --grpc-web --port-forward --port-forward-namespace core
+argocd app wait <category>-<name> --sync --health --grpc-web --port-forward --port-forward-namespace infra
 
 # Watch the pod come up
 kubectl get pod -n <namespace> -l app.kubernetes.io/name=<name> -w
 
 # If something is wrong
-kubectl describe application -n core <category>-<name>
+kubectl describe application -n infra <category>-<name>
 kubectl describe pod -n <namespace> <pod-name>
 kubectl logs -n <namespace> <pod-name>
 ```
@@ -297,4 +293,4 @@ No `helm lint`, `helm template`, or manifest validation runs before changes merg
 ### Low
 
 **Homepage dashboard links are hardcoded**
-`apps/core/homepage/values.yaml` hardcodes all service URLs. Adding a new app requires manually updating this config — it won't auto-discover new Argo CD applications.
+`apps/infra/homepage/values.yaml` hardcodes all service URLs. Adding a new app requires manually updating this config — it won't auto-discover new Argo CD applications.
