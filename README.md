@@ -31,16 +31,16 @@ Apps are deployed in sync waves:
 | Wave | Namespace | What |
 |---|---|---|
 | -5 | `infra` | Argo CD, Homepage |
-| -1 | `infra` | Cilium LB, Gateway, Lego, Secrets, Storage, Scripts, Tailscale operator |
+| -1 | `infra` | Network, Lego, Secrets, Storage, Scripts, Tailscale operator |
 | 5 | `media` | All media apps |
 
 Each app is a standalone Helm chart with `Chart.yaml`, `values.yaml`, and `templates/`. Helm artifacts (`*.lock`, `*.tgz`) are gitignored.
 
 ### Networking
 - **Cilium** — cluster CNI + kube-proxy replacement (eBPF dataplane), dual-stack (IPv4/IPv6)
-- **Cilium LB-IPAM + L2 Announcements** (`apps/infra/cilium-lb`) — Layer 2 LoadBalancer,
+- **Cilium LB-IPAM + L2 Announcements** (`apps/infra/network`) — Layer 2 LoadBalancer,
   replaces MetalLB. IP pool `192.168.1.101–200` (IPv4) + `2001:4860:7:812::100–200` (IPv6)
-- **Cilium Gateway API** (`apps/infra/gateway`) — Ingress + SSL, replaces Traefik. TLS certs
+- **Cilium Gateway API** (`apps/infra/network`) — Ingress + SSL, replaces Traefik. TLS certs
   come from `apps/infra/lego`'s DNS-01 Secrets (Let's Encrypt via DuckDNS / FreeMyIP /
   MyAddr DNS challenges); shared Gateway LoadBalancer IP `192.168.1.111` (+ IPv6 equivalent)
 - **Tailscale Operator** — Private mesh access via `Ingress` resources (`ingressClassName: tailscale`, Funnel enabled)
@@ -53,7 +53,7 @@ Services are reachable three ways:
 
 **Ingress patterns per app:**
 - `templates/httproute.yaml` — Gateway API `HTTPRoute` (external DDNS, attaches to
-  `infra-gateway` from `apps/infra/gateway`)
+  `infra-gateway` from `apps/infra/network`)
 - `templates/ingress-tailscale.yaml` — `networking.k8s.io/v1 Ingress` with `ingressClassName: tailscale`
 
 **DDNS providers:** DuckDNS (`epricesx`), FreeMyIP (`lmtu.freemyip.com`), MyAddr (`lmtlmt.myaddr.io`)
@@ -142,8 +142,7 @@ kubectl delete job lego-duckdns-manual -n infra
 |---|---|
 | Argo CD | GitOps controller |
 | Homepage | Dashboard |
-| Cilium LB | `CiliumLoadBalancerIPPool` + `CiliumL2AnnouncementPolicy` — L2 LoadBalancer, replaces MetalLB |
-| Gateway | Cilium `Gateway` + per-app `HTTPRoute`s — Ingress + TLS, replaces Traefik |
+| Network | `CiliumLoadBalancerIPPool`/`CiliumL2AnnouncementPolicy` (replaces MetalLB) + Cilium `Gateway`/`GatewayClass`/redirect `HTTPRoute` (replaces Traefik) |
 | Lego | Daily CronJobs issuing ACME DNS-01 certs into `*-tls` Secrets (duckdns/freemyip/myaddr), consumed by the Gateway's listeners |
 | Secrets | Kubernetes Secret manifests |
 | Storage | PV/PVC definitions |
