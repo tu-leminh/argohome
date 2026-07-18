@@ -28,8 +28,11 @@ spec:
       port: 443
       hostname: {{ $cert.wildcard | quote }}
       tls:
+        mode: Terminate
         certificateRefs:
           - name: {{ $cert.secretName }}
+            group: ""
+            kind: Secret
       allowedRoutes:
         namespaces:
           from: All
@@ -38,8 +41,11 @@ spec:
       port: 443
       hostname: {{ $cert.apex | quote }}
       tls:
+        mode: Terminate
         certificateRefs:
           - name: {{ $cert.secretName }}
+            group: ""
+            kind: Secret
       allowedRoutes:
         namespaces:
           from: All
@@ -48,8 +54,11 @@ spec:
       protocol: HTTPS
       port: 443
       tls:
+        mode: Terminate
         certificateRefs:
           - name: {{ $cert.secretName }}
+            group: ""
+            kind: Secret
       allowedRoutes:
         namespaces:
           from: All

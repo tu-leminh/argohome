@@ -7,8 +7,14 @@ spec:
   parentRefs:
     - name: {{ .Values.gateway.name }}
       sectionName: http
+      group: gateway.networking.k8s.io
+      kind: Gateway
   rules:
-    - filters:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
         - type: RequestRedirect
           requestRedirect:
             scheme: https
