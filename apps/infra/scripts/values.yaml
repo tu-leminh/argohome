@@ -1,6 +1,5 @@
 jobs:
   duckdns-updater:
-    runOnStartup: true
     schedule: "*/20 * * * *"
     image: curlimages/curl:latest
     domain: epricesx
@@ -12,7 +11,6 @@ jobs:
             key: DUCKDNS_TOKEN
 
   freemyip-updater:
-    runOnStartup: true
     schedule: "5-59/20 * * * *"
     image: curlimages/curl:latest
     domain: lmtu.freemyip.com
@@ -24,7 +22,6 @@ jobs:
             key: FREEMYIP_TOKEN
 
   myaddr-updater:
-    runOnStartup: true
     schedule: "10-59/20 * * * *"
     image: curlimages/curl:latest
     env:

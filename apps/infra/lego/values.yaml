@@ -3,7 +3,11 @@ lego:
   # Pinned explicitly - don't track "latest".
   legoVersion: "v5.2.2"
   kubectlVersion: "v1.36.2"
-  schedule: "0 3 * * *" # daily; lego renew is a cheap no-op when not near expiry
+  # Every 15min: lego's default --renew-days=0 renews at 1/3 of a cert's
+  # lifetime left (~30 days for LE's 90-day certs) and is a no-op otherwise -
+  # it reads the cert on disk and skips without hitting the ACME server or
+  # DNS provider, so frequent polling doesn't risk rate limits.
+  schedule: "*/15 * * * *"
   existingClaim: infra-lego-config-pvc
 
 certificates:

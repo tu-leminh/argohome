@@ -91,8 +91,6 @@ A NixOS systemd `.path` unit on the host (`perm-fixer.path`, not part of this re
 | `myaddr-updater` | `10-59/20 * * * *` | Update MyAddr DDNS record |
 | `recyclarr` | on-demand | Sync TRaSH Guide quality profiles + custom formats to Sonarr & Radarr (language CFs excluded) |
 
-Scheduled jobs also run on Argo CD sync via `job-on-sync.yaml` (`runOnStartup: true`).
-
 ### Triggering recyclarr on demand
 
 > **recyclarr never fires on a schedule** (`"0 0 31 2 *"`) and does not run on sync — trigger it explicitly:
@@ -115,9 +113,10 @@ kubectl delete job recyclarr-manual -n infra
 
 ### Triggering a lego cert issuance on demand
 
-`apps/infra/lego` runs `lego-duckdns`, `lego-freemyip`, and `lego-myaddr` CronJobs daily
-(`0 3 * * *`) — daily `renew` calls are a cheap no-op until a cert is near expiry. There is
-no run-on-sync hook, so the first issuance for each must be triggered manually:
+`apps/infra/lego` runs `lego-duckdns`, `lego-freemyip`, and `lego-myaddr` CronJobs every 15
+minutes (`*/15 * * * *`) — `lego run` is a cheap no-op (no ACME/DNS-provider calls) until a
+cert is within its renewal window, so on a fresh cluster the first real issuance happens
+automatically within 15 minutes with no manual step. To force it sooner:
 
 ```bash
 kubectl create job --from=cronjob/lego-duckdns lego-duckdns-manual -n infra
