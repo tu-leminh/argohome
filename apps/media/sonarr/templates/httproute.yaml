@@ -20,7 +20,7 @@ spec:
             value: /
       backendRefs:
         - name: {{ $.Release.Name }}
-          port: 8989
+          port: {{ $.Values.sonarr.service.port }}
           group: ""
           kind: Service
           weight: 1
