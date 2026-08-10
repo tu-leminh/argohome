@@ -12,6 +12,7 @@ bazarr:
     type: LoadBalancer
     loadBalancerIP: 10.0.1.6
     port: 80
+    containerPort: 6767
 
   persistence:
     config:

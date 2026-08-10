@@ -50,7 +50,7 @@ spec:
           imagePullPolicy: {{ .Values.upbrr.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.upbrr.service.port }}
+              containerPort: {{ .Values.upbrr.service.containerPort }}
               protocol: TCP
 
           env:

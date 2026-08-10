@@ -42,7 +42,7 @@ spec:
           imagePullPolicy: {{ .Values.radarr.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.radarr.service.port }}
+              containerPort: {{ .Values.radarr.service.containerPort }}
               protocol: TCP
 
           env:

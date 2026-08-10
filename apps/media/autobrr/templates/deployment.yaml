@@ -37,7 +37,7 @@ spec:
           imagePullPolicy: {{ .Values.autobrr.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.autobrr.service.port }}
+              containerPort: {{ .Values.autobrr.service.containerPort }}
               protocol: TCP
               
           env:

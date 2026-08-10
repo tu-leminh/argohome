@@ -14,6 +14,7 @@ lidarr:
     type: LoadBalancer
     loadBalancerIP: 10.0.1.8
     port: 80
+    containerPort: 8686
 
   persistence:
     config:

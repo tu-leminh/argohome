@@ -12,6 +12,7 @@ radarr:
     type: LoadBalancer
     loadBalancerIP: 10.0.1.14
     port: 80
+    containerPort: 7878
 
   persistence:
     config:

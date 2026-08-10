@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: {{ .Values.prowlarr.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.prowlarr.service.port }}
+              containerPort: {{ .Values.prowlarr.service.containerPort }}
               protocol: TCP
               
           env:

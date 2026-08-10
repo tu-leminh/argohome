@@ -12,6 +12,7 @@ prowlarr:
     type: LoadBalancer
     loadBalancerIP: 10.0.1.9
     port: 80
+    containerPort: 9696
 
   persistence:
     config:

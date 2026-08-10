@@ -42,7 +42,7 @@ spec:
           imagePullPolicy: {{ .Values.lidarr.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.lidarr.service.port }}
+              containerPort: {{ .Values.lidarr.service.containerPort }}
               protocol: TCP
 
           env:

@@ -11,6 +11,7 @@ upbrr:
     type: LoadBalancer
     loadBalancerIP: 10.0.1.17
     port: 80
+    containerPort: 7480
 
   persistence:
     config:
