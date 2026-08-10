@@ -1,15 +1,17 @@
 pool:
-  ipv4: "192.168.1.101-192.168.1.200"
+  ipv4: "10.0.1.2-10.0.1.255"
   # Carved from the same /64 the LAN is delegated (mirrors the IPv4 pool's
-  # .101-.200 numbering) - see README for the caveat about ISP prefix rotation.
+  # numbering) - see README for the caveat about ISP prefix rotation.
   ipv6: "2001:4860:7:812::100-2001:4860:7:812::200"
 
 gateway:
   name: infra-gateway
-  # Pinned to what Traefik's LoadBalancer Service used today, so nothing
-  # outside this repo (e.g. router port-forward rules) needs to change.
+  # Every HTTP app gets its own LB IP from the 10.0.1.0/24 pool (see
+  # README). This one is the shared reverse proxy for all DDNS hostnames;
+  # homelab-dnat on the host (nix network.nix) forwards the node IP's 80/443
+  # here so router DMZ traffic reaches it.
   addresses:
-    ipv4: "192.168.1.111"
+    ipv4: "10.0.1.2"
     ipv6: "2001:4860:7:812::111"
   # Recent Cilium versions auto-create a GatewayClass named "cilium" when
   # gatewayAPI.enabled=true. Verify with `kubectl get gatewayclass` after the

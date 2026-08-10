@@ -14,9 +14,15 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+      {{- if .Values.slskd.service.ports.httpNodePort }}
+      nodePort: {{ .Values.slskd.service.ports.httpNodePort }}
+      {{- end }}
     - port: {{ .Values.slskd.service.ports.peer }}
       targetPort: peer
       protocol: TCP
       name: peer
+      {{- if .Values.slskd.service.ports.peerNodePort }}
+      nodePort: {{ .Values.slskd.service.ports.peerNodePort }}
+      {{- end }}
   selector:
     {{- include "common.labels.selector" . | nindent 4 }}

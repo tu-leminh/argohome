@@ -10,8 +10,8 @@ radarr:
   
   service:
     type: LoadBalancer
-    loadBalancerIP: 192.168.1.151
-    port: 7878
+    loadBalancerIP: 10.0.1.14
+    port: 80
 
   persistence:
     config:

@@ -14,13 +14,22 @@ spec:
       targetPort: sftp
       protocol: TCP
       name: sftp
+      {{- if .Values.sftpgo.service.sftpNodePort }}
+      nodePort: {{ .Values.sftpgo.service.sftpNodePort }}
+      {{- end }}
     - port: {{ .Values.sftpgo.service.httpPort }}
       targetPort: http
       protocol: TCP
       name: http
+      {{- if .Values.sftpgo.service.httpNodePort }}
+      nodePort: {{ .Values.sftpgo.service.httpNodePort }}
+      {{- end }}
     - port: {{ .Values.sftpgo.service.webdavPort }}
       targetPort: webdav
       protocol: TCP
       name: webdav
+      {{- if .Values.sftpgo.service.webdavNodePort }}
+      nodePort: {{ .Values.sftpgo.service.webdavNodePort }}
+      {{- end }}
   selector:
     {{- include "common.labels.selector" . | nindent 4 }}

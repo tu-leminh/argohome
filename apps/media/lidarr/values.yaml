@@ -12,8 +12,8 @@ lidarr:
 
   service:
     type: LoadBalancer
-    loadBalancerIP: 192.168.1.158
-    port: 8686
+    loadBalancerIP: 10.0.1.8
+    port: 80
 
   persistence:
     config:

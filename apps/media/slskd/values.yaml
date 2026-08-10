@@ -29,11 +29,12 @@ slskd:
     SLSKD_SLSK_PASSWORD: "ZXByaWNlc3gx"
 
   service:
-    type: LoadBalancer
-    loadBalancerIP: 192.168.1.159
+    type: NodePort
     ports:
       http: 5030
       peer: 5031
+      httpNodePort: 30030
+      peerNodePort: 30031
 
   persistence:
     config:

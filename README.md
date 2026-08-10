@@ -39,16 +39,21 @@ Each app is a standalone Helm chart with `Chart.yaml`, `values.yaml`, and `templ
 ### Networking
 - **Cilium** — cluster CNI + kube-proxy replacement (eBPF dataplane), dual-stack (IPv4/IPv6)
 - **Cilium LB-IPAM + L2 Announcements** (`apps/infra/network`) — Layer 2 LoadBalancer,
-  replaces MetalLB. IP pool `192.168.1.101–200` (IPv4) + `2001:4860:7:812::100–200` (IPv6)
-- **Cilium Gateway API** (`apps/infra/network`) — Ingress + SSL, replaces Traefik. TLS certs
-  come from `apps/infra/lego`'s DNS-01 Secrets (Let's Encrypt via DuckDNS / FreeMyIP /
-  MyAddr DNS challenges); shared Gateway LoadBalancer IP `192.168.1.111` (+ IPv6 equivalent)
+  replaces MetalLB. IP pool `10.0.1.2–255` (IPv4 — a /24 carved out of the home
+  `10.0.0.0/16` LAN; keep it out of the router's DHCP range) + `2001:4860:7:812::100–200` (IPv6)
+- **Cilium Gateway API** (`apps/infra/network`) — reverse proxy (Ingress + SSL), replaces
+  Traefik. TLS certs come from `apps/infra/lego`'s DNS-01 Secrets (Let's Encrypt via
+  DuckDNS / FreeMyIP / MyAddr DNS challenges); Gateway LoadBalancer IP `10.0.1.2`
+- **Node NAT** — the router DMZs every inbound port to the node (`10.0.0.100`); the NixOS
+  `homelab-dnat` unit (nix `hosts/homelab/network.nix`) DNATs the node's 80/443 to the
+  Gateway's LB IP `10.0.1.2`, so WAN/DDNS HTTPS reaches Envoy
 - **Tailscale Operator** — Private mesh access via `Ingress` resources (`ingressClassName: tailscale`, Funnel enabled)
 
 Services are reachable three ways:
-1. **LAN** — Direct Gateway IP `192.168.1.111` (shared by every DDNS hostname via SNI/Host
-   routing), or an app's own dedicated LoadBalancer IP where one is set (e.g. `192.168.1.156` for Qui)
-2. **DDNS** — `https://<app>.epricesx.duckdns.org`
+1. **LAN** — every HTTP app has its own dedicated LoadBalancer IP from `10.0.1.0/24` on
+   **port 80**: `http://10.0.1.<n>` (see table below). The Gateway at `10.0.1.2` serves all
+   DDNS hostnames on 443 via SNI/Host routing (its port 80 redirects to HTTPS)
+2. **DDNS** — `https://<app>.epricesx.duckdns.org` (WAN via router DMZ → node → `homelab-dnat` → Gateway)
 3. **Tailscale** — `https://<app>.platy-python.ts.net`
 
 **Ingress patterns per app:**
@@ -149,23 +154,25 @@ kubectl delete job lego-duckdns-manual -n infra
 | Tailscale | Tailscale Kubernetes operator — private mesh `Ingress` support |
 
 ### Media Stack
-| App | Image | Port | LAN IP |
+| App | Image | Port | LAN IP (LB, :80) |
 |---|---|---|---|
-| Seerr | `linuxserver/overseerr` | 5055 | 192.168.1.150 |
-| Sonarr | `linuxserver/sonarr` | 8989 | 192.168.1.151 |
-| Radarr | `linuxserver/radarr` | 7878 | 192.168.1.152 |
-| Prowlarr | `linuxserver/prowlarr` | 9696 | 192.168.1.153 |
-| Lidarr | `linuxserver/lidarr:nightly` (Plugins branch — [supports Tubifarry](https://wiki.servarr.com/en/lidarr/plugins)) | 8686 | 192.168.1.158 |
-| Slskd | `slskd/slskd` ([Soulseek daemon](https://github.com/slskd/slskd)) | 5030 (UI) / 5031 (peer) | 192.168.1.159 |
-| Autobrr | `ghcr.io/autobrr/autobrr` | 7474 | 192.168.1.154 |
-| Qui | `ghcr.io/autobrr/qui` | 7476 | 192.168.1.156 |
-| Upbrr | `ghcr.io/autobrr/upbrr` ([private-tracker upload prep](https://github.com/autobrr/upbrr)) | 7480 | 192.168.1.168 |
-| Q1 | `linuxserver/qbittorrent` | 8080 | 192.168.1.157 |
-| Q2 | `linuxserver/qbittorrent` | 8080 | 192.168.1.165 |
-| Q3 | `linuxserver/qbittorrent` | 8080 | 192.168.1.166 |
-| Jellyfin | `linuxserver/jellyfin` | 8096 | 192.168.1.155 |
-| Bazarr | `linuxserver/bazarr` | 6767 | — |
-| SFTPGo | `drakkan/sftpgo` | 2022/8080/10080 | 192.168.1.160 |
+| Seerr | `linuxserver/overseerr` | 5055 | 10.0.1.15 |
+| Sonarr | `linuxserver/sonarr` | 8989 | 10.0.1.16 |
+| Radarr | `linuxserver/radarr` | 7878 | 10.0.1.14 |
+| Prowlarr | `linuxserver/prowlarr` | 9696 | 10.0.1.9 |
+| Lidarr | `linuxserver/lidarr:nightly` (Plugins branch — [supports Tubifarry](https://wiki.servarr.com/en/lidarr/plugins)) | 8686 | 10.0.1.8 |
+| Slskd | `slskd/slskd` ([Soulseek daemon](https://github.com/slskd/slskd)) | 5030 (UI) / 5031 (peer) | NodePort 30030 / 30031 |
+| Autobrr | `ghcr.io/autobrr/autobrr` | 7474 | 10.0.1.5 |
+| Qui | `ghcr.io/autobrr/qui` | 7476 | 10.0.1.13 |
+| Upbrr | `ghcr.io/autobrr/upbrr` ([private-tracker upload prep](https://github.com/autobrr/upbrr)) | 7480 | 10.0.1.17 |
+| Q1 | `linuxserver/qbittorrent` | 8080 | 10.0.1.10 |
+| Q2 | `linuxserver/qbittorrent` | 8080 | 10.0.1.11 |
+| Q3 | `linuxserver/qbittorrent` | 8080 | 10.0.1.12 |
+| Jellyfin | `linuxserver/jellyfin` | 8096 | 10.0.1.7 |
+| Bazarr | `linuxserver/bazarr` | 6767 | 10.0.1.6 |
+| SFTPGo | `drakkan/sftpgo` | 2022/8080/10080 | NodePort 32022 / 30883 / 31080 |
+
+Infra: Argo CD `10.0.1.3` (:80/443), Homepage `10.0.1.4` (:80), Gateway `10.0.1.2` (:80/443).
 
 ## Removing an App
 
@@ -268,8 +275,10 @@ kubectl logs -n <namespace> <pod-name>
 
 ### High
 
-**Sonarr uses an unpinned 3rd-party upstream chart**
-`apps/media/sonarr/Chart.yaml` pulls from `https://pree.github.io/helm-charts` with `version: "*"`. Every other media app has its own `deployment.yaml`/`service.yaml`. An upstream breaking change will deploy automatically. The LoadBalancer IP is not explicitly set in `values.yaml`, so the LAN IP in the table above may not actually be assigned.
+**Sonarr chart drift**
+`apps/media/sonarr` is a local chart like every other media app (its
+`Chart.yaml` has no upstream dependency), and its LoadBalancer IP is now set
+explicitly in `values.yaml`. Keep it consistent with the rest of the stack.
 
 **All images pinned to `latest` with `pullPolicy: Always`**
 Every media app and all infra scripts (`alpine:latest`, `curlimages/curl:latest`) use `latest`. A pod restart after an upstream breaking release silently breaks the stack. Pin to specific SemVer tags.

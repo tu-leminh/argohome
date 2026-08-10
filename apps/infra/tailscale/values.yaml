@@ -14,17 +14,17 @@ ingresses:
   - name: homepage
     namespace: infra
     serviceName: homepage
-    port: 3000
+    port: 80
     host: homepage
   - name: autobrr
     namespace: media
     serviceName: media-autobrr
-    port: 7474
+    port: 80
     host: autobrr
   - name: bazarr
     namespace: media
     serviceName: media-bazarr
-    port: 6767
+    port: 80
     host: bazarr
   - name: sftpgo
     namespace: media
@@ -39,55 +39,55 @@ ingresses:
   - name: jellyfin
     namespace: media
     serviceName: media-jellyfin
-    port: 8096
+    port: 80
     host: jellyfin
   - name: lidarr
     namespace: media
     serviceName: media-lidarr
-    port: 8686
+    port: 80
     host: lidarr
   - name: prowlarr
     namespace: media
     serviceName: media-prowlarr
-    port: 9696
+    port: 80
     host: prowlarr
   - name: q1
     namespace: media
     serviceName: media-q1
-    port: 8080
+    port: 80
     host: q1
   - name: q2
     namespace: media
     serviceName: media-q2
-    port: 8080
+    port: 80
     host: q2
   - name: q3
     namespace: media
     serviceName: media-q3
-    port: 8080
+    port: 80
     host: q3
   - name: qui
     namespace: media
     serviceName: media-qui
-    port: 7476
+    port: 80
     host: qui
   - name: radarr
     namespace: media
     serviceName: media-radarr
-    port: 7878
+    port: 80
     host: radarr
   - name: seerr
     namespace: media
     serviceName: media-seerr
-    port: 5055
+    port: 80
     host: seerr
   - name: sonarr
     namespace: media
     serviceName: media-sonarr
-    port: 8989
+    port: 80
     host: sonarr
   - name: upbrr
     namespace: media
     serviceName: media-upbrr
-    port: 7480
+    port: 80
     host: upbrr

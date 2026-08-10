@@ -14,11 +14,13 @@ sftpgo:
     SFTPGO_FTPD__BINDINGS__0__PORT: "0"
 
   service:
-    type: LoadBalancer
-    loadBalancerIP: 192.168.1.160
+    type: NodePort
     sftpPort: 2022
     httpPort: 8080
     webdavPort: 10080
+    sftpNodePort: 32022
+    httpNodePort: 30883
+    webdavNodePort: 31080
 
   persistence:
     config:
