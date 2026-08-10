@@ -45,10 +45,10 @@ spec:
               containerPort: 8080
               protocol: TCP
             - name: torrent-tcp
-              containerPort: 7008
+              containerPort: {{ .Values.q1.torrentService.port }}
               protocol: TCP
             - name: torrent-udp
-              containerPort: 7008
+              containerPort: {{ .Values.q1.torrentService.port }}
               protocol: UDP
 
           env:

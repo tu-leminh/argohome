@@ -165,9 +165,9 @@ kubectl delete job lego-duckdns-manual -n infra
 | Autobrr | `ghcr.io/autobrr/autobrr` | 7474 | 10.0.1.5 |
 | Qui | `ghcr.io/autobrr/qui` | 7476 | 10.0.1.13 |
 | Upbrr | `ghcr.io/autobrr/upbrr` ([private-tracker upload prep](https://github.com/autobrr/upbrr)) | 7480 | 10.0.1.17 |
-| Q1 | `linuxserver/qbittorrent` | 8080 | 10.0.1.10 |
-| Q2 | `linuxserver/qbittorrent` | 8080 | 10.0.1.11 |
-| Q3 | `linuxserver/qbittorrent` | 8080 | 10.0.1.12 |
+| Q1 | `linuxserver/qbittorrent` | 8080 (webui) / 31081 (torrent) | 10.0.1.10 (torrent → NodePort 31081) |
+| Q2 | `linuxserver/qbittorrent` | 8080 (webui) / 31082 (torrent) | 10.0.1.11 (torrent → NodePort 31082) |
+| Q3 | `linuxserver/qbittorrent` | 8080 (webui) / 31083 (torrent) | 10.0.1.12 (torrent → NodePort 31083) |
 | Jellyfin | `linuxserver/jellyfin` | 8096 | 10.0.1.7 |
 | Bazarr | `linuxserver/bazarr` | 6767 | 10.0.1.6 |
 | SFTPGo | `drakkan/sftpgo` | 2022/8080 | NodePort 32022 / 30883 (webdav → LB 10.0.1.18 :80) |

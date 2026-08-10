@@ -14,13 +14,29 @@ spec:
       targetPort: webui
       protocol: TCP
       name: webui
-    - port: 7010
+  selector:
+    {{- include "common.labels.selector" . | nindent 4 }}
+{{- if .Values.q3.torrentService.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}-torrent
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  type: {{ .Values.q3.torrentService.type | default "NodePort" }}
+  ports:
+    - port: {{ .Values.q3.torrentService.port }}
       targetPort: torrent-tcp
       protocol: TCP
       name: torrent-tcp
-    - port: 7010
+      nodePort: {{ .Values.q3.torrentService.port }}
+    - port: {{ .Values.q3.torrentService.port }}
       targetPort: torrent-udp
       protocol: UDP
       name: torrent-udp
+      nodePort: {{ .Values.q3.torrentService.port }}
   selector:
     {{- include "common.labels.selector" . | nindent 4 }}
+{{- end }}

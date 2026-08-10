@@ -25,3 +25,7 @@ q3:
       host: q3.lmtu.freemyip.com
     myaddr:
       host: q3.lmtlmt.myaddr.io
+
+  torrentService:
+    enabled: true
+    port: 31083
