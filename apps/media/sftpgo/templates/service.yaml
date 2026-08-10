@@ -24,12 +24,26 @@ spec:
       {{- if .Values.sftpgo.service.httpNodePort }}
       nodePort: {{ .Values.sftpgo.service.httpNodePort }}
       {{- end }}
-    - port: {{ .Values.sftpgo.service.webdavPort }}
+  selector:
+    {{- include "common.labels.selector" . | nindent 4 }}
+{{- if .Values.sftpgo.webdavService.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}-webdav
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  type: {{ .Values.sftpgo.webdavService.type | default "LoadBalancer" }}
+  {{- if .Values.sftpgo.webdavService.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.sftpgo.webdavService.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.sftpgo.webdavService.port }}
       targetPort: webdav
       protocol: TCP
       name: webdav
-      {{- if .Values.sftpgo.service.webdavNodePort }}
-      nodePort: {{ .Values.sftpgo.service.webdavNodePort }}
-      {{- end }}
   selector:
     {{- include "common.labels.selector" . | nindent 4 }}
+{{- end }}

@@ -17,10 +17,15 @@ sftpgo:
     type: NodePort
     sftpPort: 2022
     httpPort: 8080
-    webdavPort: 10080
     sftpNodePort: 32022
     httpNodePort: 30883
-    webdavNodePort: 31080
+
+  webdavService:
+    enabled: true
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.18
+    port: 80
+    webdavPort: 10080
 
   persistence:
     config:

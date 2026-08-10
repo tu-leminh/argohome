@@ -170,9 +170,9 @@ kubectl delete job lego-duckdns-manual -n infra
 | Q3 | `linuxserver/qbittorrent` | 8080 | 10.0.1.12 |
 | Jellyfin | `linuxserver/jellyfin` | 8096 | 10.0.1.7 |
 | Bazarr | `linuxserver/bazarr` | 6767 | 10.0.1.6 |
-| SFTPGo | `drakkan/sftpgo` | 2022/8080/10080 | NodePort 32022 / 30883 / 31080 |
+| SFTPGo | `drakkan/sftpgo` | 2022/8080 | NodePort 32022 / 30883 (webdav → LB 10.0.1.18 :80) |
 
-Infra: Argo CD `10.0.1.3` (:80/443), Homepage `10.0.1.4` (:80), Gateway `10.0.1.2` (:80/443).
+Infra: Argo CD `10.0.1.3` (:80/443), Homepage `10.0.1.4` (:80), Gateway `10.0.1.2` (:80/443), SFTPGo webdav `10.0.1.18` (:80).
 
 ## Removing an App
 

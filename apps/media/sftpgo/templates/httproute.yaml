@@ -47,8 +47,8 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: {{ include "common.names.fullname" $ }}
-          port: {{ $.Values.sftpgo.service.webdavPort }}
+        - name: {{ include "common.names.fullname" $ }}-webdav
+          port: {{ $.Values.sftpgo.webdavService.port }}
           group: ""
           kind: Service
           weight: 1
