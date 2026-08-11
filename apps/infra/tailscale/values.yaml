@@ -4,6 +4,9 @@ tailscale-operator:
       secretName: tailscale-secret
   operatorConfig:
     logging: "info"
+  proxyConfig:
+    image:
+      tag: v1.102.2 # funnel inbound regression fix (v1.102.2, 2026-08-05)
 
 ingresses:
   - name: argocd
