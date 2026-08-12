@@ -16,6 +16,10 @@ spec:
       labels:
         {{- include "common.labels.selector" . | nindent 8 }}
     spec:
+      securityContext:
+        supplementalGroups:
+          - 303
+          - 26
       # fsGroup is ignored on hostPath PVs, and containerd auto-creates the
       # shared data dir as root:root - chmod the top-level dirs (not -R,
       # library is huge) to 777 so any app, regardless of uid, can access.
