@@ -21,6 +21,12 @@ All infrastructure is defined as code in this repo. Argo CD watches it and keeps
 
 Argo CD password: `kubectl -n infra get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d`
 
+## Operating Rules (must follow)
+
+- **GitOps**: never create/edit/delete Kubernetes resources manually — commit, push, and let Argo CD reconcile. That's the point.
+- **KISS (Keep It Simple, Stupid)** — this is a single-node homelab: prefer the simplest option that works. Favor boring, well-trodden choices over clever ones; only deviate when there's a documented reason (e.g. `privileged: true` for Jellyfin GPU passthrough, see `apps/media/jellyfin/values.yaml`).
+- **Document host-side workarounds**: every NixOS host workaround must ship with a short comment explaining *why* it exists plus the upstream bug/driver reference to monitor, so it can be revisited when upstream fixes it — e.g. the `amdgpu.ppfeaturemask=0xFFFF7FFF` VCN hang fix (drm/amd#3400, jellyfin#12186) in `hosts/homelab/default.nix`.
+
 ## Architecture
 
 ### GitOps (App of Apps)
