@@ -100,27 +100,6 @@ A NixOS systemd `.path` unit on the host (`perm-fixer.path`, not part of this re
 | `duckdns-updater` | `*/20 * * * *` | Update DuckDNS DDNS record |
 | `freemyip-updater` | `5-59/20 * * * *` | Update FreeMyIP DDNS record |
 | `myaddr-updater` | `10-59/20 * * * *` | Update MyAddr DDNS record |
-| `recyclarr` | on-demand | Sync TRaSH Guide quality profiles + custom formats to Sonarr & Radarr (language CFs excluded) |
-
-### Triggering recyclarr on demand
-
-> **recyclarr never fires on a schedule** (`"0 0 31 2 *"`) and does not run on sync — trigger it explicitly:
-
-```bash
-kubectl create job --from=cronjob/recyclarr recyclarr-manual -n infra
-```
-
-Wait and stream logs (use pod name, not label selector — label selector truncates logs):
-```bash
-until kubectl get pod -n infra -l job-name=recyclarr-manual --no-headers | grep -qE "Running|Completed|Error"; do sleep 2; done
-POD=$(kubectl get pod -n infra -l job-name=recyclarr-manual -o jsonpath='{.items[0].metadata.name}')
-kubectl logs -n infra $POD -f
-```
-
-Clean up when done (Kubernetes does not auto-delete manually-created jobs):
-```bash
-kubectl delete job recyclarr-manual -n infra
-```
 
 ### Triggering a lego cert issuance on demand
 
@@ -156,7 +135,7 @@ kubectl delete job lego-duckdns-manual -n infra
 | Lego | Daily CronJobs issuing ACME DNS-01 certs into `*-tls` Secrets (duckdns/freemyip/myaddr), consumed by the Gateway's listeners |
 | Secrets | Kubernetes Secret manifests |
 | Storage | PV/PVC definitions |
-| Scripts | CronJobs: DDNS updaters, recyclarr |
+| Scripts | CronJobs: DDNS updaters |
 | Tailscale | Tailscale Kubernetes operator — private mesh `Ingress` support |
 
 ### Media Stack
@@ -177,6 +156,7 @@ kubectl delete job lego-duckdns-manual -n infra
 | Jellyfin | `linuxserver/jellyfin` | 8096 | 10.0.1.7 |
 | Bazarr | `linuxserver/bazarr` | 6767 | 10.0.1.6 |
 | SFTPGo | `drakkan/sftpgo` | 2022/8080 | NodePort 32022 / 30883 (webdav → LB 10.0.1.18 :80) |
+| Profilarr | `ghcr.io/dictionarry-hub/profilarr` ([quality profile manager](https://github.com/Dictionarry-Hub/profilarr)) | 6868 | 10.0.1.19 |
 
 Infra: Argo CD `10.0.1.3` (:80/443), Homepage `10.0.1.4` (:80), Gateway `10.0.1.2` (:80/443), SFTPGo webdav `10.0.1.18` (:80).
 

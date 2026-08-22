@@ -51,6 +51,9 @@ mounts:
   - name: media-upbrr-config
     path: /data/tier2/configs/upbrr
     size: 2Gi
+  - name: media-profilarr-config
+    path: /data/tier2/configs/profilarr
+    size: 1Gi
 
   # SFTPGo (data PV exposes /data over SFTP and WebDAV)
   - name: media-sftpgo-config
@@ -66,21 +69,3 @@ mounts:
     namespace: infra
     path: /data/tier2/configs/lego
     size: 1Gi
-  - name: infra-configarr-repos
-    namespace: infra
-    path: /data/tier2/configs/configarr-repos
-    size: 2Gi
-  # Read-only mirrors of the media-namespace Sonarr/Radarr config PVs, so the
-  # configarr job (infra namespace) can extract api_key from config.xml
-  # without a hardcoded secret. PVCs are namespace-scoped, so this can't just
-  # mount the media-sonarr-config-pvc/media-radarr-config-pvc directly.
-  - name: infra-sonarr-config-ro
-    namespace: infra
-    path: /data/tier2/configs/sonarr
-    size: 1Gi
-    accessMode: ReadOnlyMany
-  - name: infra-radarr-config-ro
-    namespace: infra
-    path: /data/tier2/configs/radarr
-    size: 1Gi
-    accessMode: ReadOnlyMany

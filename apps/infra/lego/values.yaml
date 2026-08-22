@@ -46,6 +46,7 @@ certificates:
       - lmtlmt.myaddr.io
       - nextcloud.lmtlmt.myaddr.io
       - prowlarr.lmtlmt.myaddr.io
+      - profilarr.lmtlmt.myaddr.io
       - q1.lmtlmt.myaddr.io
       - q2.lmtlmt.myaddr.io
       - q3.lmtlmt.myaddr.io

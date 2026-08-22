@@ -1,0 +1,31 @@
+profilarr:
+  image:
+    repository: ghcr.io/dictionarry-hub/profilarr
+    tag: latest
+    pullPolicy: Always
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+    UMASK: "022"
+    # Public URL behind the Gateway — required for correct links/auth behind a reverse proxy
+    ORIGIN: https://profilarr.lmtlmt.myaddr.io
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.19
+    port: 80
+    containerPort: 6868
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-profilarr-config-pvc
+
+  ingressTargets:
+    duckdns:
+      host: profilarr.epricesx.duckdns.org
+    freemyip:
+      host: profilarr.lmtu.freemyip.com
+    myaddr:
+      host: profilarr.lmtlmt.myaddr.io
