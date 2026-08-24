@@ -1,7 +1,9 @@
 # Runs on every operator (re)deploy, before the operator reconciles.
-# Wipes operator-managed devices (tag:k8s, tag:k8s-operator) from the tailnet —
+# Wipes operator-managed proxy devices (tag:k8s) from the tailnet —
 # even ones still online — so the operator re-registers fresh ones for the
-# current Ingresses. Idempotent:
+# current Ingresses. The operator's own device (tag:k8s-operator) is NOT
+# touched: deleting it forces an interactive re-login and breaks auth key
+# issuance to all proxies. Idempotent:
 # always starts from a clean slate, so a replaced tailscale namespace never
 # leaves stale connections behind. Personal tailnet devices are untouched.
 apiVersion: batch/v1
@@ -38,11 +40,11 @@ spec:
                 -d "grant_type=client_credentials" \
                 https://api.tailscale.com/api/v2/oauth/token | jq -r .access_token)
 
-              echo "Removing operator devices (tag:k8s, tag:k8s-operator) from $TAILNET..."
+              echo "Removing proxy devices (tag:k8s) from $TAILNET..."
               echo "  (removes matching devices even if still online — operator re-registers them)"
               curl -sf -H "Authorization: Bearer $TOKEN" \
                 "https://api.tailscale.com/api/v2/tailnet/$TAILNET/devices" \
-                | jq -r '.devices[] | select((.tags // []) | any(. == "tag:k8s" or . == "tag:k8s-operator")) | .id' \
+                | jq -r '.devices[] | select((.tags // []) | any(. == "tag:k8s")) | .id' \
                 | while read -r id; do
                     echo "  removing $id"
                     curl -s -X DELETE -H "Authorization: Bearer $TOKEN" \
