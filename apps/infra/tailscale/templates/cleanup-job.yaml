@@ -1,19 +1,22 @@
-# Runs on every operator (re)deploy, before the operator reconciles.
-# Wipes operator-managed proxy devices (tag:k8s) from the tailnet —
-# even ones still online — so the operator re-registers fresh ones for the
-# current Ingresses. The operator's own device (tag:k8s-operator) is NOT
-# touched: deleting it forces an interactive re-login and breaks auth key
-# issuance to all proxies. Idempotent:
-# always starts from a clean slate, so a replaced tailscale namespace never
-# leaves stale connections behind. Personal tailnet devices are untouched.
+# Manual-only cleanup. Disabled by default (values.yaml: cleanupJob.enabled=false).
+# Enable via Argo UI → infra-tailscale → Details → Parameters → cleanupJob.enabled=true → Sync,
+# or: argocd app set infra-tailscale --helm-set cleanupJob.enabled=true (then Sync).
+# When enabled, runs as Sync hook (wave 100, after operator/ingresses) and wipes
+# operator-managed proxy devices (tag:k8s) from the tailnet — even if still online —
+# so the operator re-registers fresh ones on next reconcile. Operator device
+# (tag:k8s-operator) is NOT touched: deleting it forces interactive re-login and
+# breaks auth key issuance (see a63d9e4). When disabled (default), the Job is not
+# rendered at all, so operator recreates/rollouts do NOT delete healthy proxies.
+{{- if .Values.cleanupJob.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: tailscale-cleanup
   namespace: {{ .Release.Namespace }}
   annotations:
-    argocd.argoproj.io/hook: PreSync
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/sync-wave: "100"
 spec:
   backoffLimit: 3
   ttlSecondsAfterFinished: 300
@@ -52,3 +55,4 @@ spec:
                       || echo "  warning: failed to remove $id, continuing"
                   done
               echo "Cleanup complete."
+{{- end }}

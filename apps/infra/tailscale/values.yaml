@@ -1,3 +1,6 @@
+cleanupJob:
+  enabled: false # manual only: set true via Argo UI Parameters → Sync to run once (deletes tag:k8s proxies)
+
 tailscale-operator:
   oauthSecretVolume:
     secret:
