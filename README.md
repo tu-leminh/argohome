@@ -101,6 +101,15 @@ A NixOS systemd `.path` unit on the host (`perm-fixer.path`, not part of this re
 | `freemyip-updater` | `5-59/20 * * * *` | Update FreeMyIP DDNS record |
 | `myaddr-updater` | `10-59/20 * * * *` | Update MyAddr DDNS record |
 
+The `infra-tailscale` app also exposes a suspended `tailscale-cleanup` CronJob. It is
+not coupled to operator rollouts and does not run automatically. To remove
+operator proxy devices (`tag:k8s`) on demand:
+
+```bash
+kubectl -n infra create job tailscale-cleanup-manual-$(date +%s) \
+  --from=cronjob/tailscale-cleanup
+```
+
 ### Triggering a lego cert issuance on demand
 
 `apps/infra/lego` runs `lego-duckdns`, `lego-freemyip`, and `lego-myaddr` CronJobs every 15

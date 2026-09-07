@@ -1,5 +1,6 @@
 cleanupJob:
-  enabled: false # manual only: set true via Argo UI Parameters → Sync to run once (deletes tag:k8s proxies)
+  schedule: "0 0 * * *"
+  suspend: true # manual only: create a Job from this CronJob when cleanup is needed
 
 tailscale-operator:
   oauthSecretVolume:
