@@ -61,7 +61,7 @@ spec:
             - name: WEBUI_PORT
               value: "8080"
             - name: TORRENTING_PORT
-              value: "7008"
+              value: "{{ .Values.q1.torrentService.port }}"
 
           volumeMounts:
             {{- if .Values.q1.persistence.config.enabled }}
