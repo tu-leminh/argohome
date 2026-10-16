@@ -69,3 +69,19 @@ mounts:
     namespace: infra
     path: /data/tier2/configs/lego
     size: 1Gi
+
+  # SeaweedFS
+  - name: infra-seaweedfs-master
+    namespace: infra
+    path: /data/tier1/seaweedfs/master
+    size: 1Gi
+
+  - name: infra-seaweedfs-filer
+    namespace: infra
+    path: /data/tier1/seaweedfs/filer
+    size: 5Gi
+
+  - name: infra-seaweedfs-volumes
+    namespace: infra
+    path: /data/tier1/seaweedfs/volumes
+    size: 100Gi

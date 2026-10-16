@@ -1,0 +1,28 @@
+seaweedfs:
+  master:
+    replicas: 1
+    data:
+      type: existingClaim
+      claimName: infra-seaweedfs-master-pvc
+
+  volume:
+    replicas: 1
+    dataDirs:
+      - name: data
+        type: existingClaim
+        claimName: infra-seaweedfs-volumes-pvc
+        maxVolumes: 0
+
+  filer:
+    replicas: 1
+    data:
+      type: existingClaim
+      claimName: infra-seaweedfs-filer-pvc
+
+  s3:
+    enabled: true
+    replicas: 1
+    enableAuth: true
+    existingConfigSecret: seaweedfs-s3-credentials
+    service:
+      type: ClusterIP
