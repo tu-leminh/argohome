@@ -1,3 +1,0 @@
-creation_rules:
-  - path_regex: '(^|/)secrets\.sops\.ya?ml$'
-    age: "age1hzm6zartdknle2xt40mkz08sgjajcc6zczgj6t6pg85ce30npa7sm896j8"
