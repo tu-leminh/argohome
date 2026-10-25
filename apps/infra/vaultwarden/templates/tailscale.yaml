@@ -2,7 +2,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: vaultwarden-tailscale
-  # DDNS provides public access; Tailscale access stays within the tailnet.
+  annotations:
+    tailscale.com/funnel: "true"
 spec:
   ingressClassName: tailscale
   tls:

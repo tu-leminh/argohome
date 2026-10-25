@@ -5,7 +5,7 @@ Argo deploys this chart as `infra-vaultwarden`. One replica uses SQLite under
 The image and backup image are pinned by digest. The container runs as UID 1000.
 
 Canonical URL: https://vault.epricesx.duckdns.org . FreeMyIP and MyAddr are alternate
-entry points. Tailscale uses `vault.platy-python.ts.net` with no public Funnel.
+entry points. Tailscale Funnel serves `vault.platy-python.ts.net` publicly.
 MyAddr has a dedicated certificate, using the existing parent-domain key.
 Use the canonical URL for Bitwarden clients and account links.
 
