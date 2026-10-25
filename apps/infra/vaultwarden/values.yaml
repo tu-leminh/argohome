@@ -12,9 +12,9 @@ routes:
     listener: vault-myaddr
 storage:
   claim: infra-vaultwarden-data-pvc
-  credentialsPath: /data/bootstrap/vaultwarden
+  credentialsPath: /data/tier1/bootstrap/vaultwarden
 backup:
   image: python:3.14-alpine@sha256:601e99e090cb08c2784a42395487709500bc39930307fe72f3f11a8f3c430762
   schedule: "17 2 * * *"
-  claim: infra-vaultwarden-backups-pvc
+  claim: infra-vaultwarden-backups-tier1-pvc
   retain: 14
