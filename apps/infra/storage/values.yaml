@@ -77,3 +77,8 @@ mounts:
     namespace: infra
     path: /data/backups/vaultwarden
     size: 10Gi
+  # New claim: a bound PV's hostPath cannot be changed in place.
+  - name: infra-vaultwarden-backups-tier1
+    namespace: infra
+    path: /data/tier1/backups/vaultwarden
+    size: 10Gi
