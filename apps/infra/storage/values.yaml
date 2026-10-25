@@ -69,3 +69,11 @@ mounts:
     namespace: infra
     path: /data/tier2/configs/lego
     size: 1Gi
+  - name: infra-vaultwarden-data
+    namespace: infra
+    path: /data/tier2/configs/vaultwarden
+    size: 5Gi
+  - name: infra-vaultwarden-backups
+    namespace: infra
+    path: /data/backups/vaultwarden
+    size: 10Gi
