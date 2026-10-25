@@ -77,3 +77,11 @@ mounts:
     namespace: infra
     path: /data/tier1/backups/vaultwarden
     size: 10Gi
+  - name: infra-vaultwarden-tier1-data
+    namespace: infra
+    path: /data/tier1/vaultwarden/data
+    size: 5Gi
+  - name: infra-vaultwarden-tier1-backups
+    namespace: infra
+    path: /data/tier1/vaultwarden/backups
+    size: 10Gi
