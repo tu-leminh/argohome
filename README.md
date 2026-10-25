@@ -252,6 +252,32 @@ kubectl logs -n <namespace> <pod-name>
 
 ## Troubleshooting
 
+### SOPS/age and Helm 4
+
+Argo CD's repo-server installs SOPS and the separate Helm 4 `secrets` CLI and
+`secrets-getter` plugins. The legacy combined helm-secrets archive registers
+only a getter under Helm 4; with the Helm wrapper enabled, this causes every
+chart to fail with `unknown command "secrets" for "helm"`. Keep the package
+layout aligned with the [upstream installation instructions](https://github.com/jkroepke/helm-secrets/wiki/Installation).
+
+The optional `infra/sops-age-key` Secret supplies `keys.txt` at
+`/helm-secrets-private-keys/keys.txt`. Ordinary charts work without this key;
+encrypted values require it and an explicit `secrets://` value-file reference.
+Enabling the plugins does not encrypt the existing secrets automatically.
+
+If this plugin error blocks Argo CD from deploying its own repair, first
+commit and push the fixed configuration. On the node, find the active
+repo-server pod UID, then locate its `gitops-tools` emptyDir under
+`/var/lib/kubelet/pods/<uid>/volumes/kubernetes.io~empty-dir/`. Back up
+`helm-plugins/helm-secrets/plugin.yaml` and atomically replace it with the
+bundled `helm-plugins/helm-secrets/plugins/helm-secrets-cli/plugin.yaml`.
+This temporary repair applies only to the legacy installation when no charts
+use encrypted values. Confirm `helm secrets --version` works in the pod;
+restore the backup if it fails. Argo CD can then reconcile the pushed commit
+and replace the pod with the correct plugin installation automatically.
+
+### Other issues
+
 | Problem | Fix |
 |---|---|
 | Argo CD sync stuck on large CRDs | `ServerSideApply=true` is set in the ApplicationSet; check `repo-server` memory (≥ `512Mi`) |
