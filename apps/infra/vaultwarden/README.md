@@ -4,9 +4,9 @@ Argo deploys this chart as `infra-vaultwarden`. One replica uses SQLite under
 `/data/tier2/configs/vaultwarden`; the PV's default reclaim policy is Retain.
 The image and backup image are pinned by digest. The container runs as UID 1000.
 
-Canonical URL: https://vault.epricesx.duckdns.org . FreeMyIP is an alternate
-entry point. Tailscale uses `vault` with no public Funnel. MyAddr is disabled
-until its separate hostname credential and certificate are provisioned.
+Canonical URL: https://vault.epricesx.duckdns.org . FreeMyIP and MyAddr are alternate
+entry points. Tailscale uses `vault.platy-python.ts.net` with no public Funnel.
+MyAddr has a dedicated certificate, using the existing parent-domain key.
 Use the canonical URL for Bitwarden clients and account links.
 
 ## First account

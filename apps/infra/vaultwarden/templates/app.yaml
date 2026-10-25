@@ -101,13 +101,22 @@ spec:
   parentRefs:
     - name: infra-gateway
       namespace: infra
+      group: gateway.networking.k8s.io
+      kind: Gateway
       # Bind only HTTPS; infra routes otherwise also attach to plaintext HTTP.
       sectionName: {{ .listener }}
   hostnames:
     - {{ .host | quote }}
   rules:
-    - backendRefs:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
         - name: {{ $.Release.Name }}
           port: 80
+          group: ""
+          kind: Service
+          weight: 1
 {{- end }}
 {{- end }}

@@ -7,11 +7,9 @@ routes:
   - name: freemyip
     host: vault.lmtu.freemyip.com
     listener: freemyip-wildcard
-  # Enable after registering the hostname and issuing its TLS certificate.
   - name: myaddr
     host: vault.lmtlmt.myaddr.io
-    listener: myaddr
-    enabled: false
+    listener: vault-myaddr
 storage:
   claim: infra-vaultwarden-data-pvc
   credentialsPath: /data/bootstrap/vaultwarden

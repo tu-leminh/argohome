@@ -51,6 +51,9 @@ spec:
           from: All
     {{- else }}
     - name: {{ $name }}
+      {{- with $cert.hostname }}
+      hostname: {{ . | quote }}
+      {{- end }}
       protocol: HTTPS
       port: 443
       tls:

@@ -34,3 +34,6 @@ certs:
     apex: "lmtu.freemyip.com"
   myaddr:
     secretName: myaddr-tls
+  vault-myaddr:
+    secretName: vault-myaddr-tls
+    hostname: vault.lmtlmt.myaddr.io
