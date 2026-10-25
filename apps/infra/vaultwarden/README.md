@@ -1,7 +1,7 @@
 # Vaultwarden
 
 Argo deploys this chart as `infra-vaultwarden`. One replica uses SQLite under
-`/data/tier2/configs/vaultwarden`; the PV's default reclaim policy is Retain.
+`/data/tier1/vaultwarden/data`; the PV's default reclaim policy is Retain.
 The image and backup image are pinned by digest. The container runs as UID 1000.
 
 Canonical URL: https://vault.epricesx.duckdns.org . FreeMyIP and MyAddr are alternate
@@ -15,7 +15,7 @@ Public registration and organization invitations are disabled. Open `/admin`
 and obtain the admin password locally with:
 
 ```sh
-sudo cat /data/tier1/bootstrap/vaultwarden/admin-token.txt
+sudo cat /data/tier1/vaultwarden/bootstrap/admin-token.txt
 ```
 
 Invite your email from the admin page, then register using exactly that email.
@@ -24,7 +24,7 @@ separate from your vault master password. Enable account MFA and keep recovery
 codes outside this server. Do not save application settings through the admin
 page: `config.json` overrides Git-managed environment configuration.
 
-The Argon2 hash is in `/data/tier1/bootstrap/vaultwarden/admin.env`, mounted read-only
+The Argon2 hash is in `/data/tier1/vaultwarden/bootstrap/admin.env`, mounted read-only
 through ENV_FILE. Both credential files stay outside Git. This intentionally
 avoids requiring the still-unprovisioned Argo SOPS key to recover this app.
 The parent is root:1000 mode 0750; admin.env is root:1000 mode 0640; the original
@@ -34,12 +34,12 @@ these credentials are copied there in plaintext, so protect that account.
 ## Backups and restore
 
 A CronJob runs at 02:17 Asia/Ho_Chi_Minh, retaining 14 successful archives under
-`/data/tier1/backups/vaultwarden`. It uses SQLite's online backup API and checks database
+`/data/tier1/vaultwarden/backups`. It uses SQLite's online backup API and checks database
 integrity before atomically publishing an archive, including attachments, sends,
 and signing keys. Attachment copies are not transactionally coordinated with DB
 writes; avoid modifying attachments during backups. Nix's weekly Sunday 03:00
 Google Drive backup copies tier1 and tier2, after this daily backup runs.
-Restore the archive from tier1 if the live tier2 database was copied while in use.
+Restore the archive from `backups` if the live database was copied while in use.
 
 For a cluster rebuild with intact `/data`, restore host configuration and the
 GitOps bootstrap; existing data and credentials are reused. Never initialize a
