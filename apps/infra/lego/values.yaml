@@ -61,3 +61,13 @@ certificates:
     envFrom:
       - secretRef:
           name: myaddr-secret
+
+  vault-myaddr:
+    provider: myaddr
+    domains:
+      - vault.lmtlmt.myaddr.io
+    certFileStem: vault.lmtlmt.myaddr.io
+    secretName: vault-myaddr-tls
+    envFrom:
+      - secretRef:
+          name: myaddr-secret

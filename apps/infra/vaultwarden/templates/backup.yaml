@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-backup
+data:
+  backup.py: |
+    import datetime, os, pathlib, shutil, sqlite3, tarfile, tempfile
+    os.umask(0o077)
+    root = pathlib.Path('/backups')
+    stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    target = root / ('vaultwarden-' + stamp + '.tar.gz')
+    # SQLite's backup API includes committed WAL data; never copy a live DB file.
+    with tempfile.TemporaryDirectory(dir=root) as work:
+        db = pathlib.Path(work) / 'db.sqlite3'
+        with sqlite3.connect('file:/data/db.sqlite3?mode=ro', uri=True) as source:
+            with sqlite3.connect(db) as dest:
+                source.backup(dest)
+                assert dest.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
+        staged = pathlib.Path(work) / 'backup.tar.gz'
+        with tarfile.open(staged, 'w:gz') as archive:
+            archive.add(db, arcname='db.sqlite3')
+            for name in ('attachments', 'sends', 'config.json', 'rsa_key.pem', 'rsa_key.der', 'rsa_key.pub.der'):
+                path = pathlib.Path('/data') / name
+                if path.exists():
+                    archive.add(path, arcname=name)
+        staged.replace(target)
+    for old in sorted(root.glob('vaultwarden-*.tar.gz'))[:-{{ .Values.backup.retain }}]:
+        old.unlink()
+    print('Backup completed:', target.name)
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-backup
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  timeZone: Asia/Ho_Chi_Minh
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: backup
+              image: {{ .Values.backup.image | quote }}
+              command: [python, /scripts/backup.py]
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: [ALL]
+              resources:
+                requests:
+                  cpu: 25m
+                  memory: 64Mi
+                limits:
+                  memory: 256Mi
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+                  readOnly: true
+                - name: backups
+                  mountPath: /backups
+                - name: script
+                  mountPath: /scripts
+                  readOnly: true
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: {{ .Values.storage.claim }}
+            - name: backups
+              persistentVolumeClaim:
+                claimName: {{ .Values.backup.claim }}
+            - name: script
+              configMap:
+                name: {{ .Release.Name }}-backup

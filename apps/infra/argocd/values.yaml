@@ -3,6 +3,7 @@ argo-cd:
     cm:
       url: "" # Explicitly empty to support multi-domain access
       exec.enabled: "true"
+      helm.valuesFileSchemes: "secrets, https"
     params:
       # The real switch for plaintext mode (read via ARGOCD_SERVER_INSECURE
       # from the argocd-cmd-params-cm ConfigMap) - server.insecure directly
@@ -17,7 +18,84 @@ argo-cd:
       externalTrafficPolicy: Local
     ingress:
       enabled: false
+  repoServer:
+    env:
+      - name: SOPS_AGE_KEY_FILE
+        value: /helm-secrets-private-keys/keys.txt
+      - name: HELM_PLUGINS
+        value: /gitops-tools/helm-plugins
 
+      - name: HELM_SECRETS_SOPS_PATH
+        value: /gitops-tools/sops
+
+      - name: HELM_SECRETS_BACKEND
+        value: sops
+
+      - name: HELM_SECRETS_WRAPPER_ENABLED
+        value: "true"
+
+      - name: HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH
+        value: "true"
+
+      - name: HELM_SECRETS_VALUES_ALLOW_SYMLINKS
+        value: "false"
+
+      - name: HELM_SECRETS_VALUES_ALLOW_PATH_TRAVERSAL
+        value: "false"
+
+      - name: HELM_SECRETS_DECRYPT_SECRETS_IN_TMP_DIR
+        value: "true"
+
+      - name: HELM_SECRETS_HELM_PATH
+        value: /usr/local/bin/helm
+
+    volumes:
+      - name: gitops-tools
+        emptyDir: {}
+      - name: helm-secrets-private-keys
+        secret:
+          secretName: sops-age-key
+          optional: true
+    volumeMounts:
+      - name: gitops-tools
+        mountPath: /gitops-tools
+      - name: gitops-tools
+        mountPath: /usr/local/sbin/helm
+        subPath: helm
+      - name: helm-secrets-private-keys
+        mountPath: /helm-secrets-private-keys
+        readOnly: true
+    initContainers:
+      - name: install-gitops-tools
+        image: alpine:3.22
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-ec"]
+        args:
+          - |
+            mkdir -p /gitops-tools/helm-plugins
+
+            SOPS_VERSION=3.13.3
+            HELM_SECRETS_VERSION=4.7.8
+
+            wget -O /gitops-tools/sops \
+              "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
+
+            # Helm 4 needs separate CLI and getter plugins; the legacy bundle
+            # registers only a getter and breaks every wrapped Helm command.
+            # https://github.com/jkroepke/helm-secrets/wiki/Installation
+            for plugin in secrets secrets-getter; do
+              wget -O "/tmp/${plugin}.tgz" \
+                "https://github.com/jkroepke/helm-secrets/releases/download/v${HELM_SECRETS_VERSION}/${plugin}-${HELM_SECRETS_VERSION}.tgz"
+              tar -xzf "/tmp/${plugin}.tgz" -C /gitops-tools/helm-plugins
+            done
+
+            cp /gitops-tools/helm-plugins/secrets/scripts/wrapper/helm.sh \
+              /gitops-tools/helm
+
+            chmod 755 /gitops-tools/sops /gitops-tools/helm
+        volumeMounts:
+          - name: gitops-tools
+            mountPath: /gitops-tools
 ingressTargets:
   duckdns:
     host: argo.epricesx.duckdns.org
