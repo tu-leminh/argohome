@@ -81,3 +81,7 @@ mounts:
     namespace: infra
     path: /data/tier1/openbao/data
     size: 5Gi
+  - name: infra-adguard-config
+    namespace: infra
+    path: /data/tier2/configs/adguard
+    size: 1Gi

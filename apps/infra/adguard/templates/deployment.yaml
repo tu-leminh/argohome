@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adguard
+  labels:
+    app.kubernetes.io/name: adguard
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: adguard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: adguard
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        # Lets the non-root process bind DNS on 53 and the UI on 80. A
+        # namespaced "safe" sysctl, so no node-level change is needed.
+        sysctls:
+          - name: net.ipv4.ip_unprivileged_port_start
+            value: "0"
+      # fsGroup is ignored on hostPath PVs, so chown the config dir as root.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command: ["sh", "-c", "mkdir -p /config/work /config/conf && chown -R 1000:1000 /config"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      containers:
+        - name: adguard
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: dns-udp, containerPort: 53, protocol: UDP }
+            - { name: dns-tcp, containerPort: 53, protocol: TCP }
+            - { name: http, containerPort: 80, protocol: TCP }
+            - { name: setup, containerPort: 3000, protocol: TCP }
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /opt/adguardhome/work
+              subPath: work
+            - name: config
+              mountPath: /opt/adguardhome/conf
+              subPath: conf
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim }}

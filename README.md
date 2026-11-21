@@ -177,6 +177,7 @@ kubectl delete job lego-duckdns-manual -n infra
 | Lego | Daily CronJobs issuing ACME DNS-01 certs into `*-tls` Secrets (duckdns/freemyip/myaddr), consumed by the Gateway's listeners |
 | OpenBao | Secrets store (standalone, file-backed on `/data/tier1/openbao`); see `apps/infra/openbao/README.md` |
 | External Secrets | External Secrets Operator + `ClusterSecretStore` `openbao` (Kubernetes auth, role `eso-read`); syncs OpenBao KV into Secrets |
+| AdGuard | AdGuard Home DNS resolver, LAN-only on `10.0.1.20` (DNS 53/UDP+TCP, UI :80, first-run wizard :3000); no public route |
 | Secrets | `ExternalSecret`s that sync OpenBao `secret/homelab/*` into the DDNS and Tailscale Secrets (no values in git) |
 | Storage | PV/PVC definitions |
 | Scripts | CronJobs: DDNS updaters |
@@ -202,7 +203,7 @@ kubectl delete job lego-duckdns-manual -n infra
 | SFTPGo | `drakkan/sftpgo` | 2022/8080 | NodePort 32022 / 30883 (webdav → LB 10.0.1.18 :80) |
 | Profilarr | `ghcr.io/dictionarry-hub/profilarr` ([quality profile manager](https://github.com/Dictionarry-Hub/profilarr)) | 6868 | 10.0.1.19 |
 
-Infra: Argo CD `10.0.1.3` (:80/443), Homepage `10.0.1.4` (:80), Gateway `10.0.1.2` (:80/443), SFTPGo webdav `10.0.1.18` (:80).
+Infra: Argo CD `10.0.1.3` (:80/443), Homepage `10.0.1.4` (:80), Gateway `10.0.1.2` (:80/443), SFTPGo webdav `10.0.1.18` (:80), AdGuard `10.0.1.20` (DNS :53, UI :80).
 
 ## Removing an App
 
