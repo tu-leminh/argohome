@@ -62,10 +62,96 @@ openbao:
           path = "/openbao/data/pebbledb"
         }
 
-        # Key is seeded by the nix flake's homelab-openbao-bootstrap unit
-        # (Secret infra/openbao-unseal-key), which also runs `operator init`.
-        # Static seal = the pod unseals itself on every restart.
+        # The Secret infra/openbao-unseal-key (key `key`, 32 raw bytes) must exist
+        # before the pod starts; see apps/infra/openbao/README.md. Static seal =
+        # the pod unseals itself on every restart.
         seal "static" {
           current_key_id = "k1"
           current_key    = "file:///openbao/unseal/key"
+        }
+
+        # Declarative self-init: runs ONCE, on the very first start, then the
+        # root token is revoked and no recovery keys are issued. To change any
+        # of this later, write it with an authenticated `admin` login, or wipe
+        # the data dir to re-initialize from scratch.
+        initialize "mounts" {
+          request "kv" {
+            operation = "update"
+            path      = "sys/mounts/secret"
+            data = {
+              type    = "kv"
+              options = { version = "2" }
+            }
+          }
+        }
+
+        initialize "auth" {
+          request "enable-kubernetes" {
+            operation = "update"
+            path      = "sys/auth/kubernetes"
+            data = {
+              type = "kubernetes"
+            }
+          }
+          request "kubernetes-config" {
+            operation = "update"
+            path      = "auth/kubernetes/config"
+            data = {
+              kubernetes_host = "https://kubernetes.default.svc:443"
+            }
+          }
+        }
+
+        initialize "policies" {
+          request "eso-read" {
+            operation = "update"
+            path      = "sys/policies/acl/eso-read"
+            data = {
+              policy = <<-EOT
+                path "secret/data/homelab/*" {
+                  capabilities = ["read"]
+                }
+                path "secret/metadata/homelab/*" {
+                  capabilities = ["read", "list"]
+                }
+              EOT
+            }
+          }
+          request "admin" {
+            operation = "update"
+            path      = "sys/policies/acl/admin"
+            data = {
+              policy = <<-EOT
+                path "*" {
+                  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+                }
+              EOT
+            }
+          }
+        }
+
+        initialize "roles" {
+          # Read-only, for External Secrets (apps/infra/external-secrets).
+          request "eso-read" {
+            operation = "update"
+            path      = "auth/kubernetes/role/eso-read"
+            data = {
+              bound_service_account_names      = "external-secrets"
+              bound_service_account_namespaces = "infra"
+              policies                         = "eso-read"
+              ttl                              = "1h"
+            }
+          }
+          # Human/admin access via a short-lived ServiceAccount token
+          # (templates/admin-serviceaccount.yaml); there is no root token.
+          request "admin" {
+            operation = "update"
+            path      = "auth/kubernetes/role/admin"
+            data = {
+              bound_service_account_names      = "openbao-admin"
+              bound_service_account_namespaces = "infra"
+              policies                         = "admin"
+              ttl                              = "1h"
+            }
+          }
         }
