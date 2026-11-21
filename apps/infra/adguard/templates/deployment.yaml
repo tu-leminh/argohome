@@ -16,20 +16,12 @@ spec:
       labels:
         app.kubernetes.io/name: adguard
     spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
-        # Lets the non-root process bind DNS on 53 and the UI on 80. A
-        # namespaced "safe" sysctl, so no node-level change is needed.
-        sysctls:
-          - name: net.ipv4.ip_unprivileged_port_start
-            value: "0"
-      # fsGroup is ignored on hostPath PVs, so chown the config dir as root.
+      # The app runs as root without CAP_DAC_OVERRIDE, so its config dir must be
+      # owned by root (the hostPath may already exist owned by 1000).
       initContainers:
         - name: fix-perms
           image: busybox:latest
-          command: ["sh", "-c", "mkdir -p /config/work /config/conf && chown -R 1000:1000 /config"]
+          command: ["sh", "-c", "mkdir -p /config/work /config/conf && chown -R 0:0 /config"]
           securityContext:
             runAsUser: 0
             runAsGroup: 0
@@ -40,6 +32,14 @@ spec:
         - name: adguard
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
+          # AdGuard refuses its first launch unless it runs as root ("you must run
+          # it as administrator"), even with the unprivileged-port sysctl, so it
+          # runs as root but with every capability dropped except binding <1024.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+              add: ["NET_BIND_SERVICE"]
           ports:
             - { name: dns-udp, containerPort: 53, protocol: UDP }
             - { name: dns-tcp, containerPort: 53, protocol: TCP }
