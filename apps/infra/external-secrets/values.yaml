@@ -1,0 +1,30 @@
+external-secrets:
+  installCRDs: true
+  serviceAccount:
+    # Fixed name: the OpenBao Kubernetes-auth role binds to it (nix flake's
+    # homelab-openbao-bootstrap).
+    name: external-secrets
+  resources:
+    requests:
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+  webhook:
+    resources:
+      requests:
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+  certController:
+    resources:
+      requests:
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+
+# ClusterSecretStore pointing at the in-cluster OpenBao (KV v2 at secret/).
+openbao:
+  server: http://infra-openbao.infra.svc:8200
+  mount: secret
+  authMount: kubernetes
+  role: eso-read
