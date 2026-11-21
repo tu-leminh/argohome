@@ -143,6 +143,7 @@ kubectl delete job lego-duckdns-manual -n infra
 | Network | `CiliumLoadBalancerIPPool`/`CiliumL2AnnouncementPolicy` (replaces MetalLB) + Cilium `Gateway`/`GatewayClass`/redirect `HTTPRoute` (replaces Traefik) |
 | Lego | Daily CronJobs issuing ACME DNS-01 certs into `*-tls` Secrets (duckdns/freemyip/myaddr), consumed by the Gateway's listeners |
 | OpenBao | Secrets store (standalone, file-backed on `/data/tier1/openbao`); see `apps/infra/openbao/README.md` |
+| External Secrets | External Secrets Operator + `ClusterSecretStore` `openbao` (Kubernetes auth, role `eso-read`); syncs OpenBao KV into Secrets |
 | Secrets | Kubernetes Secret manifests (still plaintext base64; to be migrated into OpenBao) |
 | Storage | PV/PVC definitions |
 | Scripts | CronJobs: DDNS updaters |
