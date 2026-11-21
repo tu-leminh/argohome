@@ -37,7 +37,7 @@ Apps are deployed in sync waves:
 | Wave | Namespace | What |
 |---|---|---|
 | -5 | `infra` | Argo CD, Homepage |
-| -1 | `infra` | Network, Lego, Secrets, Storage, Scripts, Tailscale operator |
+| -1 | `infra` | Network, Lego, OpenBao, Secrets, Storage, Scripts, Tailscale operator |
 | 5 | `media` | All media apps |
 
 Each app is a standalone Helm chart with `Chart.yaml`, `values.yaml`, and `templates/`. Helm artifacts (`*.lock`, `*.tgz`) are gitignored.
@@ -142,7 +142,8 @@ kubectl delete job lego-duckdns-manual -n infra
 | Homepage | Dashboard |
 | Network | `CiliumLoadBalancerIPPool`/`CiliumL2AnnouncementPolicy` (replaces MetalLB) + Cilium `Gateway`/`GatewayClass`/redirect `HTTPRoute` (replaces Traefik) |
 | Lego | Daily CronJobs issuing ACME DNS-01 certs into `*-tls` Secrets (duckdns/freemyip/myaddr), consumed by the Gateway's listeners |
-| Secrets | Kubernetes Secret manifests |
+| OpenBao | Secrets store (standalone, file-backed on `/data/tier1/openbao`); see `apps/infra/openbao/README.md` |
+| Secrets | Kubernetes Secret manifests (still plaintext base64; to be migrated into OpenBao) |
 | Storage | PV/PVC definitions |
 | Scripts | CronJobs: DDNS updaters |
 | Tailscale | Tailscale Kubernetes operator — private mesh `Ingress` support |
@@ -252,30 +253,6 @@ kubectl logs -n <namespace> <pod-name>
 
 ## Troubleshooting
 
-### SOPS/age and Helm 4
-
-Argo CD's repo-server installs SOPS and the separate Helm 4 `secrets` CLI and
-`secrets-getter` plugins. The legacy combined helm-secrets archive registers
-only a getter under Helm 4; with the Helm wrapper enabled, this causes every
-chart to fail with `unknown command "secrets" for "helm"`. Keep the package
-layout aligned with the [upstream installation instructions](https://github.com/jkroepke/helm-secrets/wiki/Installation).
-
-The optional `infra/sops-age-key` Secret supplies `keys.txt` at
-`/helm-secrets-private-keys/keys.txt`. Ordinary charts work without this key;
-encrypted values require it and an explicit `secrets://` value-file reference.
-Enabling the plugins does not encrypt the existing secrets automatically.
-
-If this plugin error blocks Argo CD from deploying its own repair, first
-commit and push the fixed configuration. On the node, find the active
-repo-server pod UID, then locate its `gitops-tools` emptyDir under
-`/var/lib/kubelet/pods/<uid>/volumes/kubernetes.io~empty-dir/`. Back up
-`helm-plugins/helm-secrets/plugin.yaml` and atomically replace it with the
-bundled `helm-plugins/helm-secrets/plugins/helm-secrets-cli/plugin.yaml`.
-This temporary repair applies only to the legacy installation when no charts
-use encrypted values. Confirm `helm secrets --version` works in the pod;
-restore the backup if it fails. Argo CD can then reconcile the pushed commit
-and replace the pod with the correct plugin installation automatically.
-
 ### Other issues
 
 | Problem | Fix |
@@ -292,7 +269,7 @@ and replace the pod with the correct plugin installation automatically.
 ### Critical
 
 **Secrets committed in plaintext**
-`apps/infra/secrets/values.yaml` stores DDNS tokens and Tailscale credentials as base64, which is encoding not encryption — trivially reversible. If this repo is ever public or leaked, those tokens are compromised. Migrate to `git-crypt`, Sealed Secrets, or inject tokens at bootstrap time outside of git.
+`apps/infra/secrets/values.yaml` stores DDNS tokens and Tailscale credentials as base64, which is encoding not encryption — trivially reversible. If this repo is ever public or leaked, those tokens are compromised. Migrate them into OpenBao (`apps/infra/openbao`) and sync into Kubernetes with a consumer such as External Secrets Operator, then delete `apps/infra/secrets`.
 
 ### High
 
