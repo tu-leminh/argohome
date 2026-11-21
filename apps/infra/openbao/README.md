@@ -9,22 +9,19 @@ standalone, one replica, `pebbledb` storage on the static tier1 PV
 Ownership of the data directory is fixed by a root `chown-data` initContainer
 (hostPath dirs are created `root:root`); no host prep is needed.
 
-## Bootstrap (once, per cluster)
+## Bootstrap (nothing to do)
 
-OpenBao initializes itself from the `initialize` blocks in `values.yaml` on its
-very first start (declarative self-init) and unseals itself on every restart
-(static seal). The only thing you provide is the seal key, **before** the pod
-first starts:
+OpenBao bootstraps itself, with no host or manual steps:
 
-```sh
-openssl rand -out unseal.key 32                      # exactly 32 raw bytes
-kubectl -n infra create secret generic openbao-unseal-key --from-file=key=unseal.key
-```
+- The `chown-data` initContainer generates the static-seal key
+  `/data/tier1/openbao/data/unseal.key` (32 raw bytes) if it is missing, and
+  never overwrites it.
+- On its very first start OpenBao runs the `initialize` blocks in `values.yaml`
+  (declarative self-init), and on every restart it unseals itself with that key.
 
-Keep `unseal.key` somewhere safe and **outside the cluster**: without it the
-data in `/data/tier1/openbao/data` cannot be decrypted. (The nix flake seeds
-this Secret from `/data/tier1/openbao/bootstrap/unseal.key` on its host; that is
-optional automation of the two commands above.)
+The key sits next to the data on tier1, so the weekly Drive backup of tier1
+covers both. Without the key the data cannot be decrypted, so keep that backup
+(and, if you want, a separate offline copy of `unseal.key`).
 
 Self-init creates: a KV v2 mount at `secret/`, the `kubernetes` auth method,
 the read-only `eso-read` policy/role used by External Secrets, and an `admin`
@@ -46,7 +43,9 @@ already allows.
 
 Self-init runs only once. Make later changes through an authenticated `admin`
 login (or an Argo-managed Job), or wipe `/data/tier1/openbao/data` and restart
-to re-initialize from scratch (only safe while OpenBao holds nothing you need).
+to re-initialize from scratch (only safe while OpenBao holds nothing you need;
+remove only the `pebbledb` directory and keep `unseal.key`, or delete both and let
+the initContainer make a fresh key).
 Changing the `initialize` blocks of an already-initialized instance has no
 effect.
 
