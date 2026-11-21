@@ -77,3 +77,7 @@ mounts:
     namespace: infra
     path: /data/tier1/vaultwarden/backups
     size: 10Gi
+  - name: infra-openbao-tier1-data
+    namespace: infra
+    path: /data/tier1/openbao/data
+    size: 5Gi

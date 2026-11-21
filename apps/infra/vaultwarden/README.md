@@ -26,7 +26,7 @@ page: `config.json` overrides Git-managed environment configuration.
 
 The Argon2 hash is in `/data/tier1/vaultwarden/bootstrap/admin.env`, mounted read-only
 through ENV_FILE. Both credential files stay outside Git. This intentionally
-avoids requiring the still-unprovisioned Argo SOPS key to recover this app.
+avoids depending on any secrets store to recover this app.
 The parent is root:1000 mode 0750; admin.env is root:1000 mode 0640; the original
 token is root-only mode 0600. Nix's weekly Google Drive backup includes tier1;
 these credentials are copied there in plaintext, so protect that account.
@@ -48,5 +48,5 @@ extract into an empty data directory (do not retain an old WAL/SHM), restore UID
 1000 ownership and restricted permissions, then restart. Preserve the current
 data directory until the restored instance is verified. Restore the admin.env
 file separately. Test restores using a copy and an isolated instance, never the
-live database. Keep SOPS age keys and bootstrap credentials outside Vaultwarden
+live database. Keep OpenBao unseal keys/root token and bootstrap credentials outside Vaultwarden
 so recovery does not depend on starting the vault first.
