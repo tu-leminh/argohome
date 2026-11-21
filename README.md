@@ -9,9 +9,42 @@ All infrastructure is defined as code in this repo. Argo CD watches it and keeps
 ## Quick Start
 
 ### Bootstrap
+
+Plain steps that work on any cluster; nothing in this repo depends on how they
+are run. (On the home server, the `homelab-bootstrap` unit in the
+[nix flake](https://github.com/tu-leminh/nix) automates exactly these.)
+
+Prerequisites: a k3s/Kubernetes cluster with Cilium as the CNI (with
+kube-proxy replacement, L2 announcements and Gateway API, which
+`apps/infra/network` builds on), plus `kubectl`, `helm` and a read-only deploy
+key for this repo.
+
 ```bash
-./bootstrap.sh
+# 1. Argo CD. The release name MUST be infra-argocd in namespace infra: the
+#    chart derives resource names and the instance label from it, and the
+#    self-managed apps/infra/argocd render must match to adopt these resources.
+helm repo add argo https://argoproj.github.io/argo-helm
+helm upgrade --install infra-argocd argo/argo-cd \
+  --namespace infra --create-namespace \
+  --set server.service.type=LoadBalancer \
+  --set server.insecure=true
+
+# 2. Repository credential (private repo, SSH deploy key).
+kubectl -n infra create secret generic repo-argohome \
+  --from-literal=type=git \
+  --from-literal=url=git@github.com:tu-leminh/argohome.git \
+  --from-file=sshPrivateKey=$HOME/.ssh/id_ed25519
+kubectl -n infra label secret repo-argohome argocd.argoproj.io/secret-type=repository
+
+# 3. Everything else: the App-of-Apps ApplicationSet.
+kubectl apply -f bootstrap/applicationset.yaml
 ```
+
+Argo CD then deploys every chart under `apps/*/*`, including itself. OpenBao
+initializes and unseals itself (`apps/infra/openbao/README.md`), and External
+Secrets fills the app Secrets from it. On a brand-new cluster OpenBao starts
+empty, so write the `secret/homelab/*` values listed in that README before the
+DDNS, Tailscale and slskd apps can work.
 
 ### Access
 | Service | URL |
