@@ -1,0 +1,14 @@
+{{- if .Values.exitNode.enabled }}
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: {{ .Values.exitNode.name }}
+spec:
+  hostname: {{ .Values.exitNode.name }}
+  exitNode: true
+  {{- with .Values.exitNode.advertiseRoutes }}
+  subnetRouter:
+    advertiseRoutes:
+      {{- toYaml . | nindent 6 }}
+  {{- end }}
+{{- end }}

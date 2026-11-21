@@ -147,7 +147,7 @@ kubectl delete job lego-duckdns-manual -n infra
 | Secrets | Kubernetes Secret manifests (still plaintext base64; to be migrated into OpenBao) |
 | Storage | PV/PVC definitions |
 | Scripts | CronJobs: DDNS updaters |
-| Tailscale | Tailscale Kubernetes operator — private mesh `Ingress` support |
+| Tailscale | Tailscale Kubernetes operator — private mesh `Ingress` support, plus the `homelab-exit` exit node (`Connector`; approve it once in the Tailscale admin console) |
 
 ### Media Stack
 | App | Image | Port | LAN IP (LB, :80) |

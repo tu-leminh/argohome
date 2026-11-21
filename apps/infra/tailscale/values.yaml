@@ -98,3 +98,13 @@ ingresses:
     serviceName: media-upbrr
     port: 80
     host: upbrr
+
+# Tailscale exit node, run by the operator as a Connector (default tag:k8s).
+# After it first appears, approve "Use as exit node" for it in the Tailscale
+# admin console, or add an autoApprovers.exitNode entry for tag:k8s in the
+# tailnet policy. Then pick it as the exit node from any device's Tailscale app.
+exitNode:
+  enabled: true
+  name: homelab-exit
+  # Optionally also reach the LAN through it, e.g. ["10.0.0.0/16"].
+  advertiseRoutes: []
