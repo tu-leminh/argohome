@@ -1,0 +1,19 @@
+# AdGuard Home, LAN-only: DNS (53/UDP+TCP) and the admin UI share one
+# LoadBalancer IP from the Cilium pool. Deliberately no HTTPRoute and no
+# Tailscale Funnel ingress: a resolver and its admin UI must not be public
+# (see #18). IPv6 waits on #5.
+image:
+  repository: adguard/adguardhome
+  tag: v0.107.80
+
+service:
+  loadBalancerIP: 10.0.1.20
+
+persistence:
+  existingClaim: infra-adguard-config-pvc
+
+resources:
+  requests:
+    memory: 64Mi
+  limits:
+    memory: 512Mi
