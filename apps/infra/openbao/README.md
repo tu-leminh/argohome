@@ -6,13 +6,8 @@ standalone, one replica, `pebbledb` storage on the static tier1 PV
 `apps/infra/storage`). No ingress: reach the UI with
 `kubectl -n infra port-forward svc/openbao 8200`.
 
-## Host prep (once)
-
-```sh
-sudo install -d -o 1000 -g 1000 -m 0700 /data/tier1/openbao/data
-```
-
-`perm-fixer.path` only watches tier2/tier3, so tier1 ownership is manual.
+Ownership of the data directory is fixed by a root `chown-data` initContainer
+(hostPath dirs are created `root:root`); no host prep is needed.
 
 ## Init and unseal (once, manual)
 
