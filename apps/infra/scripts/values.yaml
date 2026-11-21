@@ -1,33 +1,24 @@
-jobs:
-  duckdns-updater:
-    schedule: "*/20 * * * *"
-    image: curlimages/curl:latest
-    domain: epricesx
-    env:
-      - name: DUCKDNS_TOKEN
-        valueFrom:
-          secretKeyRef:
-            name: duckdns-secret
-            key: DUCKDNS_TOKEN
+# DDNS updaters: one script (scripts/ddns-update.sh), one CronJob per provider,
+# staggered so they don't all fire at once. Set `ipv6` to publish an AAAA
+# record (the Gateway's public IPv6) once IPv6 is reachable from the internet;
+# empty = IPv4 (A record) only. See tu-leminh/argohome#5.
+ddns:
+  image: curlimages/curl:latest
+  providers:
+    duckdns:
+      schedule: "*/20 * * * *"
+      domain: epricesx
+      ipv6: ""
+      secret: { name: duckdns-secret, key: DUCKDNS_TOKEN }
+    freemyip:
+      schedule: "5-59/20 * * * *"
+      domain: lmtu.freemyip.com
+      ipv6: ""
+      secret: { name: freemyip-secret, key: FREEMYIP_TOKEN }
+    myaddr:
+      schedule: "10-59/20 * * * *"
+      domain: ""
+      ipv6: ""
+      secret: { name: myaddr-secret, key: MYADDR_KEY }
 
-  freemyip-updater:
-    schedule: "5-59/20 * * * *"
-    image: curlimages/curl:latest
-    domain: lmtu.freemyip.com
-    env:
-      - name: FREEMYIP_TOKEN
-        valueFrom:
-          secretKeyRef:
-            name: freemyip-secret
-            key: FREEMYIP_TOKEN
-
-  myaddr-updater:
-    schedule: "10-59/20 * * * *"
-    image: curlimages/curl:latest
-    env:
-      - name: MYADDR_KEY
-        valueFrom:
-          secretKeyRef:
-            name: myaddr-secret
-            key: MYADDR_KEY
-
+jobs: {}
