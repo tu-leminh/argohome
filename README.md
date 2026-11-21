@@ -144,7 +144,7 @@ kubectl delete job lego-duckdns-manual -n infra
 | Lego | Daily CronJobs issuing ACME DNS-01 certs into `*-tls` Secrets (duckdns/freemyip/myaddr), consumed by the Gateway's listeners |
 | OpenBao | Secrets store (standalone, file-backed on `/data/tier1/openbao`); see `apps/infra/openbao/README.md` |
 | External Secrets | External Secrets Operator + `ClusterSecretStore` `openbao` (Kubernetes auth, role `eso-read`); syncs OpenBao KV into Secrets |
-| Secrets | Kubernetes Secret manifests (still plaintext base64; to be migrated into OpenBao) |
+| Secrets | `ExternalSecret`s that sync OpenBao `secret/homelab/*` into the DDNS and Tailscale Secrets (no values in git) |
 | Storage | PV/PVC definitions |
 | Scripts | CronJobs: DDNS updaters |
 | Tailscale | Tailscale Kubernetes operator — private mesh `Ingress` support, plus the `homelab-exit` exit node (`Connector`; approve it once in the Tailscale admin console) |
@@ -269,8 +269,8 @@ kubectl logs -n <namespace> <pod-name>
 
 ### Critical
 
-**Secrets committed in plaintext**
-`apps/infra/secrets/values.yaml` stores DDNS tokens and Tailscale credentials as base64, which is encoding not encryption — trivially reversible. If this repo is ever public or leaked, those tokens are compromised. Migrate them into OpenBao (`apps/infra/openbao`) and sync into Kubernetes with a consumer such as External Secrets Operator, then delete `apps/infra/secrets`.
+**Old credentials remain in git history**
+Secrets now live only in OpenBao and are synced by External Secrets, but the DDNS, Tailscale and slskd values were committed in plaintext base64 before the migration and are still reachable through GitHub's retained refs. Rotate them at each provider and write the new values to OpenBao (`secret/homelab/*`).
 
 ### High
 
