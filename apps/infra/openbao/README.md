@@ -4,7 +4,7 @@ Argo deploys this chart as `infra-openbao`: the upstream `openbao` chart,
 standalone, one replica, `pebbledb` storage on the static tier1 PV
 `infra-openbao-tier1-data` (`/data/tier1/openbao/data`, defined in
 `apps/infra/storage`). No ingress: reach the UI with
-`kubectl -n infra port-forward svc/openbao 8200`.
+`kubectl -n infra port-forward svc/infra-openbao 8200`.
 
 Ownership of the data directory is fixed by a root `chown-data` initContainer
 (hostPath dirs are created `root:root`); no host prep is needed.

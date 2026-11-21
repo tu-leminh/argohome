@@ -14,9 +14,15 @@ openbao:
       - name: data
         persistentVolumeClaim:
           claimName: infra-openbao-tier1-data-pvc
+      - name: unseal-key
+        secret:
+          secretName: openbao-unseal-key
     volumeMounts:
       - name: data
         mountPath: /openbao/data
+      - name: unseal-key
+        mountPath: /openbao/unseal
+        readOnly: true
     extraInitContainers:
       # hostPath dirs are created root:root and fsGroup is ignored on them.
       - name: chown-data
@@ -54,4 +60,12 @@ openbao:
 
         storage "pebbledb" {
           path = "/openbao/data/pebbledb"
+        }
+
+        # Key is seeded by the nix flake's homelab-openbao-bootstrap unit
+        # (Secret infra/openbao-unseal-key), which also runs `operator init`.
+        # Static seal = the pod unseals itself on every restart.
+        seal "static" {
+          current_key_id = "k1"
+          current_key    = "file:///openbao/unseal/key"
         }
