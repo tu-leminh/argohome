@@ -1,0 +1,32 @@
+radarr:
+  image:
+    repository: lscr.io/linuxserver/radarr
+    tag: latest
+    pullPolicy: Always
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+  
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.14
+    port: 80
+    containerPort: 7878
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-radarr-config-pvc
+    data:
+      enabled: true
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
+  
+  ingressTargets:
+    duckdns:
+      host: radarr.epricesx.duckdns.org
+    freemyip:
+      host: radarr.lmtu.freemyip.com
+    myaddr:
+      host: radarr.lmtlmt.myaddr.io

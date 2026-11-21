@@ -1,0 +1,58 @@
+{{- range $name, $config := .Values.jobs }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  schedule: {{ $config.schedule | quote }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          {{- if $config.securityContext }}
+          securityContext:
+            {{- toYaml $config.securityContext | nindent 12 }}
+          {{- end }}
+          {{- if $config.initContainers }}
+          initContainers:
+            {{- toYaml $config.initContainers | nindent 10 }}
+          {{- end }}
+          containers:
+          - name: runner
+            image: {{ $config.image }}
+            {{- if $config.command }}
+            command:
+              {{- toYaml $config.command | nindent 14 }}
+            {{- else if not $config.useImageEntrypoint }}
+            command: ["/bin/sh", "/scripts/{{ $name }}.sh"]
+            {{- end }}
+            {{- if $config.containerSecurityContext }}
+            securityContext:
+              {{- toYaml $config.containerSecurityContext | nindent 14 }}
+            {{- end }}
+            {{- with $config.env }}
+            env:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+            volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            {{- if $config.volumeMounts }}
+              {{- toYaml $config.volumeMounts | nindent 12 }}
+            {{- end }}
+          volumes:
+          - name: scripts
+            configMap:
+              name: scripts
+              defaultMode: 0755
+          {{- if $config.volumes }}
+            {{- toYaml $config.volumes | nindent 10 }}
+          {{- end }}
+{{- end }}

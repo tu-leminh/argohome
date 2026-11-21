@@ -1,0 +1,6 @@
+apiVersion: v2
+name: network
+description: Cilium LB-IPAM + Gateway API resources (LoadBalancer + Ingress/TLS), replaces MetalLB + Traefik
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

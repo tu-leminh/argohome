@@ -1,0 +1,100 @@
+cleanupJob:
+  schedule: "0 0 * * *"
+  suspend: true # manual only: create a Job from this CronJob when cleanup is needed
+
+tailscale-operator:
+  oauthSecretVolume:
+    secret:
+      secretName: tailscale-secret
+  operatorConfig:
+    logging: "info"
+  proxyConfig:
+    image:
+      tag: v1.102.2 # funnel inbound regression fix (v1.102.2, 2026-08-05)
+
+ingresses:
+  - name: argocd
+    namespace: infra
+    serviceName: infra-argocd-server
+    port: 80 # argocd-server now genuinely serves plaintext HTTP (server.insecure)
+    host: argo
+  - name: homepage
+    namespace: infra
+    serviceName: homepage
+    port: 80
+    host: homepage
+  - name: autobrr
+    namespace: media
+    serviceName: media-autobrr
+    port: 80
+    host: autobrr
+  - name: bazarr
+    namespace: media
+    serviceName: media-bazarr
+    port: 80
+    host: bazarr
+  - name: sftpgo
+    namespace: media
+    serviceName: media-sftpgo
+    port: 8080
+    host: file
+  - name: webdav
+    namespace: media
+    serviceName: media-sftpgo-webdav
+    port: 80
+    host: webdav
+  - name: jellyfin
+    namespace: media
+    serviceName: media-jellyfin
+    port: 80
+    host: jellyfin
+  - name: lidarr
+    namespace: media
+    serviceName: media-lidarr
+    port: 80
+    host: lidarr
+  - name: prowlarr
+    namespace: media
+    serviceName: media-prowlarr
+    port: 80
+    host: prowlarr
+  - name: q1
+    namespace: media
+    serviceName: media-q1
+    port: 80
+    host: q1
+  - name: q2
+    namespace: media
+    serviceName: media-q2
+    port: 80
+    host: q2
+  - name: q3
+    namespace: media
+    serviceName: media-q3
+    port: 80
+    host: q3
+  - name: qui
+    namespace: media
+    serviceName: media-qui
+    port: 80
+    host: qui
+  - name: radarr
+    namespace: media
+    serviceName: media-radarr
+    port: 80
+    host: radarr
+  - name: seerr
+    namespace: media
+    serviceName: media-seerr
+    port: 80
+    host: seerr
+  - name: sonarr
+    namespace: media
+    serviceName: media-sonarr
+    port: 80
+    host: sonarr
+  - name: upbrr
+    namespace: media
+    serviceName: media-upbrr
+    port: 80
+    host: upbrr

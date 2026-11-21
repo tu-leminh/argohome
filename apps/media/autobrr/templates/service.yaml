@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  type: {{ .Values.autobrr.service.type | default "ClusterIP" }}
+  {{- if .Values.autobrr.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.autobrr.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.autobrr.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "common.labels.selector" . | nindent 4 }}

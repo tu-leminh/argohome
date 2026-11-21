@@ -1,0 +1,34 @@
+lidarr:
+  image:
+    # `nightly` tracks the Plugins branch — required for Tubifarry and any
+    # third-party plugin (see https://wiki.servarr.com/en/lidarr/plugins).
+    repository: lscr.io/linuxserver/lidarr
+    tag: nightly
+    pullPolicy: Always
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.8
+    port: 80
+    containerPort: 8686
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-lidarr-config-pvc
+    data:
+      enabled: true
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
+
+  ingressTargets:
+    duckdns:
+      host: lidarr.epricesx.duckdns.org
+    freemyip:
+      host: lidarr.lmtu.freemyip.com
+    myaddr:
+      host: lidarr.lmtlmt.myaddr.io

@@ -1,0 +1,30 @@
+qui:
+  image:
+    repository: ghcr.io/autobrr/qui
+    tag: latest
+    pullPolicy: Always
+
+  env:
+    TZ: "Etc/UTC"
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.13
+    port: 80
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-qui-config-pvc
+    data:
+      enabled: true
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
+
+  ingressTargets:
+    duckdns:
+      host: qui.epricesx.duckdns.org
+    freemyip:
+      host: qui.lmtu.freemyip.com
+    myaddr:
+      host: qui.lmtlmt.myaddr.io

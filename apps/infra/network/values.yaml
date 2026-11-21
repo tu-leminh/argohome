@@ -1,0 +1,39 @@
+pool:
+  ipv4: "10.0.1.2-10.0.1.255"
+  # Carved from the same /64 the LAN is delegated (mirrors the IPv4 pool's
+  # numbering) - see README for the caveat about ISP prefix rotation.
+  ipv6: "2001:4860:7:812::100-2001:4860:7:812::200"
+
+gateway:
+  name: infra-gateway
+  # Every HTTP app gets its own LB IP from the 10.0.1.0/24 pool (see
+  # README). This one is the shared reverse proxy for all DDNS hostnames;
+  # homelab-dnat on the host (nix network.nix) forwards the node IP's 80/443
+  # here so router DMZ traffic reaches it.
+  addresses:
+    ipv4: "10.0.1.2"
+    ipv6: "2001:4860:7:812::111"
+  # Recent Cilium versions auto-create a GatewayClass named "cilium" when
+  # gatewayAPI.enabled=true. Verify with `kubectl get gatewayclass` after the
+  # Cilium install and flip this to false if one already exists, to avoid an
+  # ownership fight.
+  createGatewayClass: true
+
+# One HTTPS listener per DNS-01 cert from apps/infra/lego. duckdns/freemyip
+# get a wildcard+apex pair (2 listeners sharing the same cert); myaddr has no
+# wildcard so gets a single hostname-less listener - the cert already has all
+# subdomains as SANs, and each app's HTTPRoute.hostnames narrows further.
+certs:
+  duckdns:
+    secretName: duckdns-tls
+    wildcard: "*.epricesx.duckdns.org"
+    apex: "epricesx.duckdns.org"
+  freemyip:
+    secretName: freemyip-tls
+    wildcard: "*.lmtu.freemyip.com"
+    apex: "lmtu.freemyip.com"
+  myaddr:
+    secretName: myaddr-tls
+  vault-myaddr:
+    secretName: vault-myaddr-tls
+    hostname: vault.lmtlmt.myaddr.io

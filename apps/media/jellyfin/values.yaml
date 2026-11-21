@@ -1,0 +1,47 @@
+jellyfin:
+  image:
+    repository: lscr.io/linuxserver/jellyfin
+    tag: latest
+    pullPolicy: Always
+  env:
+    TZ: Etc/UTC
+    PUID: 1000
+    PGID: 1000
+  
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.7
+    port: 80
+    containerPort: 8096
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-jellyfin-config-pvc
+    data:
+      enabled: true
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
+
+  # AMD GPU passthrough for VAAPI hardware transcoding (amdgpu + Mesa on the
+  # host). The hostPath mount alone isn't enough: this cluster is cgroup v2
+  # with no legacy `devices` controller, and vanilla Kubernetes has no field
+  # to grant one specific device to the runtime's per-container BPF device
+  # allow-list - confirmed live ("No VA display found for device
+  # /dev/dri/renderD128" even though the file/permissions were fine).
+  # `privileged: true` is the pragmatic fix for a single-node trusted
+  # homelab; a proper AMD device plugin would be the scoped alternative.
+  # Set VA-API device = /dev/dri/renderD128 in Jellyfin's own
+  # Admin > Playback > Transcoding settings after this is deployed.
+  gpu:
+    enabled: true
+    devicePath: /dev/dri
+    privileged: true
+
+  ingressTargets:
+    duckdns:
+      host: jellyfin.epricesx.duckdns.org
+    freemyip:
+      host: jellyfin.lmtu.freemyip.com
+    myaddr:
+      host: jellyfin.lmtlmt.myaddr.io

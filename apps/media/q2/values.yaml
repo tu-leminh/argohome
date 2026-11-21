@@ -1,0 +1,31 @@
+q2:
+  image:
+    repository: lscr.io/linuxserver/qbittorrent
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.11
+    port: 80
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-q2-config-pvc
+    data:
+      enabled: true
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
+
+  ingressTargets:
+    duckdns:
+      host: q2.epricesx.duckdns.org
+    freemyip:
+      host: q2.lmtu.freemyip.com
+    myaddr:
+      host: q2.lmtlmt.myaddr.io
+
+  torrentService:
+    enabled: true
+    port: 31082

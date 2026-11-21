@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      # fsGroup is ignored on hostPath PVs, and containerd auto-creates the
+      # shared data dir as root:root - chmod the top-level dirs (not -R,
+      # library is huge) to 777 so any app, regardless of uid, can
+      # create/move files under them.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              chmod 777 /data /data/music /data/downloads 2>/dev/null || true
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            {{- if .Values.lidarr.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+      containers:
+        - name: lidarr
+          image: "{{ .Values.lidarr.image.repository }}:{{ .Values.lidarr.image.tag }}"
+          imagePullPolicy: {{ .Values.lidarr.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.lidarr.service.containerPort }}
+              protocol: TCP
+
+          env:
+            {{- range $key, $value := .Values.lidarr.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+
+          volumeMounts:
+            {{- if .Values.lidarr.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.lidarr.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.lidarr.persistence.data.mountPath }}
+            {{- end }}
+
+      volumes:
+        {{- if .Values.lidarr.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.lidarr.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.lidarr.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.lidarr.persistence.data.existingClaim }}
+        {{- end }}

@@ -1,0 +1,39 @@
+# Visible but suspended by default (values.yaml: cleanupJob.suspend=true).
+# This CronJob is independent of the Tailscale operator. Run it manually with:
+#   kubectl -n infra create job tailscale-cleanup-manual-<timestamp> \
+#     --from=cronjob/tailscale-cleanup
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: tailscale-cleanup
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: {{ .Values.cleanupJob.schedule | quote }}
+  suspend: {{ .Values.cleanupJob.suspend }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      ttlSecondsAfterFinished: 300
+      template:
+        spec:
+          automountServiceAccountToken: false
+          restartPolicy: OnFailure
+          containers:
+            - name: cleanup
+              image: alpine:3.20
+              command: ["/bin/sh", "/scripts/cleanup.sh"]
+              envFrom:
+                - secretRef:
+                    name: tailscale-secret
+              volumeMounts:
+                - name: cleanup-script
+                  mountPath: /scripts
+                  readOnly: true
+          volumes:
+            - name: cleanup-script
+              configMap:
+                name: tailscale-cleanup-script
+                defaultMode: 0755

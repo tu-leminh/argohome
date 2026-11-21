@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      # fsGroup is ignored on hostPath PVs, so chown the config mount as root
+      # first. Shared data dir is auto-created root:root by containerd too -
+      # chmod its top-level dirs (not -R, library is huge) to 777 so any
+      # app, regardless of uid, can manage downloaded files under them.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              chown -R 1000:1000 {{ .Values.slskd.persistence.config.mountPath }}
+              chmod 777 /data /data/music /data/downloads 2>/dev/null || true
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.slskd.persistence.config.mountPath }}
+            {{- if .Values.slskd.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+      containers:
+        - name: slskd
+          image: "{{ .Values.slskd.image.repository }}:{{ .Values.slskd.image.tag }}"
+          imagePullPolicy: {{ .Values.slskd.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.slskd.service.ports.http }}
+              protocol: TCP
+            - name: peer
+              containerPort: {{ .Values.slskd.service.ports.peer }}
+              protocol: TCP
+
+          envFrom:
+            - secretRef:
+                name: media-slskd-secret
+          env:
+            {{- range $key, $value := .Values.slskd.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+
+          volumeMounts:
+            {{- if .Values.slskd.persistence.config.enabled }}
+            - name: config
+              mountPath: {{ .Values.slskd.persistence.config.mountPath }}
+            {{- end }}
+            {{- if .Values.slskd.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.slskd.persistence.data.mountPath }}
+            {{- end }}
+
+      volumes:
+        {{- if .Values.slskd.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.slskd.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.slskd.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.slskd.persistence.data.existingClaim }}
+        {{- end }}

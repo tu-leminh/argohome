@@ -1,0 +1,28 @@
+seerr:
+  image:
+    repository: seerr/seerr
+    tag: latest
+    pullPolicy: Always
+
+  env:
+    PUID: "1000"
+    PGID: "1000"
+    TZ: "Etc/UTC"
+
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.15
+    port: 80
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-seerr-config-pvc
+
+  ingressTargets:
+    duckdns:
+      host: seerr.epricesx.duckdns.org
+    freemyip:
+      host: seerr.lmtu.freemyip.com
+    myaddr:
+      host: seerr.lmtlmt.myaddr.io

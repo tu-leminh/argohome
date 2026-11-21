@@ -1,0 +1,55 @@
+slskd:
+  image:
+    repository: slskd/slskd
+    tag: latest
+    pullPolicy: Always
+  env:
+    SLSKD_REMOTE_CONFIGURATION: "true"
+    SLSKD_HTTP_PORT: "5030"
+    SLSKD_SLSK_LISTEN_PORT: "5031"
+    # slskd's own HTTPS listener defaults to 5031 and would clash with the
+    # Soulseek peer listener. Traefik terminates TLS in front of the service,
+    # so the internal HTTPS endpoint is redundant.
+    SLSKD_NO_HTTPS: "true"
+    # Land finished downloads on the shared-data PVC so Lidarr sees them at
+    # the same path. Both slskd and Lidarr mount it at /data, so no Remote
+    # Path Mapping is needed in Lidarr. Incomplete files stay under the
+    # default /app/incomplete (inside slskd's config PVC).
+    SLSKD_DOWNLOADS_DIR: "/data/downloads"
+
+  # Loaded into the pod via envFrom from media-slskd-secret. base64-encoded
+  # plaintext, matching the existing pattern in apps/infra/secrets/values.yaml.
+  # Rotate by replacing these values and pushing; Argo CD will recreate the pod.
+  secretData:
+    # Web UI credentials
+    SLSKD_USERNAME: "ZXByaWNlc3g="
+    SLSKD_API_KEY: "OGU0ZGY4MGIyNTU3YTA5Y2MzMGMzOTJlZDU4NmQ4MGY="
+    # Soulseek network account (separate from UI login — register at slsknet.org)
+    SLSKD_SLSK_USERNAME: "ZXByaWNlc3gx"
+    SLSKD_SLSK_PASSWORD: "ZXByaWNlc3gx"
+
+  service:
+    type: NodePort
+    ports:
+      http: 5030
+      peer: 5031
+      httpNodePort: 30030
+      peerNodePort: 30031
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-slskd-config-pvc
+      mountPath: /app
+    data:
+      enabled: true
+      existingClaim: media-shared-data-pvc
+      mountPath: /data
+
+  ingressTargets:
+    duckdns:
+      host: slskd.epricesx.duckdns.org
+    freemyip:
+      host: slskd.lmtu.freemyip.com
+    myaddr:
+      host: slskd.lmtlmt.myaddr.io

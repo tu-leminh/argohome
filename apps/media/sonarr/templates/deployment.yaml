@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      # fsGroup is ignored on hostPath PVs, and containerd auto-creates the
+      # shared data dir as root:root - chmod the top-level dirs (not -R,
+      # library is huge) to 777 so any app, regardless of uid, can
+      # create/move files under them.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              chmod 777 /data /data/shows /data/downloads 2>/dev/null || true
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            {{- if .Values.sonarr.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+      containers:
+        - name: sonarr
+          image: "{{ .Values.sonarr.image.repository }}:{{ .Values.sonarr.image.tag }}"
+          imagePullPolicy: {{ .Values.sonarr.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.sonarr.service.containerPort }}
+              protocol: TCP
+
+          env:
+            {{- range $key, $value := .Values.sonarr.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+
+          volumeMounts:
+            {{- if .Values.sonarr.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.sonarr.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.sonarr.persistence.data.mountPath }}
+            {{- end }}
+
+      volumes:
+        {{- if .Values.sonarr.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.sonarr.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.sonarr.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.sonarr.persistence.data.existingClaim }}
+        {{- end }}

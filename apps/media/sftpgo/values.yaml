@@ -1,0 +1,53 @@
+sftpgo:
+  image:
+    repository: drakkan/sftpgo
+    tag: latest
+    pullPolicy: Always
+
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  env:
+    SFTPGO_WEBDAVD__BINDINGS__0__PORT: "10080"
+    SFTPGO_FTPD__BINDINGS__0__PORT: "0"
+
+  service:
+    type: NodePort
+    sftpPort: 2022
+    httpPort: 8080
+    sftpNodePort: 32022
+    httpNodePort: 30883
+
+  webdavService:
+    enabled: true
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.18
+    port: 80
+    webdavPort: 10080
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-sftpgo-config-pvc
+    data:
+      enabled: true
+      existingClaim: media-filebrowser-data-pvc
+      mountPath: /data
+
+  ingressTargets:
+    duckdns:
+      host: file.epricesx.duckdns.org
+    freemyip:
+      host: file.lmtu.freemyip.com
+    myaddr:
+      host: file.lmtlmt.myaddr.io
+
+  webdavIngressTargets:
+    duckdns:
+      host: webdav.epricesx.duckdns.org
+    freemyip:
+      host: webdav.lmtu.freemyip.com
+    myaddr:
+      host: webdav.lmtlmt.myaddr.io

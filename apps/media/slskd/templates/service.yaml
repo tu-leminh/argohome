@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  type: {{ .Values.slskd.service.type | default "ClusterIP" }}
+  {{- if .Values.slskd.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.slskd.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.slskd.service.ports.http }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      {{- if .Values.slskd.service.ports.httpNodePort }}
+      nodePort: {{ .Values.slskd.service.ports.httpNodePort }}
+      {{- end }}
+    - port: {{ .Values.slskd.service.ports.peer }}
+      targetPort: peer
+      protocol: TCP
+      name: peer
+      {{- if .Values.slskd.service.ports.peerNodePort }}
+      nodePort: {{ .Values.slskd.service.ports.peerNodePort }}
+      {{- end }}
+  selector:
+    {{- include "common.labels.selector" . | nindent 4 }}

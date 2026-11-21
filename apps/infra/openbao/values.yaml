@@ -1,0 +1,71 @@
+openbao:
+  global:
+    tlsDisable: true
+  injector:
+    enabled: false
+  ui:
+    enabled: true
+  server:
+    # Standalone, single replica, file-backed on the static tier1 PV from
+    # apps/infra/storage (the chart's own volumeClaimTemplate can't bind to it).
+    dataStorage:
+      enabled: false
+    volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: infra-openbao-tier1-data-pvc
+      - name: unseal-key
+        secret:
+          secretName: openbao-unseal-key
+    volumeMounts:
+      - name: data
+        mountPath: /openbao/data
+      - name: unseal-key
+        mountPath: /openbao/unseal
+        readOnly: true
+    extraInitContainers:
+      # hostPath dirs are created root:root and fsGroup is ignored on them.
+      - name: chown-data
+        image: busybox:latest
+        command: ["sh", "-c", "chown -R 1000:1000 /openbao/data && chmod 0700 /openbao/data"]
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: data
+            mountPath: /openbao/data
+    statefulSet:
+      securityContext:
+        pod:
+          runAsUser: 1000
+          runAsGroup: 1000
+          fsGroup: 1000
+        container:
+          runAsUser: 1000
+          runAsGroup: 1000
+    resources:
+      requests:
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+    standalone:
+      enabled: true
+      config: |
+        ui = true
+
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+        }
+
+        storage "pebbledb" {
+          path = "/openbao/data/pebbledb"
+        }
+
+        # Key is seeded by the nix flake's homelab-openbao-bootstrap unit
+        # (Secret infra/openbao-unseal-key), which also runs `operator init`.
+        # Static seal = the pod unseals itself on every restart.
+        seal "static" {
+          current_key_id = "k1"
+          current_key    = "file:///openbao/unseal/key"
+        }

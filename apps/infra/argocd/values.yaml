@@ -1,0 +1,26 @@
+argo-cd:
+  configs:
+    cm:
+      url: "" # Explicitly empty to support multi-domain access
+      exec.enabled: "true"
+    params:
+      # The real switch for plaintext mode (read via ARGOCD_SERVER_INSECURE
+      # from the argocd-cmd-params-cm ConfigMap) - server.insecure directly
+      # under `server:` below is not a real chart key and was silently
+      # ignored, so the backend was serving self-signed TLS all along and
+      # every plain-HTTP request to it 307-redirected to itself forever.
+      server.insecure: true
+  server:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: "10.0.1.3"
+      externalTrafficPolicy: Local
+    ingress:
+      enabled: false
+ingressTargets:
+  duckdns:
+    host: argo.epricesx.duckdns.org
+  freemyip:
+    host: argo.lmtu.freemyip.com
+  myaddr:
+    host: argo.lmtlmt.myaddr.io

@@ -1,0 +1,26 @@
+autobrr:
+  image:
+    repository: ghcr.io/autobrr/autobrr
+    tag: latest
+    pullPolicy: Always
+  env:
+    TZ: Etc/UTC
+  
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 10.0.1.5
+    port: 80
+    containerPort: 7474
+
+  persistence:
+    config:
+      enabled: true
+      existingClaim: media-autobrr-config-pvc
+  
+  ingressTargets:
+    duckdns:
+      host: autobrr.epricesx.duckdns.org
+    freemyip:
+      host: autobrr.lmtu.freemyip.com
+    myaddr:
+      host: autobrr.lmtlmt.myaddr.io

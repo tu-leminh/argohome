@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "common.labels.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.selector" . | nindent 8 }}
+    spec:
+      # fsGroup is ignored on hostPath PVs, and containerd auto-creates the
+      # shared data dir as root:root - chmod the top-level dirs (not -R,
+      # library is huge) to 777 so any app, regardless of uid, can
+      # create/move files under them.
+      initContainers:
+        - name: fix-perms
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              chmod 777 /data /data/downloads 2>/dev/null || true
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          volumeMounts:
+            {{- if .Values.q1.persistence.data.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+      containers:
+        - name: q1
+          image: "{{ .Values.q1.image.repository }}:{{ .Values.q1.image.tag }}"
+          imagePullPolicy: {{ .Values.q1.image.pullPolicy }}
+          ports:
+            - name: webui
+              containerPort: 8080
+              protocol: TCP
+            - name: torrent-tcp
+              containerPort: {{ .Values.q1.torrentService.port }}
+              protocol: TCP
+            - name: torrent-udp
+              containerPort: {{ .Values.q1.torrentService.port }}
+              protocol: UDP
+
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: Etc/UTC
+            - name: WEBUI_PORT
+              value: "8080"
+            - name: TORRENTING_PORT
+              value: "{{ .Values.q1.torrentService.port }}"
+
+          volumeMounts:
+            {{- if .Values.q1.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.q1.persistence.data.enabled }}
+            - name: data
+              mountPath: {{ .Values.q1.persistence.data.mountPath }}
+            {{- end }}
+
+      volumes:
+        {{- if .Values.q1.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.q1.persistence.config.existingClaim }}
+        {{- end }}
+        {{- if .Values.q1.persistence.data.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.q1.persistence.data.existingClaim }}
+        {{- end }}
