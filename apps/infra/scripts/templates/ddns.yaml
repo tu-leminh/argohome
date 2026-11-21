@@ -1,0 +1,43 @@
+{{- range $provider, $p := .Values.ddns.providers }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $provider }}-updater
+  namespace: {{ $.Release.Namespace }}
+spec:
+  schedule: {{ $p.schedule | quote }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: runner
+            image: {{ $.Values.ddns.image }}
+            command: ["/bin/sh", "/scripts/ddns-update.sh"]
+            env:
+            - name: PROVIDER
+              value: {{ $provider | quote }}
+            - name: DOMAIN
+              value: {{ $p.domain | quote }}
+            - name: IPV6
+              value: {{ $p.ipv6 | quote }}
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $p.secret.name }}
+                  key: {{ $p.secret.key }}
+            volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+          volumes:
+          - name: scripts
+            configMap:
+              name: scripts
+              defaultMode: 0755
+{{- end }}
