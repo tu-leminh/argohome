@@ -49,8 +49,16 @@ the initContainer make a fresh key).
 Changing the `initialize` blocks of an already-initialized instance has no
 effect.
 
-## Not yet done
+## Stored secrets
 
-`apps/infra/secrets` still holds the plaintext base64 Secrets. The follow-up
-is to load them into the KV mount under `secret/homelab/`, sync them with
-External Secrets (`apps/infra/external-secrets`), then delete that chart.
+| Path | Synced to | By |
+|---|---|---|
+| `secret/homelab/duckdns` | `infra/duckdns-secret` | `apps/infra/secrets` |
+| `secret/homelab/freemyip` | `infra/freemyip-secret` | `apps/infra/secrets` |
+| `secret/homelab/myaddr` | `infra/myaddr-secret` | `apps/infra/secrets` |
+| `secret/homelab/tailscale` | `infra/tailscale-secret` | `apps/infra/secrets` |
+| `secret/homelab/slskd` | `media/media-slskd-secret` | `apps/media/slskd` |
+
+To add or rotate one, log in as `admin` (above) and
+`bao kv put -mount=secret homelab/<name> KEY=value ...` (or pipe JSON to `-`
+so values stay out of your shell history). External Secrets re-syncs hourly.
