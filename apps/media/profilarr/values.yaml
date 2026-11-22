@@ -8,6 +8,9 @@ profilarr:
     PUID: 1000
     PGID: 1000
     UMASK: "022"
+    # The image sets HOST=0.0.0.0 (IPv4 only); "::" also serves the
+    # dual-stack Service's IPv6 endpoint.
+    HOST: "::"
     # Public URL behind the Gateway — required for correct links/auth behind a reverse proxy
     ORIGIN: https://profilarr.lmtlmt.myaddr.io
 
