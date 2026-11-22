@@ -39,7 +39,8 @@ spec:
           annotations:
             summary: "Backup job {{ "{{" }} $labels.job_name {{ "}}" }} failed; see its logs"
         - alert: BackupBucketNearCap
-          expr: r2_backup_bucket_bytes > 8e9
+          # Pushed once per run (weekly), so look back over the whole interval.
+          expr: last_over_time(r2_backup_bucket_bytes[8d]) > 8e9
           labels: { severity: warning }
           annotations:
             summary: "R2 bucket at {{ "{{" }} $value | humanize {{ "}}" }}B, near the 10 GB free tier"

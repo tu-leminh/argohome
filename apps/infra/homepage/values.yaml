@@ -83,7 +83,7 @@ config:
                   query: time() - max(kube_cronjob_status_last_successful_time{cronjob="r2-backup"})
                   format: { type: duration }
                 - label: Bucket
-                  query: max(r2_backup_bucket_bytes)
+                  query: max(last_over_time(r2_backup_bucket_bytes[8d]))
                   format: { type: bytes }
                 - label: Alerts
                   query: count(ALERTS{alertstate="firing", alertname!~"Watchdog|InfoInhibitor"}) or vector(0)
