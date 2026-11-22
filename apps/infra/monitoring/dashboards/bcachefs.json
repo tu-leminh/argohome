@@ -25,7 +25,7 @@
       "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1, "decimals": 1,
         "thresholds": { "mode": "absolute", "steps": [
           { "color": "green", "value": null }, { "color": "orange", "value": 0.95 }, { "color": "red", "value": 0.98 } ] } } } },
-    { "type": "stat", "title": "Free buckets", "description": "Sum of empty buckets on all devices, roughly bcachefs's \"writable now\": usable without copygc first.",
+    { "type": "stat", "title": "Free buckets (raw)", "description": "Empty buckets on all devices. Includes buckets held back for copygc and erasure-coding stripes, so it is larger than bcachefs's \"writable now\".",
       "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
       "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
       "targets": [ { "expr": "sum(bcachefs_device_free_bytes)", "instant": true } ],

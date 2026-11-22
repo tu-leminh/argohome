@@ -21,7 +21,8 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: prometheus-smartctl-exporter
+      # The subchart alias renames the chart, so its label is "smartctl".
+      app.kubernetes.io/name: smartctl
   endpoints:
     - port: http
       interval: 120s
