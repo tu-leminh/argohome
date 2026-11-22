@@ -9,13 +9,13 @@ spec:
     - name: homelab
       rules:
         - alert: HomelabDiskLow
-          expr: node_filesystem_avail_bytes{mountpoint="/"} < 60e9
+          expr: node_filesystem_avail_bytes{mountpoint="/"} < 100e9
           for: 30m
           labels: { severity: warning }
           annotations:
             summary: "bcachefs pool has {{ "{{" }} $value | humanize1024 {{ "}}" }}B free"
         - alert: HomelabDiskCritical
-          expr: node_filesystem_avail_bytes{mountpoint="/"} < 25e9
+          expr: node_filesystem_avail_bytes{mountpoint="/"} < 50e9
           for: 10m
           labels: { severity: critical }
           annotations:
