@@ -1,0 +1,87 @@
+{{- /*
+One pod spec for both jobs. Privileged with the host root mounted: creating
+bcachefs snapshots is an ioctl on the host filesystem, and a restore writes
+back into it.
+*/ -}}
+{{- define "backup.pod" -}}
+restartPolicy: Never
+containers:
+  - name: {{ .script }}
+    image: {{ .root.Values.image }}
+    command:
+      - /bin/sh
+      - -c
+      - apk add --no-cache -q {{ .root.Values.packages }} && exec sh /etc/r2-backup/{{ .script }}.sh
+    securityContext:
+      privileged: true
+    env:
+      - { name: HOST_ROOT, value: {{ .root.Values.hostRoot | quote }} }
+      - { name: PATHS, value: {{ join " " .root.Values.paths | quote }} }
+      - { name: KEEP, value: {{ .root.Values.keep | quote }} }
+      - { name: HARD_CAP, value: {{ .root.Values.hardCap | int64 | quote }} }
+      - { name: WARN_AT, value: {{ .root.Values.warnAt | int64 | quote }} }
+      - { name: CLASS_A_BUDGET, value: {{ .root.Values.classABudget | quote }} }
+      - { name: CHUNK_MIB, value: {{ .root.Values.chunkMiB | quote }} }
+      - { name: SNAPSHOT, value: latest }
+      # rclone remote `r2`, configured entirely from the environment.
+      - { name: RCLONE_CONFIG_R2_TYPE, value: s3 }
+      - { name: RCLONE_CONFIG_R2_PROVIDER, value: Cloudflare }
+      # The token is scoped to one bucket, so skip rclone's CreateBucket probe
+      # (also a Class A op on every write).
+      - { name: RCLONE_S3_NO_CHECK_BUCKET, value: "true" }
+      {{- range $env, $key := dict "RCLONE_CONFIG_R2_ACCESS_KEY_ID" "ACCESS_KEY_ID" "RCLONE_CONFIG_R2_SECRET_ACCESS_KEY" "SECRET_ACCESS_KEY" "RCLONE_CONFIG_R2_ENDPOINT" "ENDPOINT" "BUCKET" "BUCKET" }}
+      - name: {{ $env }}
+        valueFrom:
+          secretKeyRef: { name: {{ $.root.Values.secretName }}, key: {{ $key }} }
+      {{- end }}
+    volumeMounts:
+      - { name: host, mountPath: {{ .root.Values.hostRoot }} }
+      - { name: scripts, mountPath: /etc/r2-backup, readOnly: true }
+      {{- if eq .script "restore" }}
+      - { name: identity, mountPath: /etc/r2-restore, readOnly: true }
+      {{- end }}
+volumes:
+  - name: host
+    hostPath: { path: {{ .root.Values.hostRoot }}, type: Directory }
+  - name: scripts
+    configMap: { name: r2-backup }
+  {{- if eq .script "restore" }}
+  - name: identity
+    secret: { secretName: r2-restore-identity }
+  {{- end }}
+{{- end }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: r2-backup
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      # No retries: a rerun would upload again; the next week's run catches up.
+      backoffLimit: 0
+      activeDeadlineSeconds: 21600
+      template:
+        spec:
+          {{- include "backup.pod" (dict "root" . "script" "backup") | nindent 10 }}
+---
+# Never runs on its own. To restore (see README.md):
+#   kubectl -n infra create job --from=cronjob/r2-restore r2-restore-now
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: r2-restore
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: "0 0 1 1 *"
+  suspend: true
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          {{- include "backup.pod" (dict "root" . "script" "restore") | nindent 10 }}

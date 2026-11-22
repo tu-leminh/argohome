@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: r2-backup
+  namespace: {{ .Release.Namespace }}
+data:
+  backup.sh: |
+{{ .Files.Get "scripts/backup.sh" | indent 4 }}
+  restore.sh: |
+{{ .Files.Get "scripts/restore.sh" | indent 4 }}
+  recipients: |
+    {{- range .Values.recipients }}
+    {{ . }}
+    {{- end }}

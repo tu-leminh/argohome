@@ -1,0 +1,30 @@
+schedule: "0 4 * * 0" # weekly, Sunday 04:00 (node time)
+# Packages are installed at start; the job runs once a week, so no custom image.
+image: alpine:3.22
+packages: bcachefs-tools tar zstd age rclone coreutils
+
+# What to back up: directories under hostRoot, which must be bcachefs
+# subvolumes (each is snapshotted read-only first). The archive holds them
+# under these same relative paths, and a restore extracts them back in place.
+hostRoot: /data
+paths:
+  - tier1
+  - tier2
+
+# Free-tier guards (see scripts/backup.sh). R2 free tier: 10 GB storage,
+# 1M Class A and 10M Class B operations per month.
+keep: 2 # archives retained, including the newest
+hardCap: 9000000000 # bytes
+warnAt: 8000000000
+classABudget: 50000 # per month
+chunkMiB: 64
+
+# Synced from OpenBao secret/homelab/r2-backup by apps/infra/secrets
+# (ACCESS_KEY_ID, SECRET_ACCESS_KEY, ENDPOINT, BUCKET).
+secretName: r2-backup-secret
+
+# Archives are encrypted with age to these SSH public keys; any matching
+# private key decrypts. Public keys, so fine in git.
+recipients:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOFUEksvugWad68n76oOSw4DEezfUiRHgIPpjoD80Fqt tu-leminh@github
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkPAoAWcDe7JSl+UJPULdgAXMQw7wOnPsXcbatkn603
