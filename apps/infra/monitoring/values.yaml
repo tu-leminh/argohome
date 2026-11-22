@@ -120,9 +120,14 @@ vm:
       analytics:
         reporting_enabled: false
         check_for_updates: false
+      # Grafana starts a backend process for every bundled datasource
+      # plugin; only Prometheus (VictoriaMetrics) and Alertmanager are used.
+      plugins:
+        disable_plugins: elasticsearch,influxdb,jaeger,loki,mssql,mysql,opentsdb,grafana-postgresql-datasource,grafana-pyroscope-datasource,tempo,zipkin,stackdriver,cloudwatch,grafana-azure-monitor-datasource,grafana-testdata-datasource,parca
     resources:
-      requests: { cpu: 20m, memory: 128Mi }
-      limits: { memory: 384Mi }
+      requests: { cpu: 20m, memory: 160Mi }
+      # 384Mi was OOMKilled while loading dashboards.
+      limits: { memory: 640Mi }
 
   prometheus-node-exporter:
     resources:
