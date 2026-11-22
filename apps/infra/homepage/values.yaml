@@ -70,6 +70,27 @@ config:
                 - label: Hottest
                   query: max(smartctl_device_temperature{temperature_type="current"})
                   format: { type: number, suffix: "°C" }
+        - Pool redundancy:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/truenas-scale.png
+            href: https://grafana.epricesx.duckdns.org/d/bcachefs
+            description: bcachefs replicas + erasure coding
+            widget:
+              type: prometheusmetric
+              url: http://vmsingle-vm.infra.svc:8428
+              refreshInterval: 60000
+              metrics:
+                - label: 2x+ copies
+                  query: sum(bcachefs_replicated_bytes{replicas!="1"}) or vector(0)
+                  format: { type: bytes }
+                - label: Erasure coded
+                  query: sum(bcachefs_erasure_coded_bytes) or vector(0)
+                  format: { type: bytes }
+                - label: EC pending
+                  query: sum(bcachefs_reconcile_pending_bytes{reason="erasure_code"}) or vector(0)
+                  format: { type: bytes }
+                - label: Degraded
+                  query: (sum(bcachefs_replicated_bytes{state!="undegraded"}) or vector(0)) + (sum(bcachefs_erasure_coded_bytes{state!="undegraded"}) or vector(0))
+                  format: { type: bytes }
         - Backup & alerts:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/cloudflare.png
             href: https://grafana.epricesx.duckdns.org/alerting/list
