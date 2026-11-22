@@ -43,15 +43,15 @@ vm:
     spec:
       retentionPeriod: "30d"
       storageDataPath: /vm-data
-      # Drop the chart's default PVC template: the operator refuses `storage`
-      # together with a volume named "data".
-      storage: null
+      # With storageDataPath set the operator ignores the chart's default
+      # `storage` PVC template (which Helm can't null out from here), but it
+      # reserves the volume name "data" for it, hence "tier3".
       volumes:
-        - name: data
+        - name: tier3
           persistentVolumeClaim:
             claimName: infra-vmsingle-data-pvc
       volumeMounts:
-        - name: data
+        - name: tier3
           mountPath: /vm-data
       resources:
         requests: { cpu: 50m, memory: 256Mi }
