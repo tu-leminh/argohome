@@ -40,8 +40,13 @@ kubectl -n infra delete secret r2-restore-identity
 ```
 
 For a specific date, edit `SNAPSHOT` (`YYYYMMDD`) in the Job before it starts,
-or run it by hand. Without the cluster, on any machine with `rclone`, `age`,
-`zstd` and `tar`:
+or run it by hand.
+
+**After losing the host**, restore *before* bootstrapping Argo CD: the stored
+R2 token lives in OpenBao, which is itself inside the backup. Create a new
+token in the Cloudflare dashboard (R2 → Manage API tokens, Object Read & Write
+on `homelab-backup`), configure it as rclone remote `r2` (type s3, provider
+Cloudflare), and on any machine with `rclone`, `age`, `zstd` and `tar`:
 
 ```sh
 rclone cat r2:homelab-backup/homelab-<date>.tar.zst.age \
