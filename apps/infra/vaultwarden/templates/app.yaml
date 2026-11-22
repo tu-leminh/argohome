@@ -35,6 +35,10 @@ spec:
           env:
             - name: DOMAIN
               value: {{ printf "https://%s" .Values.host | quote }}
+            # "::" listens on IPv4 and IPv6; the image default 0.0.0.0 is
+            # IPv4-only, which broke the dual-stack Service's IPv6 endpoint.
+            - name: ROCKET_ADDRESS
+              value: "::"
             - name: ROCKET_PORT
               value: "8080"
             - name: SIGNUPS_ALLOWED
