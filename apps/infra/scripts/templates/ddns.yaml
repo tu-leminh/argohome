@@ -24,8 +24,11 @@ spec:
               value: {{ $provider | quote }}
             - name: DOMAIN
               value: {{ $p.domain | quote }}
+            {{- with $.Values.ddns.ipv6ConfigMap }}
             - name: IPV6
-              value: {{ $p.ipv6 | quote }}
+              valueFrom:
+                configMapKeyRef: { name: {{ . }}, key: address, optional: true }
+            {{- end }}
             - name: TOKEN
               valueFrom:
                 secretKeyRef:

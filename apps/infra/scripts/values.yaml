@@ -1,24 +1,23 @@
 # DDNS updaters: one script (scripts/ddns-update.sh), one CronJob per provider,
-# staggered so they don't all fire at once. Set `ipv6` to publish an AAAA
-# record (the Gateway's public IPv6) once IPv6 is reachable from the internet;
-# empty = IPv4 (A record) only. See tu-leminh/argohome#5.
+# staggered so they don't all fire at once. Every provider sets the A record;
+# the AAAA record is set to the Gateway's public IPv6 from `ipv6ConfigMap`
+# (key `address`, written by apps/infra/network's ipv6-prefix-sync). Empty, or
+# the ConfigMap missing = A record only. See tu-leminh/argohome#5.
 ddns:
   image: curlimages/curl:latest
+  ipv6ConfigMap: gateway-ipv6
   providers:
     duckdns:
       schedule: "*/20 * * * *"
       domain: epricesx
-      ipv6: ""
       secret: { name: duckdns-secret, key: DUCKDNS_TOKEN }
     freemyip:
       schedule: "5-59/20 * * * *"
       domain: lmtu.freemyip.com
-      ipv6: ""
       secret: { name: freemyip-secret, key: FREEMYIP_TOKEN }
     myaddr:
       schedule: "10-59/20 * * * *"
       domain: ""
-      ipv6: ""
       secret: { name: myaddr-secret, key: MYADDR_KEY }
 
 jobs: {}
