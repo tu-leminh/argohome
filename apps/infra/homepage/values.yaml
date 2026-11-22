@@ -49,6 +49,27 @@ config:
                 - label: Pods down
                   query: sum(kube_pod_status_phase{phase=~"Pending|Failed|Unknown"}) or vector(0)
                   format: { type: number }
+        - Pool & disks:
+            icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/smart-tool.png
+            href: https://grafana.epricesx.duckdns.org/d/bcachefs
+            description: bcachefs + SMART
+            widget:
+              type: prometheusmetric
+              url: http://vmsingle-vm.infra.svc:8428
+              refreshInterval: 60000
+              metrics:
+                - label: Writable
+                  query: sum(bcachefs_device_free_bytes)
+                  format: { type: bbytes }
+                - label: Disks not rw
+                  query: count(bcachefs_device_state{state!="rw"} == 1) or vector(0)
+                  format: { type: number }
+                - label: SMART failing
+                  query: count(smartctl_device_smart_status != 1) or vector(0)
+                  format: { type: number }
+                - label: Hottest
+                  query: max(smartctl_device_temperature{temperature_type="current"})
+                  format: { type: number, suffix: "°C" }
         - Backup & alerts:
             icon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/cloudflare.png
             href: https://grafana.epricesx.duckdns.org/alerting/list

@@ -42,7 +42,14 @@ for p in $PATHS; do
   bcachefs subvolume snapshot -r "$HOST_ROOT/$p" "$snapdir/$p"
 done
 # shellcheck disable=SC2086 # PATHS is a word list
-tar -C "$snapdir" -cf - $PATHS | zstd -q -T0 -10 | age -R /etc/r2-backup/recipients > "$state/$name"
+# EXCLUDE holds tar patterns: split on spaces with globbing off (set -f),
+# so "*/logs" reaches tar instead of being expanded by the shell.
+set -f
+excludes=""
+for e in ${EXCLUDE:-}; do excludes="$excludes --exclude=$e"; done
+# shellcheck disable=SC2086 # word lists
+tar -C "$snapdir" $excludes -cf - $PATHS | zstd -q -T0 -10 | age -R /etc/r2-backup/recipients > "$state/$name"
+set +f # the EXIT trap globs "$state"/*.age
 cleanup_snaps
 size=$(stat -c %s "$state/$name")
 sha=$(sha256sum "$state/$name" | cut -d' ' -f1)

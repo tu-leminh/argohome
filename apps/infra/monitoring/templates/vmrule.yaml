@@ -55,3 +55,50 @@ spec:
           labels: { severity: warning }
           annotations:
             summary: "Argo CD app {{ "{{" }} $labels.name {{ "}}" }} is {{ "{{" }} $labels.health_status {{ "}}" }}"
+
+    # Disks: bcachefs (templates/bcachefs-exporter.yaml) and SMART (smartctl).
+    - name: storage
+      rules:
+        - alert: BcachefsDeviceNotRW
+          expr: bcachefs_device_state{state!="rw"} == 1
+          for: 5m
+          labels: { severity: critical }
+          annotations:
+            summary: "bcachefs device {{ "{{" }} $labels.label {{ "}}" }} ({{ "{{" }} $labels.device {{ "}}" }}) is {{ "{{" }} $labels.state {{ "}}" }}"
+        - alert: BcachefsIOErrors
+          expr: increase(bcachefs_device_io_errors_total[1h]) > 0
+          labels: { severity: warning }
+          annotations:
+            summary: "bcachefs {{ "{{" }} $labels.type {{ "}}" }} errors on {{ "{{" }} $labels.label {{ "}}" }} ({{ "{{" }} $labels.device {{ "}}" }})"
+        - alert: BcachefsAllocationFailing
+          expr: increase(bcachefs_counter_total{counter="bucket_alloc_fail"}[15m]) > 0
+          labels: { severity: warning }
+          annotations:
+            summary: "bcachefs failed to allocate buckets: the pool is starved for free space"
+        - alert: SmartStatusFailed
+          expr: smartctl_device_smart_status != 1
+          for: 5m
+          labels: { severity: critical }
+          annotations:
+            summary: "SMART overall health FAILED on {{ "{{" }} $labels.device {{ "}}" }}"
+        - alert: SmartSectorsGrowing
+          expr: delta(smartctl_device_attribute{attribute_name=~"Reallocated_Sector_Ct|Current_Pending_Sector|Offline_Uncorrectable|Reported_Uncorrect", attribute_value_type="raw"}[1d]) > 0
+          labels: { severity: warning }
+          annotations:
+            summary: "{{ "{{" }} $labels.device {{ "}}" }}: {{ "{{" }} $labels.attribute_name {{ "}}" }} increased in the last day (disk wearing out)"
+        - alert: SmartMediaErrors
+          expr: increase(smartctl_device_media_errors[1d]) > 0
+          labels: { severity: warning }
+          annotations:
+            summary: "NVMe media errors on {{ "{{" }} $labels.device {{ "}}" }}"
+        - alert: SmartNvmeWorn
+          expr: smartctl_device_percentage_used >= 80
+          labels: { severity: warning }
+          annotations:
+            summary: "{{ "{{" }} $labels.device {{ "}}" }} has used {{ "{{" }} $value {{ "}}" }}% of its rated endurance"
+        - alert: SmartTemperatureHigh
+          expr: smartctl_device_temperature{temperature_type="current"} > 60
+          for: 15m
+          labels: { severity: warning }
+          annotations:
+            summary: "{{ "{{" }} $labels.device {{ "}}" }} at {{ "{{" }} $value {{ "}}" }}°C"

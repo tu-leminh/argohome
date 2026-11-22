@@ -10,6 +10,16 @@ hostRoot: /data
 paths:
   - tier1
   - tier2
+# GNU tar --exclude patterns (wildcards match "/"): logs, caches and the
+# apps' own internal backups are regenerated or redundant with this backup.
+# They were ~600 MB of tier2's 2.2 GB.
+exclude:
+  - "*/logs"
+  - "*/log"
+  - "*/cache"
+  - "*/transcodes"
+  - "*/Backups"
+  - "*/backups"
 
 # Free-tier guards (see scripts/backup.sh). R2 free tier: 10 GB storage,
 # 1M Class A and 10M Class B operations per month.

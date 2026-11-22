@@ -17,6 +17,7 @@ containers:
     env:
       - { name: HOST_ROOT, value: {{ .root.Values.hostRoot | quote }} }
       - { name: PATHS, value: {{ join " " .root.Values.paths | quote }} }
+      - { name: EXCLUDE, value: {{ join " " (.root.Values.exclude | default list) | quote }} }
       - { name: KEEP, value: {{ .root.Values.keep | quote }} }
       - { name: HARD_CAP, value: {{ .root.Values.hardCap | int64 | quote }} }
       - { name: WARN_AT, value: {{ .root.Values.warnAt | int64 | quote }} }

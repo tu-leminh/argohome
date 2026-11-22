@@ -9,3 +9,7 @@ dependencies:
     alias: vm
     version: "0.98.1"
     repository: https://victoriametrics.github.io/helm-charts
+  - name: prometheus-smartctl-exporter
+    alias: smartctl
+    version: "0.19.2"
+    repository: https://prometheus-community.github.io/helm-charts

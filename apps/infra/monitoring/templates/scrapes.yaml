@@ -10,3 +10,19 @@ spec:
       app.kubernetes.io/name: argocd-metrics
   endpoints:
     - port: http-metrics
+---
+# SMART data for every disk (smartctl subchart). Its own ServiceMonitor needs
+# the Prometheus Operator CRDs, so scrape it the VictoriaMetrics way.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: smartctl-exporter
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-smartctl-exporter
+  endpoints:
+    - port: http
+      interval: 120s
+      scrapeTimeout: 60s

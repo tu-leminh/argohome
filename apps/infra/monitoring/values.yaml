@@ -135,3 +135,15 @@ vm:
     resources:
       requests: { cpu: 20m, memory: 64Mi }
       limits: { memory: 256Mi }
+
+# bcachefs pool/device metrics (templates/bcachefs-exporter.yaml). The
+# official busybox image has httpd (Alpine's busybox does not).
+bcachefsExporter:
+  image: busybox:1.37.0
+
+# SMART data per disk (scraped by templates/scrapes.yaml). HDDs in standby
+# are not woken up (smartctl_powermode_check: standby).
+smartctl:
+  resources:
+    requests: { cpu: 5m, memory: 16Mi }
+    limits: { memory: 64Mi }
