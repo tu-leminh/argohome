@@ -17,6 +17,10 @@ spec:
       labels:
         app.kubernetes.io/name: homepage
         app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        # The config files are subPath mounts, which never see ConfigMap
+        # updates; roll the pod whenever the config changes instead.
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       containers:
         - name: homepage
@@ -28,7 +32,9 @@ spec:
               protocol: TCP
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
-              value: "lmtlmt.myaddr.io,epricesx.duckdns.org,lmtu.freemyip.com,homepage.platy-python.ts.net"
+              # Every Host header it is reached by: DDNS names, the LAN IP and the
+              # Tailscale ingress (which sends the port).
+              value: "lmtlmt.myaddr.io,epricesx.duckdns.org,lmtu.freemyip.com,homepage.platy-python.ts.net,homepage.platy-python.ts.net:443,10.0.1.4"
           volumeMounts:
             - name: config
               mountPath: /app/config/services.yaml
