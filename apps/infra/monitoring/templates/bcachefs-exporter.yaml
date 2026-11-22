@@ -1,5 +1,7 @@
 # bcachefs pool and per-device metrics from sysfs (scripts/bcachefs-exporter.sh).
-# busybox only, no packages; root is needed to read some of the sysfs files.
+# Alpine edge for bcachefs-tools close to the kernel (fs usage), plus
+# busybox-extras for httpd. Root reads the sysfs files; SYS_ADMIN is needed
+# for the fs usage ioctl.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -28,26 +30,33 @@ spec:
       containers:
         - name: exporter
           image: {{ .Values.bcachefsExporter.image }}
-          command: ["sh", "/etc/bcachefs-exporter/exporter.sh"]
+          command:
+            - sh
+            - -c
+            - apk add --no-cache -q {{ .Values.bcachefsExporter.packages }} && exec sh /etc/bcachefs-exporter/exporter.sh
           env:
             - { name: PORT, value: "9101" }
             - { name: INTERVAL, value: "30" }
+            - { name: USAGE_PATH, value: /pool }
           ports:
             - { name: metrics, containerPort: 9101 }
           securityContext:
             runAsUser: 0
-            readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
-            capabilities: { drop: [ALL], add: [DAC_READ_SEARCH] }
+            capabilities: { drop: [ALL], add: [DAC_READ_SEARCH, SYS_ADMIN] }
           resources:
-            requests: { cpu: 5m, memory: 8Mi }
-            limits: { memory: 32Mi }
+            requests: { cpu: 5m, memory: 16Mi }
+            limits: { memory: 64Mi }
           volumeMounts:
             - { name: script, mountPath: /etc/bcachefs-exporter, readOnly: true }
             - { name: tmp, mountPath: /tmp }
+            # Any path inside the filesystem works for `bcachefs fs usage`.
+            - { name: pool, mountPath: /pool, readOnly: true }
       volumes:
         - name: script
           configMap: { name: bcachefs-exporter }
+        - name: pool
+          hostPath: { path: {{ .Values.bcachefsExporter.poolPath }}, type: Directory }
         - name: tmp
           emptyDir: { medium: Memory, sizeLimit: 4Mi }
 ---

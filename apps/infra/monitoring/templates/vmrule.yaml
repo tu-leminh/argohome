@@ -66,6 +66,20 @@ spec:
           labels: { severity: critical }
           annotations:
             summary: "bcachefs device {{ "{{" }} $labels.label {{ "}}" }} ({{ "{{" }} $labels.device {{ "}}" }}) is {{ "{{" }} $labels.state {{ "}}" }}"
+        - alert: BcachefsDataDegraded
+          expr: sum(bcachefs_replicated_bytes{state!="undegraded"}) + sum(bcachefs_erasure_coded_bytes{state!="undegraded"}) > 0
+                or sum(bcachefs_replicated_bytes{state!="undegraded"}) > 0
+                or sum(bcachefs_erasure_coded_bytes{state!="undegraded"}) > 0
+          for: 10m
+          labels: { severity: critical }
+          annotations:
+            summary: "bcachefs has {{ "{{" }} $value | humanize1024 {{ "}}" }}B of data with missing copies or stripes"
+        - alert: BcachefsToolsMismatch
+          expr: absent(bcachefs_replicated_bytes)
+          for: 30m
+          labels: { severity: warning }
+          annotations:
+            summary: "bcachefs fs usage parsing returned nothing; check the exporter's bcachefs-tools version"
         - alert: BcachefsIOErrors
           expr: increase(bcachefs_device_io_errors_total[1h]) > 0
           labels: { severity: warning }
