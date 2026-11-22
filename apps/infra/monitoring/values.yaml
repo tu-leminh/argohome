@@ -43,6 +43,9 @@ vm:
     spec:
       retentionPeriod: "30d"
       storageDataPath: /vm-data
+      # Drop the chart's default PVC template: the operator refuses `storage`
+      # together with a volume named "data".
+      storage: null
       volumes:
         - name: data
           persistentVolumeClaim:
