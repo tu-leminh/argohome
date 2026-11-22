@@ -82,7 +82,10 @@ Each app is a standalone Helm chart with `Chart.yaml`, `values.yaml`, and `templ
   LAN; keep it out of the router's DHCP range). Every Service is dual-stack: a
   LoadBalancer at `10.0.1.N` also gets the public `<ISP /64>::1:N`, kept current by
   `ipv6-prefix-sync`. IPv6 has no NAT, so these are reachable from the internet unless the
-  router's IPv6 firewall filters them
+  router's IPv6 firewall filters them. The job sets each Service's `lbipam.cilium.io/ips`
+  annotation, which Cilium prefers over `spec.loadBalancerIP`, so a changed `loadBalancerIP`
+  only takes effect on the job's next run (or `kubectl -n infra create job
+  --from=cronjob/ipv6-prefix-sync now`). See #28
 - **Cilium Gateway API** (`apps/infra/network`) — reverse proxy (Ingress + SSL), replaces
   Traefik. TLS certs come from `apps/infra/lego`'s DNS-01 Secrets (Let's Encrypt via
   DuckDNS / FreeMyIP / MyAddr DNS challenges); Gateway LoadBalancer IPs `10.0.1.2` and
