@@ -97,7 +97,11 @@ spec:
           annotations:
             summary: "{{ "{{" }} $labels.device {{ "}}" }} has used {{ "{{" }} $value {{ "}}" }}% of its rated endurance"
         - alert: SmartTemperatureHigh
-          expr: smartctl_device_temperature{temperature_type="current"} > 60
+          # NVMe normally runs 50-60 °C and is rated to ~70; HDDs and SATA
+          # SSDs should stay well below.
+          expr: |
+            smartctl_device_temperature{temperature_type="current", device=~"nvme.*"} > 70
+            or smartctl_device_temperature{temperature_type="current", device!~"nvme.*"} > 55
           for: 15m
           labels: { severity: warning }
           annotations:
