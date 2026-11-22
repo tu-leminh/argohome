@@ -1,4 +1,4 @@
-apiVersion: cilium.io/v2alpha1
+apiVersion: cilium.io/v2
 kind: CiliumLoadBalancerIPPool
 metadata:
   name: home-pool
@@ -6,8 +6,22 @@ spec:
   blocks:
     - start: {{ (splitList "-" .Values.pool.ipv4) | first | quote }}
       stop: {{ (splitList "-" .Values.pool.ipv4) | last | quote }}
-    - start: {{ (splitList "-" .Values.pool.ipv6) | first | quote }}
-      stop: {{ (splitList "-" .Values.pool.ipv6) | last | quote }}
+  serviceSelector:
+    matchExpressions:
+      - key: gateway.networking.k8s.io/gateway-name
+        operator: DoesNotExist
+---
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: infra-gateway-ipv4
+spec:
+  blocks:
+    - start: {{ .Values.gateway.ipv4 | quote }}
+      stop: {{ .Values.gateway.ipv4 | quote }}
+  serviceSelector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: {{ .Values.gateway.name }}
 ---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumL2AnnouncementPolicy

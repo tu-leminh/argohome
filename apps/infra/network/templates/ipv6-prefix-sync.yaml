@@ -1,0 +1,114 @@
+{{- with .Values.gateway.ipv6 }}
+{{- if .enabled }}
+# Keeps the Gateway's public IPv6 on the ISP's current /64 (see values.yaml).
+# The pool and ConfigMap it writes are not in git, so Argo CD leaves them alone.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ipv6-prefix-sync
+  namespace: {{ $.Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ipv6-prefix-sync
+rules:
+  - apiGroups: ["cilium.io"]
+    resources: ["ciliumloadbalancerippools"]
+    verbs: ["get", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ipv6-prefix-sync
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ipv6-prefix-sync
+subjects:
+  - kind: ServiceAccount
+    name: ipv6-prefix-sync
+    namespace: {{ $.Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ipv6-prefix-sync
+  namespace: {{ $.Release.Namespace }}
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ipv6-prefix-sync
+  namespace: {{ $.Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ipv6-prefix-sync
+subjects:
+  - kind: ServiceAccount
+    name: ipv6-prefix-sync
+    namespace: {{ $.Release.Namespace }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ipv6-prefix-sync
+  namespace: {{ $.Release.Namespace }}
+spec:
+  schedule: {{ .schedule | quote }}
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: ipv6-prefix-sync
+          # Host network, so /proc/net/if_inet6 lists the node's addresses.
+          hostNetwork: true
+          containers:
+            - name: sync
+              image: {{ .image }}
+              env:
+                - { name: IFACE, value: {{ .interface | quote }} }
+                - { name: SUFFIX, value: {{ .suffix | quote }} }
+                - { name: GATEWAY, value: {{ $.Values.gateway.name | quote }} }
+                - { name: NAMESPACE, value: {{ $.Release.Namespace | quote }} }
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  # /proc/net/if_inet6 columns: address (32 hex digits),
+                  # ifindex, prefix length, scope, flags, name. Scope 00 is
+                  # global; ULAs (fc00::/7) are skipped.
+                  p=$(awk -v ifc="$IFACE" '$6 == ifc && $4 == "00" && $1 !~ /^f[cd]/ { print substr($1, 1, 16); exit }' /proc/net/if_inet6)
+                  if [ -z "$p" ]; then
+                    echo "no global IPv6 on $IFACE; leaving the pool as it is"
+                    exit 0
+                  fi
+                  addr=$(echo "$p" | sed -E 's/.{4}/&:/g; s/:$//; s/(^|:)0{1,3}/\1/g')$SUFFIX
+                  echo "gateway IPv6: $addr"
+                  kubectl apply -f - <<EOF
+                  apiVersion: cilium.io/v2
+                  kind: CiliumLoadBalancerIPPool
+                  metadata:
+                    name: $GATEWAY-ipv6
+                  spec:
+                    blocks:
+                      - start: "$addr"
+                        stop: "$addr"
+                    serviceSelector:
+                      matchLabels:
+                        gateway.networking.k8s.io/gateway-name: $GATEWAY
+                  EOF
+                  kubectl -n "$NAMESPACE" create configmap gateway-ipv6 \
+                    --from-literal=address="$addr" --dry-run=client -o yaml | kubectl apply -f -
+{{- end }}
+{{- end }}

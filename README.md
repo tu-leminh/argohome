@@ -78,21 +78,23 @@ Each app is a standalone Helm chart with `Chart.yaml`, `values.yaml`, and `templ
 ### Networking
 - **Cilium** — cluster CNI + kube-proxy replacement (eBPF dataplane), dual-stack (IPv4/IPv6)
 - **Cilium LB-IPAM + L2 Announcements** (`apps/infra/network`) — Layer 2 LoadBalancer,
-  replaces MetalLB. IP pool `10.0.1.2–255` (IPv4 — a /24 carved out of the home
-  `10.0.0.0/16` LAN; keep it out of the router's DHCP range) + `2001:4860:7:812::100–200` (IPv6)
+  replaces MetalLB. IP pool `10.0.1.3–255`, IPv4 only (a /24 carved out of the home
+  `10.0.0.0/16` LAN; keep it out of the router's DHCP range)
 - **Cilium Gateway API** (`apps/infra/network`) — reverse proxy (Ingress + SSL), replaces
   Traefik. TLS certs come from `apps/infra/lego`'s DNS-01 Secrets (Let's Encrypt via
-  DuckDNS / FreeMyIP / MyAddr DNS challenges); Gateway LoadBalancer IP `10.0.1.2`
-- **Node NAT** — the router DMZs every inbound port to the node (`10.0.0.100`); the NixOS
-  `homelab-dnat` unit (nix `hosts/homelab/network.nix`) DNATs the node's 80/443 to the
-  Gateway's LB IP `10.0.1.2`, so WAN/DDNS HTTPS reaches Envoy
+  DuckDNS / FreeMyIP / MyAddr DNS challenges); Gateway LoadBalancer IPs `10.0.1.2` and
+  `<ISP /64>::111`. The ISP's IPv6 prefix is dynamic, so the `ipv6-prefix-sync` CronJob
+  re-reads it from the node every 5 minutes and moves the Gateway's IPv6 with it; the DDNS
+  updaters publish that address as the AAAA record
+- **WAN** — the router forwards 80/443 on its public IPv4 to the Gateway's `10.0.1.2`; on
+  IPv6 the Gateway's address is directly reachable (no NAT)
 - **Tailscale Operator** — Private mesh access via `Ingress` resources (`ingressClassName: tailscale`, Funnel enabled)
 
 Services are reachable three ways:
 1. **LAN** — every HTTP app has its own dedicated LoadBalancer IP from `10.0.1.0/24` on
    **port 80**: `http://10.0.1.<n>` (see table below). The Gateway at `10.0.1.2` serves all
    DDNS hostnames on 443 via SNI/Host routing (its port 80 redirects to HTTPS)
-2. **DDNS** — `https://<app>.epricesx.duckdns.org` (WAN via router DMZ → node → `homelab-dnat` → Gateway)
+2. **DDNS** — `https://<app>.epricesx.duckdns.org` (WAN → router → Gateway, IPv4 and IPv6)
 3. **Tailscale** — `https://<app>.platy-python.ts.net`
 
 **Ingress patterns per app:**

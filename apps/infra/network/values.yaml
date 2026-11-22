@@ -1,18 +1,26 @@
+# IPv4 only: every other LoadBalancer Service stays behind the router's NAT.
+# The Gateway is excluded from this pool and gets its addresses below.
 pool:
-  ipv4: "10.0.1.2-10.0.1.255"
-  # Carved from the same /64 the LAN is delegated (mirrors the IPv4 pool's
-  # numbering) - see README for the caveat about ISP prefix rotation.
-  ipv6: "2001:4860:7:812::100-2001:4860:7:812::200"
+  ipv4: "10.0.1.3-10.0.1.255"
 
 gateway:
   name: infra-gateway
   # Every HTTP app gets its own LB IP from the 10.0.1.0/24 pool (see
   # README). This one is the shared reverse proxy for all DDNS hostnames;
-  # homelab-dnat on the host (nix network.nix) forwards the node IP's 80/443
-  # here so router DMZ traffic reaches it.
-  addresses:
-    ipv4: "10.0.1.2"
-    ipv6: "2001:4860:7:812::111"
+  # the router forwards WAN 80/443 straight to it.
+  ipv4: "10.0.1.2"
+  # The Gateway's public IPv6 is <current ISP /64><ipv6.suffix>. The ISP
+  # prefix is dynamic (SLAAC, changes on reconnect), so it can't live in git:
+  # the ipv6-prefix-sync CronJob reads it from the node every few minutes,
+  # points the one-address pool `infra-gateway-ipv6` at it, and publishes it
+  # in ConfigMap `gateway-ipv6` for the DDNS updaters (apps/infra/scripts).
+  # See tu-leminh/argohome#5.
+  ipv6:
+    enabled: true
+    interface: enp6s0
+    suffix: "::111"
+    schedule: "*/5 * * * *"
+    image: alpine/k8s:1.36.6
   # Recent Cilium versions auto-create a GatewayClass named "cilium" when
   # gatewayAPI.enabled=true. Verify with `kubectl get gatewayclass` after the
   # Cilium install and flip this to false if one already exists, to avoid an

@@ -5,11 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   gatewayClassName: cilium
-  addresses:
-    - type: IPAddress
-      value: {{ .Values.gateway.addresses.ipv4 | quote }}
-    - type: IPAddress
-      value: {{ .Values.gateway.addresses.ipv6 | quote }}
+  # No spec.addresses: Cilium would request exactly those IPs and never add
+  # the IPv6 one. The Gateway's Service gets one IP per family from the pools
+  # that select it instead (lb-pool.yaml, ipv6-prefix-sync.yaml).
   listeners:
     - name: http
       protocol: HTTP
