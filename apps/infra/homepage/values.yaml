@@ -107,7 +107,8 @@ config:
                   query: max(last_over_time(r2_backup_bucket_bytes[8d]))
                   format: { type: bytes }
                 - label: Alerts
-                  query: count(ALERTS{alertstate="firing", alertname!~"Watchdog|InfoInhibitor"}) or vector(0)
+                  # Only what is sent to ntfy (info alerts are not).
+                  query: count(ALERTS{alertstate="firing", severity=~"warning|critical", alertname!="Watchdog"}) or vector(0)
                   format: { type: number }
 
     - Infrastructure:

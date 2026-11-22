@@ -64,6 +64,9 @@ spec:
   failedJobsHistoryLimit: 2
   jobTemplate:
     spec:
+      # Kept until the next weekly run, then deleted so BackupFailed and
+      # KubeJobFailed clear.
+      ttlSecondsAfterFinished: 604800
       # No retries: a rerun would upload again; the next week's run catches up.
       backoffLimit: 0
       activeDeadlineSeconds: 21600

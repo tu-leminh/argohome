@@ -12,6 +12,9 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
+      # Keep a finished Job (and its logs) for a day, then delete it so a
+      # one-off failure stops firing KubeJobFailed.
+      ttlSecondsAfterFinished: 86400
       template:
         spec:
           restartPolicy: OnFailure
