@@ -18,6 +18,9 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values: [ "{{ $.Values.nodeName }}" ]
+{{- /* claim: false = PV only, for workloads that create their own PVC
+       pinned with volumeName (e.g. operator-managed ones). */}}
+{{- if ne .claim false }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -31,4 +34,5 @@ spec:
     requests:
       storage: {{ .size }}
   volumeName: {{ .name }}-pv
+{{- end }}
 {{- end }}

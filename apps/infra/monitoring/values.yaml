@@ -42,17 +42,15 @@ vm:
   vmsingle:
     spec:
       retentionPeriod: "30d"
-      storageDataPath: /vm-data
-      # With storageDataPath set the operator ignores the chart's default
-      # `storage` PVC template (which Helm can't null out from here), but it
-      # reserves the volume name "data" for it, hence "tier3".
-      volumes:
-        - name: tier3
-          persistentVolumeClaim:
-            claimName: infra-vmsingle-data-pvc
-      volumeMounts:
-        - name: tier3
-          mountPath: /vm-data
+      # The operator creates PVC vmsingle-vm from this template; volumeName
+      # pins it to the static tier3 PV from apps/infra/storage (claim: false).
+      storage:
+        storageClassName: local-storage
+        volumeName: infra-vmsingle-pv
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 20Gi
       resources:
         requests: { cpu: 50m, memory: 256Mi }
         limits: { memory: 1Gi }
