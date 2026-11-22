@@ -42,7 +42,14 @@ for p in $PATHS; do
   bcachefs subvolume snapshot -r "$HOST_ROOT/$p" "$snapdir/$p"
 done
 # shellcheck disable=SC2086 # PATHS is a word list
-tar -C "$snapdir" -cf - $PATHS | zstd -q -T0 -10 | age -R /etc/r2-backup/recipients > "$state/$name"
+# EXCLUDE holds tar patterns: split on spaces with globbing off (set -f),
+# so "*/logs" reaches tar instead of being expanded by the shell.
+set -f
+excludes=""
+for e in ${EXCLUDE:-}; do excludes="$excludes --exclude=$e"; done
+# shellcheck disable=SC2086 # word lists
+tar -C "$snapdir" $excludes -cf - $PATHS | zstd -q -T0 -10 | age -R /etc/r2-backup/recipients > "$state/$name"
+set +f # the EXIT trap globs "$state"/*.age
 cleanup_snaps
 size=$(stat -c %s "$state/$name")
 sha=$(sha256sum "$state/$name" | cut -d' ' -f1)
@@ -91,6 +98,15 @@ echo "bucket total: $now bytes; Class A ops this month: $used"
 if [ "$now" -gt "$HARD_CAP" ]; then
   rclone deletefile "$remote/$name.ok"; rclone deletefile "$remote/$name"
   echo "bucket over the cap after upload; removed the new archive" >&2; exit 1
+fi
+
+# Report to the metrics store for dashboards and alerts (best effort).
+if [ -n "${METRICS_URL:-}" ]; then
+  wget -q -O /dev/null --post-data "r2_backup_bucket_bytes $now
+r2_backup_archive_bytes $size
+r2_backup_class_a_ops_month $used
+r2_backup_last_success_timestamp_seconds $(date +%s)
+" "$METRICS_URL" || echo "could not push metrics" >&2
 fi
 if [ "$now" -gt "$WARN_AT" ]; then
   echo "WARNING: bucket at $now bytes, close to the free tier" >&2; exit 1

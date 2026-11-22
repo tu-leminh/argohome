@@ -17,12 +17,14 @@ containers:
     env:
       - { name: HOST_ROOT, value: {{ .root.Values.hostRoot | quote }} }
       - { name: PATHS, value: {{ join " " .root.Values.paths | quote }} }
+      - { name: EXCLUDE, value: {{ join " " (.root.Values.exclude | default list) | quote }} }
       - { name: KEEP, value: {{ .root.Values.keep | quote }} }
       - { name: HARD_CAP, value: {{ .root.Values.hardCap | int64 | quote }} }
       - { name: WARN_AT, value: {{ .root.Values.warnAt | int64 | quote }} }
       - { name: CLASS_A_BUDGET, value: {{ .root.Values.classABudget | quote }} }
       - { name: CHUNK_MIB, value: {{ .root.Values.chunkMiB | quote }} }
       - { name: SNAPSHOT, value: latest }
+      - { name: METRICS_URL, value: {{ .root.Values.metricsURL | quote }} }
       # rclone remote `r2`, configured entirely from the environment.
       - { name: RCLONE_CONFIG_R2_TYPE, value: s3 }
       - { name: RCLONE_CONFIG_R2_PROVIDER, value: Cloudflare }

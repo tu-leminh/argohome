@@ -1,0 +1,16 @@
+# Extra Grafana dashboards, picked up by the Grafana sidecar
+# (label grafana_dashboard=1). smartctl.json is grafana.com dashboard 22604
+# rev 4 with its datasource input pointed at VictoriaMetrics.
+{{- range $path, $_ := .Files.Glob "dashboards/*.json" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-{{ base $path | trimSuffix ".json" }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  {{ base $path }}: |-
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}

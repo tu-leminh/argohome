@@ -1,0 +1,104 @@
+# Homelab-specific alerts on top of the stack's default rules.
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: homelab
+  namespace: {{ .Release.Namespace }}
+spec:
+  groups:
+    - name: homelab
+      rules:
+        - alert: HomelabDiskLow
+          expr: node_filesystem_avail_bytes{mountpoint="/"} < 100e9
+          for: 30m
+          labels: { severity: warning }
+          annotations:
+            summary: "bcachefs pool has {{ "{{" }} $value | humanize1024 {{ "}}" }}B free"
+        - alert: HomelabDiskCritical
+          expr: node_filesystem_avail_bytes{mountpoint="/"} < 50e9
+          for: 10m
+          labels: { severity: critical }
+          annotations:
+            summary: "bcachefs pool almost full: {{ "{{" }} $value | humanize1024 {{ "}}" }}B free"
+        - alert: HomelabMemoryLow
+          expr: node_memory_MemAvailable_bytes < 500e6
+          for: 15m
+          labels: { severity: warning }
+          annotations:
+            summary: "Only {{ "{{" }} $value | humanize1024 {{ "}}" }}B RAM available"
+
+        # Backups (apps/infra/backup). The CronJob runs weekly; allow a day.
+        - alert: BackupStale
+          expr: time() - kube_cronjob_status_last_successful_time{namespace="infra", cronjob="r2-backup"} > 8 * 86400
+          labels: { severity: critical }
+          annotations:
+            summary: "No successful R2 backup for {{ "{{" }} $value | humanizeDuration {{ "}}" }}"
+        - alert: BackupFailed
+          expr: kube_job_status_failed{namespace="infra", job_name=~"r2-backup.*"} > 0
+          labels: { severity: critical }
+          annotations:
+            summary: "Backup job {{ "{{" }} $labels.job_name {{ "}}" }} failed; see its logs"
+        - alert: BackupBucketNearCap
+          expr: r2_backup_bucket_bytes > 8e9
+          labels: { severity: warning }
+          annotations:
+            summary: "R2 bucket at {{ "{{" }} $value | humanize {{ "}}" }}B, near the 10 GB free tier"
+
+        - alert: IPv6PrefixSyncFailing
+          expr: time() - kube_cronjob_status_last_successful_time{namespace="infra", cronjob="ipv6-prefix-sync"} > 1800
+          labels: { severity: warning }
+          annotations:
+            summary: "ipv6-prefix-sync has not succeeded for 30 min; IPv6 addresses may be stale"
+        - alert: ArgoAppUnhealthy
+          expr: argocd_app_info{health_status!~"Healthy|Progressing"} == 1
+          for: 15m
+          labels: { severity: warning }
+          annotations:
+            summary: "Argo CD app {{ "{{" }} $labels.name {{ "}}" }} is {{ "{{" }} $labels.health_status {{ "}}" }}"
+
+    # Disks: bcachefs (templates/bcachefs-exporter.yaml) and SMART (smartctl).
+    - name: storage
+      rules:
+        - alert: BcachefsDeviceNotRW
+          expr: bcachefs_device_state{state!="rw"} == 1
+          for: 5m
+          labels: { severity: critical }
+          annotations:
+            summary: "bcachefs device {{ "{{" }} $labels.label {{ "}}" }} ({{ "{{" }} $labels.device {{ "}}" }}) is {{ "{{" }} $labels.state {{ "}}" }}"
+        - alert: BcachefsIOErrors
+          expr: increase(bcachefs_device_io_errors_total[1h]) > 0
+          labels: { severity: warning }
+          annotations:
+            summary: "bcachefs {{ "{{" }} $labels.type {{ "}}" }} errors on {{ "{{" }} $labels.label {{ "}}" }} ({{ "{{" }} $labels.device {{ "}}" }})"
+        - alert: BcachefsAllocationFailing
+          expr: increase(bcachefs_counter_total{counter="bucket_alloc_fail"}[15m]) > 0
+          labels: { severity: warning }
+          annotations:
+            summary: "bcachefs failed to allocate buckets: the pool is starved for free space"
+        - alert: SmartStatusFailed
+          expr: smartctl_device_smart_status != 1
+          for: 5m
+          labels: { severity: critical }
+          annotations:
+            summary: "SMART overall health FAILED on {{ "{{" }} $labels.device {{ "}}" }}"
+        - alert: SmartSectorsGrowing
+          expr: delta(smartctl_device_attribute{attribute_name=~"Reallocated_Sector_Ct|Current_Pending_Sector|Offline_Uncorrectable|Reported_Uncorrect", attribute_value_type="raw"}[1d]) > 0
+          labels: { severity: warning }
+          annotations:
+            summary: "{{ "{{" }} $labels.device {{ "}}" }}: {{ "{{" }} $labels.attribute_name {{ "}}" }} increased in the last day (disk wearing out)"
+        - alert: SmartMediaErrors
+          expr: increase(smartctl_device_media_errors[1d]) > 0
+          labels: { severity: warning }
+          annotations:
+            summary: "NVMe media errors on {{ "{{" }} $labels.device {{ "}}" }}"
+        - alert: SmartNvmeWorn
+          expr: smartctl_device_percentage_used >= 80
+          labels: { severity: warning }
+          annotations:
+            summary: "{{ "{{" }} $labels.device {{ "}}" }} has used {{ "{{" }} $value {{ "}}" }}% of its rated endurance"
+        - alert: SmartTemperatureHigh
+          expr: smartctl_device_temperature{temperature_type="current"} > 60
+          for: 15m
+          labels: { severity: warning }
+          annotations:
+            summary: "{{ "{{" }} $labels.device {{ "}}" }} at {{ "{{" }} $value {{ "}}" }}°C"

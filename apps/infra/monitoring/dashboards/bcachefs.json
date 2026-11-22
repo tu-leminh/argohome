@@ -1,0 +1,88 @@
+{
+  "uid": "bcachefs",
+  "title": "bcachefs pool",
+  "tags": ["homelab", "storage"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "1m",
+  "time": { "from": "now-24h", "to": "now" },
+  "templating": { "list": [] },
+  "panels": [
+    { "type": "stat", "title": "Pool size", "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "node_filesystem_size_bytes{mountpoint=\"/\"}", "instant": true } ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "decimals": 2 } } },
+    { "type": "stat", "title": "Available (df)", "description": "What apps see. Alerts fire under 100 GB / 50 GB.",
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "node_filesystem_avail_bytes{mountpoint=\"/\"}", "instant": true } ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "decimals": 1,
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "red", "value": null }, { "color": "orange", "value": 50000000000 }, { "color": "green", "value": 100000000000 } ] } } } },
+    { "type": "gauge", "title": "Used", "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}", "instant": true } ],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1, "decimals": 1,
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "green", "value": null }, { "color": "orange", "value": 0.95 }, { "color": "red", "value": 0.98 } ] } } } },
+    { "type": "stat", "title": "Free buckets", "description": "Sum of empty buckets on all devices, roughly bcachefs's \"writable now\": usable without copygc first.",
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "sum(bcachefs_device_free_bytes)", "instant": true } ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "decimals": 1 } } },
+    { "type": "stat", "title": "Btree cache (RAM)", "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "sum(bcachefs_btree_cache_bytes)", "instant": true } ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "decimals": 2 } } },
+    { "type": "stat", "title": "Devices not rw / IO errors", "gridPos": { "x": 20, "y": 0, "w": 4, "h": 4 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [
+        { "expr": "count(bcachefs_device_state{state!=\"rw\"} == 1) or vector(0)", "legendFormat": "not rw", "instant": true },
+        { "expr": "sum(bcachefs_device_io_errors_total)", "legendFormat": "IO errors", "instant": true } ],
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [
+        { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } } } },
+
+    { "type": "bargauge", "title": "Device usage", "gridPos": { "x": 0, "y": 4, "w": 12, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "1 - bcachefs_device_free_bytes / bcachefs_device_capacity_bytes", "legendFormat": "{{label}} ({{device}})", "instant": true } ],
+      "options": { "orientation": "horizontal", "displayMode": "gradient", "showUnfilled": true },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1, "decimals": 1,
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "green", "value": null }, { "color": "orange", "value": 0.9 }, { "color": "red", "value": 0.97 } ] } } } },
+    { "type": "table", "title": "Devices", "gridPos": { "x": 12, "y": 4, "w": 12, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [
+        { "expr": "max by (label, device) (bcachefs_device_capacity_bytes)", "format": "table", "instant": true, "refId": "A" },
+        { "expr": "max by (label, device) (bcachefs_device_free_bytes)", "format": "table", "instant": true, "refId": "B" },
+        { "expr": "max by (label, device, state, rotational) (bcachefs_device_info)", "format": "table", "instant": true, "refId": "C" },
+        { "expr": "sum by (label, device) (bcachefs_device_io_errors_total)", "format": "table", "instant": true, "refId": "D" } ],
+      "transformations": [
+        { "id": "merge" },
+        { "id": "organize", "options": {
+          "excludeByName": { "Time": true, "Value #C": true },
+          "renameByName": { "label": "Label", "device": "Device", "state": "State", "rotational": "Rotational",
+            "Value #A": "Size", "Value #B": "Free", "Value #D": "IO errors" } } } ],
+      "fieldConfig": { "defaults": {}, "overrides": [
+        { "matcher": { "id": "byRegexp", "options": "Size|Free" }, "properties": [ { "id": "unit", "value": "bytes" }, { "id": "decimals", "value": 1 } ] } ] } },
+
+    { "type": "timeseries", "title": "Data by type (all devices)", "description": "user = replicated data, parity/stripe = erasure-coded, journal/btree = metadata.",
+      "gridPos": { "x": 0, "y": 13, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "sum by (type) (bcachefs_device_data_bytes{type=~\"user|parity|stripe|journal|btree|cached\"})", "legendFormat": "{{type}}" } ],
+      "fieldConfig": { "defaults": { "unit": "bytes", "custom": { "stacking": { "mode": "normal" }, "fillOpacity": 30 } } } },
+    { "type": "timeseries", "title": "Free space per device", "gridPos": { "x": 12, "y": 13, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "bcachefs_device_free_bytes", "legendFormat": "{{label}} ({{device}})" } ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } } },
+
+    { "type": "timeseries", "title": "Background work (events/s)", "description": "copygc and evacuation keep space usable; bucket_alloc_fail and journal_full mean the pool is starved.",
+      "gridPos": { "x": 0, "y": 21, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "rate(bcachefs_counter_total{counter=~\"copygc|evacuate_bucket|bucket_alloc_fail|journal_full|data_read_retry|error_throw\"}[5m])", "legendFormat": "{{counter}}" } ],
+      "fieldConfig": { "defaults": { "unit": "ops" } } },
+    { "type": "timeseries", "title": "Disk temperature (SMART)", "gridPos": { "x": 12, "y": 21, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "VictoriaMetrics" },
+      "targets": [ { "expr": "smartctl_device_temperature{temperature_type=\"current\"} * on(instance, device) group_left(model_name) smartctl_device", "legendFormat": "{{device}} {{model_name}}" } ],
+      "fieldConfig": { "defaults": { "unit": "celsius" } } }
+  ]
+}

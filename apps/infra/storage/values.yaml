@@ -85,3 +85,9 @@ mounts:
     namespace: infra
     path: /data/tier2/configs/adguard
     size: 1Gi
+  # Metrics (apps/infra/monitoring): expendable, so tier3 (1 replica) and
+  # outside the R2 backup of tier1/tier2.
+  - name: infra-vmsingle-data
+    namespace: infra
+    path: /data/tier3/monitoring/vmsingle
+    size: 20Gi

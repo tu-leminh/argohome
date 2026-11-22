@@ -1,0 +1,15 @@
+apiVersion: v2
+name: monitoring
+description: Metrics, dashboards and alerts (VictoriaMetrics k8s stack + Grafana)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+dependencies:
+  - name: victoria-metrics-k8s-stack
+    alias: vm
+    version: "0.98.1"
+    repository: https://victoriametrics.github.io/helm-charts
+  - name: prometheus-smartctl-exporter
+    alias: smartctl
+    version: "0.19.2"
+    repository: https://prometheus-community.github.io/helm-charts

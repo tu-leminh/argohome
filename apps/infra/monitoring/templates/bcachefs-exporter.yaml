@@ -1,0 +1,63 @@
+# bcachefs pool and per-device metrics from sysfs (scripts/bcachefs-exporter.sh).
+# busybox only, no packages; root is needed to read some of the sysfs files.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bcachefs-exporter
+  namespace: {{ .Release.Namespace }}
+data:
+  exporter.sh: |
+{{ .Files.Get "scripts/bcachefs-exporter.sh" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bcachefs-exporter
+  namespace: {{ .Release.Namespace }}
+  labels: { app.kubernetes.io/name: bcachefs-exporter }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app.kubernetes.io/name: bcachefs-exporter }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: bcachefs-exporter }
+      annotations:
+        checksum/script: {{ .Files.Get "scripts/bcachefs-exporter.sh" | sha256sum }}
+    spec:
+      containers:
+        - name: exporter
+          image: {{ .Values.bcachefsExporter.image }}
+          command: ["sh", "/etc/bcachefs-exporter/exporter.sh"]
+          env:
+            - { name: PORT, value: "9101" }
+            - { name: INTERVAL, value: "30" }
+          ports:
+            - { name: metrics, containerPort: 9101 }
+          securityContext:
+            runAsUser: 0
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities: { drop: [ALL], add: [DAC_READ_SEARCH] }
+          resources:
+            requests: { cpu: 5m, memory: 8Mi }
+            limits: { memory: 32Mi }
+          volumeMounts:
+            - { name: script, mountPath: /etc/bcachefs-exporter, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: script
+          configMap: { name: bcachefs-exporter }
+        - name: tmp
+          emptyDir: { medium: Memory, sizeLimit: 4Mi }
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+metadata:
+  name: bcachefs-exporter
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: bcachefs-exporter }
+  podMetricsEndpoints:
+    - port: metrics
