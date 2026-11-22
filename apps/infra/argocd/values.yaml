@@ -14,6 +14,11 @@ argo-cd:
       # ignored, so the backend was serving self-signed TLS all along and
       # every plain-HTTP request to it 307-redirected to itself forever.
       server.insecure: true
+  # Metrics Service for the app controller (argocd_app_info etc.), scraped by
+  # apps/infra/monitoring for the ArgoAppUnhealthy alert.
+  controller:
+    metrics:
+      enabled: true
   server:
     service:
       type: LoadBalancer

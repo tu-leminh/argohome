@@ -23,6 +23,7 @@ containers:
       - { name: CLASS_A_BUDGET, value: {{ .root.Values.classABudget | quote }} }
       - { name: CHUNK_MIB, value: {{ .root.Values.chunkMiB | quote }} }
       - { name: SNAPSHOT, value: latest }
+      - { name: METRICS_URL, value: {{ .root.Values.metricsURL | quote }} }
       # rclone remote `r2`, configured entirely from the environment.
       - { name: RCLONE_CONFIG_R2_TYPE, value: s3 }
       - { name: RCLONE_CONFIG_R2_PROVIDER, value: Cloudflare }

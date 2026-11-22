@@ -92,6 +92,15 @@ if [ "$now" -gt "$HARD_CAP" ]; then
   rclone deletefile "$remote/$name.ok"; rclone deletefile "$remote/$name"
   echo "bucket over the cap after upload; removed the new archive" >&2; exit 1
 fi
+
+# Report to the metrics store for dashboards and alerts (best effort).
+if [ -n "${METRICS_URL:-}" ]; then
+  wget -q -O /dev/null --post-data "r2_backup_bucket_bytes $now
+r2_backup_archive_bytes $size
+r2_backup_class_a_ops_month $used
+r2_backup_last_success_timestamp_seconds $(date +%s)
+" "$METRICS_URL" || echo "could not push metrics" >&2
+fi
 if [ "$now" -gt "$WARN_AT" ]; then
   echo "WARNING: bucket at $now bytes, close to the free tier" >&2; exit 1
 fi

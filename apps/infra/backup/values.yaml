@@ -28,3 +28,7 @@ secretName: r2-backup-secret
 recipients:
   - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOFUEksvugWad68n76oOSw4DEezfUiRHgIPpjoD80Fqt tu-leminh@github
   - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFkPAoAWcDe7JSl+UJPULdgAXMQw7wOnPsXcbatkn603
+
+# Results are pushed here after each successful run (apps/infra/monitoring);
+# empty disables it.
+metricsURL: http://vmsingle-vm.infra.svc:8428/api/v1/import/prometheus

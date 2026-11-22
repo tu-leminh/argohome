@@ -1,0 +1,137 @@
+# Grafana at grafana.<duckdns|freemyip> (wildcard certs) and on the LAN at
+# http://10.0.1.21. Homepage shows live tiles from VictoriaMetrics.
+ingressTargets:
+  duckdns:
+    host: grafana.epricesx.duckdns.org
+    listener: duckdns-wildcard
+  freemyip:
+    host: grafana.lmtu.freemyip.com
+    listener: freemyip-wildcard
+
+vm:
+  fullnameOverride: vm
+
+  # k3s runs the control plane in one process and has no etcd or kube-proxy
+  # (Cilium replaces it), so those scrapes, rules and dashboards would only
+  # show errors.
+  kubeControllerManager: { enabled: false }
+  kubeScheduler: { enabled: false }
+  kubeEtcd: { enabled: false }
+  kubeProxy: { enabled: false }
+  kubeDns: { enabled: false }
+  defaultRules:
+    groups:
+      etcd: { enabled: false }
+      kube-scheduler.rules: { enabled: false }
+      kubernetes-system-controller-manager: { enabled: false }
+      kubernetes-system-scheduler: { enabled: false }
+      vmcluster: { enabled: false }
+      # Heavy SLO recording rules meant for multi-node API servers.
+      kube-apiserver-burnrate.rules: { enabled: false }
+      kube-apiserver-histogram.rules: { enabled: false }
+      kube-apiserver-slos: { enabled: false }
+    rules:
+      # The pool runs at ~98% by design (see tu-leminh/nix#4), so the stock
+      # 5%/3% thresholds would fire permanently. HomelabDiskLow in
+      # templates/vmrule.yaml uses absolute free space instead.
+      NodeFilesystemAlmostOutOfSpace: { enabled: false }
+      NodeFilesystemSpaceFillingUp: { enabled: false }
+
+  # Metrics live on tier3: 1 replica and outside the R2 backup (they are
+  # expendable and would blow its 10 GB cap). PV/PVC from apps/infra/storage.
+  vmsingle:
+    spec:
+      retentionPeriod: "30d"
+      storageDataPath: /vm-data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: infra-vmsingle-data-pvc
+      volumeMounts:
+        - name: data
+          mountPath: /vm-data
+      resources:
+        requests: { cpu: 50m, memory: 256Mi }
+        limits: { memory: 1Gi }
+
+  vmagent:
+    spec:
+      scrapeInterval: 60s
+      resources:
+        requests: { cpu: 50m, memory: 128Mi }
+        limits: { memory: 512Mi }
+
+  vmalert:
+    spec:
+      resources:
+        requests: { cpu: 10m, memory: 32Mi }
+        limits: { memory: 128Mi }
+
+  # Alerts go to ntfy.sh. The topic URL is secret (anyone who knows a topic
+  # can read it), so it comes from OpenBao secret/homelab/ntfy (key `url`, with
+  # ?template=alertmanager) via Secret `ntfy-secret`, mounted by the operator
+  # under /etc/vm/secrets/.
+  alertmanager:
+    spec:
+      secrets: [ntfy-secret]
+      resources:
+        requests: { cpu: 10m, memory: 32Mi }
+        limits: { memory: 128Mi }
+    config:
+      route:
+        receiver: ntfy
+        group_by: [alertname]
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 12h
+        routes:
+          # Watchdog always fires (proves the pipeline works) and
+          # InfoInhibitor only mutes info alerts; neither should page.
+          - matchers: ['alertname=~"Watchdog|InfoInhibitor"']
+            receiver: blackhole
+          - matchers: ['severity="info"']
+            receiver: blackhole
+      receivers:
+        - name: blackhole
+        - name: ntfy
+          webhook_configs:
+            - url_file: /etc/vm/secrets/ntfy-secret/url
+              send_resolved: true
+
+  grafana:
+    fullnameOverride: grafana
+    admin:
+      existingSecret: grafana-admin
+      userKey: admin-user
+      passwordKey: admin-password
+    # Dashboards and datasources are provisioned from git; nothing to keep.
+    persistence: { enabled: false }
+    service:
+      type: LoadBalancer
+      loadBalancerIP: 10.0.1.21
+      ipFamilyPolicy: PreferDualStack
+      port: 80
+    grafana.ini:
+      server:
+        root_url: https://grafana.epricesx.duckdns.org
+      auth.anonymous:
+        enabled: false
+      analytics:
+        reporting_enabled: false
+        check_for_updates: false
+    resources:
+      requests: { cpu: 20m, memory: 128Mi }
+      limits: { memory: 384Mi }
+
+  prometheus-node-exporter:
+    resources:
+      requests: { cpu: 10m, memory: 32Mi }
+      limits: { memory: 64Mi }
+  kube-state-metrics:
+    resources:
+      requests: { cpu: 10m, memory: 64Mi }
+      limits: { memory: 256Mi }
+  victoria-metrics-operator:
+    resources:
+      requests: { cpu: 20m, memory: 64Mi }
+      limits: { memory: 256Mi }

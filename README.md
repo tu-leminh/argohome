@@ -189,6 +189,7 @@ kubectl delete job lego-duckdns-manual -n infra
 | Secrets | `ExternalSecret`s that sync OpenBao `secret/homelab/*` into the DDNS and Tailscale Secrets (no values in git) |
 | Storage | PV/PVC definitions |
 | Scripts | CronJobs: DDNS updaters |
+| Monitoring | VictoriaMetrics k8s stack: metrics (30 d, on tier3), Grafana (`10.0.1.21`, `grafana.<duckdns/freemyip>`), alerts to ntfy.sh (topic in OpenBao `secret/homelab/ntfy`); live tiles on Homepage |
 | Backup | Weekly encrypted offsite backup of `/data/tier1` + `/data/tier2` to Cloudflare R2, capped to the free tier; see `apps/infra/backup/README.md` |
 | Tailscale | Tailscale Kubernetes operator — private mesh `Ingress` support, plus the `homelab-exit` exit node (`Connector`; approve it once in the Tailscale admin console) |
 
