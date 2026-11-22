@@ -15,8 +15,17 @@ spec:
       sectionName: {{ required "ingressTargets.*.listener is required" $target.listener }}
   hostnames:
     - {{ $target.host | quote }}
+  # Fields spelled out as the API server defaults them, or Argo CD shows a
+  # permanent diff.
   rules:
-    - backendRefs:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
         - name: grafana
           port: 80
+          group: ""
+          kind: Service
+          weight: 1
 {{- end }}
