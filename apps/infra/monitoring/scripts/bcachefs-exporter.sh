@@ -60,6 +60,38 @@ collect() {
   done
 }
 
+# Pool-wide accounting that sysfs does not expose (replicas, erasure coding,
+# pending reconcile), parsed from `bcachefs fs usage` on $USAGE_PATH, a path
+# inside the filesystem. Needs bcachefs-tools close to the kernel's version.
+# Sections and rows that are zero are omitted by the tool.
+usage() {
+  [ -n "${USAGE_PATH:-}" ] || return 0
+  bcachefs fs usage "$USAGE_PATH" | awk '
+    function out(name, labels, v) { printf "bcachefs_%s{fs=\"%s\"%s} %s\n", name, fs, labels, v }
+    /^Filesystem:/ { fs = $2 }
+    /^Size:/ { out("size_bytes", "", $2) }
+    /^Used:/ { out("used_bytes", "", $2) }
+    /^Online reserved:/ { out("online_reserved_bytes", "", $3) }
+    /^Replicated:/ { sec = "rep"; getline; n = split($0, col); next }
+    /^Erasure coded/ { sec = "ec"; getline; n = split($0, col); next }
+    /^Pending reconcile:/ { sec = "pend"; sub(/^[^:]*:/, ""); n = split($0, col); next }
+    /^Data type|^Device label/ { sec = "" }
+    /^[[:space:]]*$/ { sec = ""; next }
+    /^cached:/ && NF == 2 { out("cached_bytes", "", $2) }
+    /^reserved:/ && NF == 2 { out("reserved_bytes", "", $2) }
+    sec == "rep" && $1 ~ /^[0-9]+x:$/ {
+      r = $1; sub(/x:/, "", r)
+      for (i = 2; i <= NF; i++) out("replicated_bytes", ",replicas=\"" r "\",state=\"" col[i-1] "\"", $i) }
+    sec == "ec" && $1 ~ /^[0-9]+\+[0-9]+:$/ {
+      s = $1; sub(/:/, "", s); split(s, p, "+")
+      for (i = 2; i <= NF; i++)
+        out("erasure_coded_bytes", ",scheme=\"" s "\",data=\"" p[1] "\",parity=\"" p[2] "\",state=\"" col[i-1] "\"", $i) }
+    sec == "pend" && $1 ~ /:$/ {
+      w = $1; sub(/:/, "", w)
+      for (i = 2; i <= NF; i++) out("reconcile_pending_bytes", ",reason=\"" w "\",type=\"" col[i-1] "\"", $i) }'
+  echo "bcachefs_tools_info{version=\"$(bcachefs version)\"} 1"
+}
+
 # "1.92G" -> bytes (sysfs prints human sizes with binary suffixes).
 tobytes() {
   echo "$1" | awk '{ v = $1; m = 1; u = substr(v, length(v))
@@ -68,7 +100,7 @@ tobytes() {
 }
 
 while :; do
-  if collect > "$www/metrics.tmp" 2> "$www/error"; then
+  if { collect; usage; } > "$www/metrics.tmp" 2> "$www/error"; then
     mv "$www/metrics.tmp" "$www/metrics"
   else
     cat "$www/error" >&2
