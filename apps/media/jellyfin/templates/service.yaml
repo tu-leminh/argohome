@@ -6,6 +6,7 @@ metadata:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
   type: {{ .Values.jellyfin.service.type | default "ClusterIP" }}
+  ipFamilyPolicy: PreferDualStack
   {{- if .Values.jellyfin.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.jellyfin.service.loadBalancerIP }}
   {{- end }}

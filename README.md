@@ -78,14 +78,17 @@ Each app is a standalone Helm chart with `Chart.yaml`, `values.yaml`, and `templ
 ### Networking
 - **Cilium** — cluster CNI + kube-proxy replacement (eBPF dataplane), dual-stack (IPv4/IPv6)
 - **Cilium LB-IPAM + L2 Announcements** (`apps/infra/network`) — Layer 2 LoadBalancer,
-  replaces MetalLB. IP pool `10.0.1.3–255`, IPv4 only (a /24 carved out of the home
-  `10.0.0.0/16` LAN; keep it out of the router's DHCP range)
+  replaces MetalLB. IP pool `10.0.1.3–255` (a /24 carved out of the home `10.0.0.0/16`
+  LAN; keep it out of the router's DHCP range). Every Service is dual-stack: a
+  LoadBalancer at `10.0.1.N` also gets the public `<ISP /64>::1:N`, kept current by
+  `ipv6-prefix-sync`. IPv6 has no NAT, so these are reachable from the internet unless the
+  router's IPv6 firewall filters them
 - **Cilium Gateway API** (`apps/infra/network`) — reverse proxy (Ingress + SSL), replaces
   Traefik. TLS certs come from `apps/infra/lego`'s DNS-01 Secrets (Let's Encrypt via
   DuckDNS / FreeMyIP / MyAddr DNS challenges); Gateway LoadBalancer IPs `10.0.1.2` and
-  `<ISP /64>::111`. The ISP's IPv6 prefix is dynamic, so the `ipv6-prefix-sync` CronJob
-  re-reads it from the node every 5 minutes and moves the Gateway's IPv6 with it; the DDNS
-  updaters publish that address as the AAAA record
+  `<ISP /64>::1:2`. The ISP's IPv6 prefix is dynamic, so the `ipv6-prefix-sync` CronJob
+  re-reads it from the node every 5 minutes and moves every IPv6 address with it; the DDNS
+  updaters publish the Gateway's as the AAAA record
 - **WAN** — the router forwards 80/443 on its public IPv4 to the Gateway's `10.0.1.2`; on
   IPv6 the Gateway's address is directly reachable (no NAT)
 - **Tailscale Operator** — Private mesh access via `Ingress` resources (`ingressClassName: tailscale`, Funnel enabled)

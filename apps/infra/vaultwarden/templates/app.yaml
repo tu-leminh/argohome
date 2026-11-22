@@ -84,6 +84,7 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}
 spec:
+  ipFamilyPolicy: PreferDualStack
   selector:
     app: {{ .Release.Name }}
   ports:
