@@ -17,10 +17,16 @@ argo-cd:
       externalTrafficPolicy: Local
     ingress:
       enabled: false
+# `listener` is the Gateway's HTTPS listener for that host. It must be set:
+# routes in the infra namespace would otherwise also attach to the plaintext
+# HTTP listener and serve the login page unencrypted instead of redirecting.
 ingressTargets:
   duckdns:
     host: argo.epricesx.duckdns.org
+    listener: duckdns-wildcard
   freemyip:
     host: argo.lmtu.freemyip.com
+    listener: freemyip-wildcard
   myaddr:
     host: argo.lmtlmt.myaddr.io
+    listener: myaddr

@@ -8,13 +8,19 @@ service:
   loadBalancerIP: 10.0.1.4
   port: 80
 
+# `listener` is the Gateway's HTTPS listener for that host. It must be set:
+# routes in the infra namespace would otherwise also attach to the plaintext
+# HTTP listener and serve the page unencrypted instead of redirecting.
 ingressTargets:
   myaddr:
     host: lmtlmt.myaddr.io
+    listener: myaddr
   duckdns:
     host: epricesx.duckdns.org
+    listener: duckdns-apex
   freemyip:
     host: lmtu.freemyip.com
+    listener: freemyip-apex
 
 # Homepage Configuration
 config:

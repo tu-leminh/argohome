@@ -11,6 +11,8 @@ spec:
       namespace: infra
       group: gateway.networking.k8s.io
       kind: Gateway
+      # Bind only HTTPS; infra routes otherwise also attach to plaintext HTTP.
+      sectionName: {{ required "ingressTargets.*.listener is required" $target.listener }}
   hostnames:
     - "{{ $target.host }}"
   rules:
