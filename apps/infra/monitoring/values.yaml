@@ -98,6 +98,9 @@ vm:
           webhook_configs:
             - url_file: /etc/vm/secrets/ntfy-secret/url
               send_resolved: true
+              # ntfy rejects a templated message over 4 KB (HTTP 400), so a
+              # group of many alerts is cut to the first few.
+              max_alerts: 5
 
   grafana:
     fullnameOverride: grafana

@@ -22,9 +22,11 @@ collect() {
     echo "bcachefs_reconcile_scan_pending{fs=\"$uuid\"} $(head -n 1 "$fs/reconcile_scan_pending")"
     # errors: "<name> <count> <first> <last>" per error type ever seen.
     awk -v fs="$uuid" 'NF >= 2 { printf "bcachefs_errors_total{fs=\"%s\",error=\"%s\"} %s\n", fs, $1, $2 }' "$fs/errors"
+    # Byte counters (data_read, ...) are printed human-readable ("1.92T").
     for c in $COUNTERS; do
       [ -e "$fs/counters/$c" ] || continue
-      awk -v fs="$uuid" -v c="$c" '/since mount/ { printf "bcachefs_counter_total{fs=\"%s\",counter=\"%s\"} %s\n", fs, c, $NF }' "$fs/counters/$c"
+      v=$(awk '/since mount/ { print $NF }' "$fs/counters/$c")
+      echo "bcachefs_counter_total{fs=\"$uuid\",counter=\"$c\"} $(tobytes "$v")"
     done
     for d in "$fs"/dev-*; do
       dev=${d##*/dev-}
