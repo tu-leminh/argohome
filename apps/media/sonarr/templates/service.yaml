@@ -6,6 +6,7 @@ metadata:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
   type: {{ .Values.sonarr.service.type | default "ClusterIP" }}
+  ipFamilyPolicy: PreferDualStack
   {{- if .Values.sonarr.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.sonarr.service.loadBalancerIP }}
   {{- end }}

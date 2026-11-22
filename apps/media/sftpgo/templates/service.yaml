@@ -6,6 +6,7 @@ metadata:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
   type: {{ .Values.sftpgo.service.type | default "ClusterIP" }}
+  ipFamilyPolicy: PreferDualStack
   {{- if .Values.sftpgo.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.sftpgo.service.loadBalancerIP }}
   {{- end }}
@@ -36,6 +37,7 @@ metadata:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
   type: {{ .Values.sftpgo.webdavService.type | default "LoadBalancer" }}
+  ipFamilyPolicy: PreferDualStack
   {{- if .Values.sftpgo.webdavService.loadBalancerIP }}
   loadBalancerIP: {{ .Values.sftpgo.webdavService.loadBalancerIP }}
   {{- end }}

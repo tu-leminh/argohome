@@ -1,4 +1,8 @@
 argo-cd:
+  global:
+    # Every Argo CD Service gets IPv6 too (argohome#5).
+    dualStack:
+      ipFamilyPolicy: PreferDualStack
   configs:
     cm:
       url: "" # Explicitly empty to support multi-domain access

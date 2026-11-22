@@ -6,6 +6,7 @@ metadata:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
   type: {{ .Values.slskd.service.type | default "ClusterIP" }}
+  ipFamilyPolicy: PreferDualStack
   {{- if .Values.slskd.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.slskd.service.loadBalancerIP }}
   {{- end }}

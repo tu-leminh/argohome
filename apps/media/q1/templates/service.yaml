@@ -6,6 +6,7 @@ metadata:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
   type: {{ .Values.q1.service.type | default "ClusterIP" }}
+  ipFamilyPolicy: PreferDualStack
   {{- if .Values.q1.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.q1.service.loadBalancerIP }}
   {{- end }}
@@ -26,6 +27,7 @@ metadata:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
   type: {{ .Values.q1.torrentService.type | default "NodePort" }}
+  ipFamilyPolicy: PreferDualStack
   ports:
     - port: {{ .Values.q1.torrentService.port }}
       targetPort: torrent-tcp

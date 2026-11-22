@@ -1,7 +1,8 @@
 {{- with .Values.gateway.ipv6 }}
 {{- if .enabled }}
-# Keeps the Gateway's public IPv6 on the ISP's current /64 (see values.yaml).
-# The pool and ConfigMap it writes are not in git, so Argo CD leaves them alone.
+# Keeps every LoadBalancer's public IPv6 on the ISP's current /64 (see
+# values.yaml). The pools, annotations and ConfigMap it writes are not in git,
+# so Argo CD leaves them alone.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -16,6 +17,9 @@ rules:
   - apiGroups: ["cilium.io"]
     resources: ["ciliumloadbalancerippools"]
     verbs: ["get", "create", "patch"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["list", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -77,8 +81,9 @@ spec:
               image: {{ .image }}
               env:
                 - { name: IFACE, value: {{ .interface | quote }} }
-                - { name: SUFFIX, value: {{ .suffix | quote }} }
                 - { name: GATEWAY, value: {{ $.Values.gateway.name | quote }} }
+                - { name: GATEWAY_IPV4, value: {{ $.Values.gateway.ipv4 | quote }} }
+                - { name: POOL_IPV4, value: {{ $.Values.pool.ipv4 | quote }} }
                 - { name: NAMESPACE, value: {{ $.Release.Namespace | quote }} }
               command:
                 - /bin/sh
@@ -93,8 +98,11 @@ spec:
                     echo "no global IPv6 on $IFACE; leaving the pool as it is"
                     exit 0
                   fi
-                  addr=$(echo "$p" | sed -E 's/.{4}/&:/g; s/:$//; s/(^|:)0{1,3}/\1/g')$SUFFIX
-                  echo "gateway IPv6: $addr"
+                  p=$(echo "$p" | sed -E 's/.{4}/&:/g; s/:$//; s/(^|:)0{1,3}/\1/g')
+                  # a.b.c.d -> <prefix>::c:d
+                  v6() { echo "$p::$(echo "$1" | cut -d. -f3):$(echo "$1" | cut -d. -f4)"; }
+                  gw=$(v6 "$GATEWAY_IPV4")
+                  echo "prefix $p::/64, gateway $gw"
                   kubectl apply -f - <<EOF
                   apiVersion: cilium.io/v2
                   kind: CiliumLoadBalancerIPPool
@@ -102,13 +110,39 @@ spec:
                     name: $GATEWAY-ipv6
                   spec:
                     blocks:
-                      - start: "$addr"
-                        stop: "$addr"
+                      - start: "$gw"
+                        stop: "$gw"
                     serviceSelector:
                       matchLabels:
                         gateway.networking.k8s.io/gateway-name: $GATEWAY
+                  ---
+                  apiVersion: cilium.io/v2
+                  kind: CiliumLoadBalancerIPPool
+                  metadata:
+                    name: lan-ipv6
+                  spec:
+                    blocks:
+                      - start: "$(v6 "${POOL_IPV4%-*}")"
+                        stop: "$(v6 "${POOL_IPV4#*-}")"
+                    serviceSelector:
+                      matchExpressions:
+                        - key: gateway.networking.k8s.io/gateway-name
+                          operator: DoesNotExist
                   EOF
+                  # Request "<IPv4>,<mirrored IPv6>" on every other
+                  # LoadBalancer; Cilium takes the annotation over
+                  # spec.loadBalancerIP.
+                  kubectl get svc -A -o json | jq -r '.items[]
+                    | select(.spec.type == "LoadBalancer")
+                    | select(.metadata.labels["gateway.networking.k8s.io/gateway-name"] == null)
+                    | [.metadata.namespace, .metadata.name, .spec.loadBalancerIP // "-",
+                       .metadata.annotations["lbipam.cilium.io/ips"] // "-"] | @tsv' |
+                  while read -r ns name v4 cur; do
+                    if [ "$v4" = "-" ]; then echo "skip $ns/$name: no loadBalancerIP"; continue; fi
+                    want="$v4,$(v6 "$v4")"
+                    [ "$cur" = "$want" ] || kubectl -n "$ns" annotate svc "$name" --overwrite "lbipam.cilium.io/ips=$want"
+                  done
                   kubectl -n "$NAMESPACE" create configmap gateway-ipv6 \
-                    --from-literal=address="$addr" --dry-run=client -o yaml | kubectl apply -f -
+                    --from-literal=address="$gw" --dry-run=client -o yaml | kubectl apply -f -
 {{- end }}
 {{- end }}

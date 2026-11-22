@@ -6,6 +6,7 @@ metadata:
     {{- include "common.labels.standard" . | nindent 4 }}
 spec:
   type: {{ .Values.bazarr.service.type | default "ClusterIP" }}
+  ipFamilyPolicy: PreferDualStack
   {{- if .Values.bazarr.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.bazarr.service.loadBalancerIP }}
   {{- end }}
