@@ -133,6 +133,11 @@ vm:
       limits: { memory: 640Mi }
 
   prometheus-node-exporter:
+    # SMART self-test results written on the host by the nix flake's
+    # smart-selftest-metrics timer (smart_selftest_*); the host's / is
+    # mounted at /host/root.
+    extraArgs:
+      - --collector.textfile.directory=/host/root/var/lib/prometheus-node-exporter-text
     resources:
       requests: { cpu: 10m, memory: 32Mi }
       limits: { memory: 64Mi }

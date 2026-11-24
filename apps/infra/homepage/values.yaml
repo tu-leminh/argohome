@@ -22,6 +22,15 @@ ingressTargets:
     host: lmtu.freemyip.com
     listener: freemyip-apex
 
+# Pool disks, one Homepage row each with SMART self-test results
+# (templates/_disks.tpl). Keep in sync with the nix flake's storage.nix.
+disks:
+  - { name: hdd0 · HGST 1TB, description: HDD · hdd.hdd0, serial: JR1000D318DL7E }
+  - { name: hdd1 · WD 500GB, description: HDD · hdd.hdd1, serial: WD-WX81AB48A024 }
+  - { name: nvme0 · Crucial P3 2TB, description: NVMe · ssd.nvme0, serial: 2350E88850A3 }
+  - { name: nvme1 · Samsung 128GB, description: NVMe · ssd.nvme1, serial: S347NY0HB00581 }
+  - { name: ssd0 · WD Blue 500GB, description: SATA SSD · ssd.ssd0, serial: 2013BV468107 }
+
 # Homepage Configuration
 config:
   services:
