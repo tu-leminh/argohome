@@ -7,8 +7,11 @@ metadata:
     app.kubernetes.io/name: homepage
     app.kubernetes.io/instance: {{ .Release.Name }}
 data:
+  # The Disks group (templates/_disks.tpl) goes right after Monitoring.
   services.yaml: |
-    {{- toYaml .Values.config.services | nindent 4 }}
+    {{- $services := .Values.config.services }}
+    {{- $disks := dict "Disks" (include "homepage.diskTiles" . | fromYamlArray) }}
+    {{- toYaml (concat (list (first $services)) (list $disks) (rest $services)) | nindent 4 }}
   widgets.yaml: |
     {{- toYaml .Values.config.widgets | nindent 4 }}
   settings.yaml: |
