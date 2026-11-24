@@ -96,6 +96,13 @@ spec:
           labels: { severity: critical }
           annotations:
             summary: "SMART overall health FAILED on {{ "{{" }} $labels.device {{ "}}" }}"
+        - alert: SmartSelftestFailed
+          # The newest completed short or long self-test failed (smartd runs
+          # them; the nix flake's smart-selftest-metrics timer exports them).
+          expr: smart_selftest_last_failed == 1
+          labels: { severity: critical }
+          annotations:
+            summary: "SMART {{ "{{" }} $labels.type {{ "}}" }} self-test failed on {{ "{{" }} $labels.device {{ "}}" }} ({{ "{{" }} $labels.model_name {{ "}}" }})"
         - alert: SmartSectorsGrowing
           expr: delta(smartctl_device_attribute{attribute_name=~"Reallocated_Sector_Ct|Current_Pending_Sector|Offline_Uncorrectable|Reported_Uncorrect", attribute_value_type="raw"}[1d]) > 0
           labels: { severity: warning }
